@@ -1,0 +1,77 @@
+{
+    "name": "frostybee/swarm-icons",
+    "description": "Framework-agnostic PHP SVG icon library with first-class Twig support and Iconify API integration",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+        "icons",
+        "svg",
+        "twig",
+        "iconify",
+        "heroicons",
+        "tabler-icons",
+        "lucide",
+        "bootstrap-icons",
+        "phosphor",
+        "simple-icons"
+    ],
+    "authors": [
+        {
+            "name": "frostybee",
+            "role": "Developer"
+        }
+    ],
+    "homepage": "https://github.com/frostybee/swarm-icons",
+    "require": {
+        "php": "^8.2",
+        "psr/simple-cache": "^3.0"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-strict-rules": "^1.5",
+        "phpunit/phpunit": "^10.5",
+        "symfony/console": "^7.0",
+        "symfony/var-dumper": "^6.4|^7.0",
+        "twig/twig": "^3.0"
+    },
+    "suggest": {
+        "twig/twig": "For Twig template integration (^3.0)",
+        "symfony/console": "For CLI commands (^6.4|^7.0)"
+    },
+    "bin": [
+        "bin/swarm-icons"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Frostybee\\SwarmIcons\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Frostybee\\SwarmIcons\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "preferred-install": "dist"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "phpstan": "phpstan analyse --memory-limit=512M",
+        "test-all": [
+            "@phpstan",
+            "@test"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "1.0-dev"
+        }
+    }
+}

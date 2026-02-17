@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .section {
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .section h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .icon-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .icon-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .icon {
+            stroke: currentColor;
+        }
+
+        .icon-large {
+            width: 48px;
+            height: 48px;
+            color: #667eea;
+        }
+
+        .icon-label {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        code {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            color: #10b981;
+        }
+
+        .inline-demo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+
+        .inline-icon {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ icon('heroicons:sparkles', {class: 'icon inline-icon'}) }} {{ title }}</h1>
+        <p class="subtitle">Native Twig support for SwarmIcons - render SVG icons with ease!</p>
+
+        {# Example 1: Basic Icon Rendering #}
+        <div class="section">
+            <h2>1. Basic Icon Rendering</h2>
+            <p>Use the <code>icon()</code> function in your templates:</p>
+            <div class="icon-grid">
+                {% for item in icons %}
+                    <div class="icon-card">
+                        {{ icon(item.name, {class: 'icon-large'}) }}
+                        <span class="icon-label">{{ item.label }}</span>
+                        <code>{{ item.name }}</code>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# Example 2: Inline Icons #}
+        <div class="section">
+            <h2>2. Inline Icons</h2>
+            <p>Icons work great inline with text:</p>
+            <div class="inline-demo">
+                {{ icon('heroicons:home', {class: 'icon inline-icon'}) }}
+                <span>Navigate to Home</span>
+            </div>
+            <div class="inline-demo">
+                {{ icon('heroicons:user', {class: 'icon inline-icon'}) }}
+                <span>User Profile</span>
+            </div>
+            <div class="inline-demo">
+                {{ icon('heroicons:cog-6-tooth', {class: 'icon inline-icon'}) }}
+                <span>Settings</span>
+            </div>
+        </div>
+
+        {# Example 3: Conditional Rendering #}
+        <div class="section">
+            <h2>3. Conditional Rendering</h2>
+            <p>Check if an icon exists before rendering:</p>
+            <div class="code-block">
+{% verbatim %}{% if icon_exists('heroicons:home') %}
+    {{ icon('heroicons:home') }}
+{% else %}
+    Icon not found
+{% endif %}{% endverbatim %}
+            </div>
+        </div>
+
+        {# Example 4: Features List with Icons #}
+        <div class="section">
+            <h2>4. Features</h2>
+            <ul class="feature-list">
+                <li>
+                    {{ icon('heroicons:check-circle', {class: 'icon feature-icon'}) }}
+                    <span>Native Twig function support</span>
+                </li>
+                <li>
+                    {{ icon('heroicons:check-circle', {class: 'icon feature-icon'}) }}
+                    <span>Automatic HTML escaping</span>
+                </li>
+                <li>
+                    {{ icon('heroicons:check-circle', {class: 'icon feature-icon'}) }}
+                    <span>Custom attributes via array syntax</span>
+                </li>
+                <li>
+                    {{ icon('heroicons:check-circle', {class: 'icon feature-icon'}) }}
+                    <span>Accessibility (ARIA) built-in</span>
+                </li>
+                <li>
+                    {{ icon('heroicons:check-circle', {class: 'icon feature-icon'}) }}
+                    <span>Silent mode for missing icons</span>
+                </li>
+            </ul>
+        </div>
+
+        {# Example 5: Different Icon Sets #}
+        <div class="section">
+            <h2>5. Multiple Icon Sets</h2>
+            <p>Access icons from different providers:</p>
+            <div class="icon-grid">
+                <div class="icon-card">
+                    {{ icon('heroicons:heart', {class: 'icon-large'}) }}
+                    <span class="icon-label">Heroicons</span>
+                </div>
+                <div class="icon-card">
+                    {{ icon('lucide:heart', {class: 'icon-large'}) }}
+                    <span class="icon-label">Lucide</span>
+                </div>
+            </div>
+        </div>
+
+        {# Example 6: With ARIA Labels #}
+        <div class="section">
+            <h2>6. Accessibility</h2>
+            <p>Icons with aria-label get role="img" automatically:</p>
+            <div class="inline-demo">
+                {{ icon('heroicons:home', {class: 'icon inline-icon', 'aria-label': 'Home Page'}) }}
+                <span>Labeled icon (has role="img")</span>
+            </div>
+            <div class="inline-demo">
+                {{ icon('heroicons:home', {class: 'icon inline-icon'}) }}
+                <span>Decorative icon (has aria-hidden="true")</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

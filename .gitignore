@@ -1,0 +1,79 @@
+icons-lib/
+
+env.php
+config/env.php
+# Documentation files to exclude from version control
+# docs/Custom_404_page_implementation.md
+
+# Composer and dependencies
+vendor/
+build/
+node_modules/
+
+
+# VisualStudioCode
+# Local History for Visual Studio Code
+.history/
+*.code-workspace
+#.vscode
+
+# Directories holding app-generated files.
+# Keep the logs/ directory
+!var/logs/
+var/logs/*
+!var/logs/.htaccess
+# Keep the tmp/ directory
+!var/tmp/
+var/tmp/*
+!var/tmp/.htaccess
+
+# Keep the cache/ directory
+!cache/tmp/
+cache/tmp/*
+!cache/tmp/.htaccess
+
+# Claude Code
+.claude/
+
+# IDEs
+.idea/
+nbproject/
+.DS_STORE
+cache.properties
+.php_cs.cache
+
+.phpunit.result.cache
+.phpunit.cache/
+phpunit.xml.bak
+
+# PHPStan
+.phpstan/
+package-lock.json
+
+# keys
+*.pem
+*.key
+*.ppk
+*.p12
+*.pfx
+*.crt
+*.cer
+*.der
+
+# Windows thumbnail cache files
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+# Dump file
+*.stackdump
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+# Windows shortcuts
+*.lnk
+
+app/Controllers/TestController.php
+app/Domain/Models/TestModel.php
+app/Views/testView.php
+docs/FileUploadHelper.php
+
