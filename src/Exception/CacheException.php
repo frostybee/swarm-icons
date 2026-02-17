@@ -7,6 +7,6 @@ namespace Frostybee\SwarmIcons\Exception;
 /**
  * Thrown when cache operations fail.
  */
-class CacheException extends SwarmIconsException
+class CacheException extends SwarmIconsException implements \Psr\SimpleCache\CacheException
 {
 }

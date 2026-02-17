@@ -243,6 +243,10 @@ class Icon implements Stringable
 
         $parts = [];
         foreach ($this->attributes as $name => $value) {
+            // Skip attributes with invalid names to prevent XSS via crafted keys
+            if (!preg_match('/^[a-zA-Z_:][\w:.\-]*$/', $name)) {
+                continue;
+            }
             $escapedValue = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
             $parts[] = "{$name}=\"{$escapedValue}\"";
         }

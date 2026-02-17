@@ -133,8 +133,11 @@ class SvgParser
         // Remove <script> tags and their content
         $content = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $content) ?? $content;
 
-        // Remove event handler attributes (on*)
-        $content = preg_replace('/\s+on\w+\s*=\s*["\'][^"\']*["\']/i', '', $content) ?? $content;
+        // Remove event handler attributes (on*) - handles quoted, unquoted, and mismatched quotes
+        $content = preg_replace('/\s+on\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]*)/i', '', $content) ?? $content;
+
+        // Neutralize javascript: URIs in href/src/xlink:href
+        $content = preg_replace('/\b(href|src|xlink:href)\s*=\s*["\']?\s*javascript:/i', '$1="#"', $content) ?? $content;
 
         return $content;
     }

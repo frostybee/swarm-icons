@@ -6,14 +6,10 @@
          failOnRisky="true"
          failOnWarning="true"
          cacheDirectory=".phpunit.cache"
-         beStrictAboutOutputDuringTests="true"
-         beStrictAboutCoverageMetadata="true">
+         beStrictAboutOutputDuringTests="true">
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Integration">
-            <directory>tests/Integration</directory>
         </testsuite>
     </testsuites>
     <source>

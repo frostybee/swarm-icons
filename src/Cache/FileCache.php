@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Frostybee\SwarmIcons\Cache;
 
 use Frostybee\SwarmIcons\Exception\CacheException;
+use Frostybee\SwarmIcons\Exception\CacheInvalidArgumentException;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -220,12 +221,12 @@ class FileCache implements CacheInterface
     private function validateKey(string $key): void
     {
         if ($key === '') {
-            throw new CacheException('Cache key cannot be empty');
+            throw new CacheInvalidArgumentException('Cache key cannot be empty');
         }
 
         // PSR-16 specifies reserved characters
-        if (preg_match('/[{}()\\/\\\\@:]/', $key)) {
-            throw new CacheException("Invalid cache key: {$key}");
+        if (preg_match('/[{}()\/\\\\@:]/', $key)) {
+            throw new CacheInvalidArgumentException("Invalid cache key: {$key}");
         }
     }
 
