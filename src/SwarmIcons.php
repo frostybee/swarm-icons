@@ -17,9 +17,6 @@ class SwarmIcons
 
     /**
      * Set the global icon manager instance.
-     *
-     * @param IconManager $manager
-     * @return void
      */
     public static function setManager(IconManager $manager): void
     {
@@ -29,14 +26,13 @@ class SwarmIcons
     /**
      * Get the global icon manager instance.
      *
-     * @return IconManager
      * @throws SwarmIconsException
      */
     public static function getManager(): IconManager
     {
         if (self::$manager === null) {
             throw new SwarmIconsException(
-                'No IconManager instance set. Call SwarmIcons::setManager() first.'
+                'No IconManager instance set. Call SwarmIcons::setManager() first.',
             );
         }
 
@@ -45,8 +41,6 @@ class SwarmIcons
 
     /**
      * Check if a manager has been set.
-     *
-     * @return bool
      */
     public static function hasManager(): bool
     {
@@ -57,11 +51,13 @@ class SwarmIcons
      * Get an icon by name.
      *
      * @param string $name Icon name (with or without prefix)
-     * @param array<string, string|int|float|bool|null> $attributes Additional attributes
-     * @return Icon Rendered icon
+     * @param array<string, bool|float|int|string|null> $attributes Additional attributes
+     *
      * @throws Exception\IconNotFoundException
      * @throws Exception\InvalidIconNameException
      * @throws SwarmIconsException
+     *
+     * @return Icon Rendered icon
      */
     public static function get(string $name, array $attributes = []): Icon
     {
@@ -72,7 +68,7 @@ class SwarmIcons
      * Check if an icon exists.
      *
      * @param string $name Icon name (with or without prefix)
-     * @return bool
+     *
      * @throws SwarmIconsException
      */
     public static function has(string $name): bool
@@ -82,8 +78,6 @@ class SwarmIcons
 
     /**
      * Reset the global instance (mainly for testing).
-     *
-     * @return void
      */
     public static function reset(): void
     {

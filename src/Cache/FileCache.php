@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Cache;
 
+use DateInterval;
+use DateTime;
+use FilesystemIterator;
 use Frostybee\SwarmIcons\Exception\CacheException;
 use Frostybee\SwarmIcons\Exception\CacheInvalidArgumentException;
 use Psr\SimpleCache\CacheInterface;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Throwable;
 
 /**
  * PSR-16 compliant file-based cache implementation.
@@ -29,8 +35,8 @@ class FileCache implements CacheInterface
     public function __construct(
         string $cacheDir,
         int $defaultTtl = 0,
-        int $dirPermissions = 0755,
-        int $filePermissions = 0644
+        int $dirPermissions = 0o755,
+        int $filePermissions = 0o644,
     ) {
         $this->cacheDir = rtrim($cacheDir, '/\\');
         $this->defaultTtl = $defaultTtl;
@@ -71,12 +77,12 @@ class FileCache implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool
+    public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool
     {
         $this->validateKey($key);
 
         // PSR-16: negative TTL means the item should be deleted
-        if (is_int($ttl) && $ttl < 0) {
+        if (\is_int($ttl) && $ttl < 0) {
             $this->delete($key);
             return true;
         }
@@ -137,9 +143,10 @@ class FileCache implements CacheInterface
 
     /**
      * {@inheritdoc}
+     *
      * @param iterable<string, mixed> $values
      */
-    public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool
+    public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
     {
         $success = true;
 
@@ -198,9 +205,6 @@ class FileCache implements CacheInterface
 
     /**
      * Get the file path for a cache key.
-     *
-     * @param string $key
-     * @return string
      */
     private function getFilePath(string $key): string
     {
@@ -214,8 +218,6 @@ class FileCache implements CacheInterface
     /**
      * Validate cache key format.
      *
-     * @param string $key
-     * @return void
      * @throws CacheException
      */
     private function validateKey(string $key): void
@@ -232,18 +234,15 @@ class FileCache implements CacheInterface
 
     /**
      * Calculate expiration timestamp from TTL.
-     *
-     * @param null|int|\DateInterval $ttl
-     * @return int|null
      */
-    private function calculateExpiresAt(null|int|\DateInterval $ttl): ?int
+    private function calculateExpiresAt(null|int|DateInterval $ttl): ?int
     {
         if ($ttl === null) {
             $ttl = $this->defaultTtl;
         }
 
-        if ($ttl instanceof \DateInterval) {
-            $now = new \DateTime();
+        if ($ttl instanceof DateInterval) {
+            $now = new DateTime();
             $expires = $now->add($ttl);
             return $expires->getTimestamp();
         }
@@ -258,7 +257,6 @@ class FileCache implements CacheInterface
     /**
      * Read and unserialize a cache file.
      *
-     * @param string $filePath
      * @return array<string, mixed>|null
      */
     private function readFile(string $filePath): ?array
@@ -272,12 +270,12 @@ class FileCache implements CacheInterface
         try {
             $data = unserialize($contents, ['allowed_classes' => [\Frostybee\SwarmIcons\Icon::class]]);
 
-            if (!is_array($data) || !isset($data['value'])) {
+            if (!\is_array($data) || !isset($data['value'])) {
                 return null;
             }
 
             return $data;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return null;
         }
     }
@@ -285,13 +283,11 @@ class FileCache implements CacheInterface
     /**
      * Write data to cache file with atomic operation.
      *
-     * @param string $filePath
      * @param array<string, mixed> $data
-     * @return bool
      */
     private function writeFile(string $filePath, array $data): bool
     {
-        $dir = dirname($filePath);
+        $dir = \dirname($filePath);
 
         if (!is_dir($dir)) {
             if (!@mkdir($dir, $this->dirPermissions, true) && !is_dir($dir)) {
@@ -321,7 +317,6 @@ class FileCache implements CacheInterface
     /**
      * Ensure cache directory exists.
      *
-     * @return void
      * @throws CacheException
      */
     private function ensureDirectoryExists(): void
@@ -337,10 +332,6 @@ class FileCache implements CacheInterface
 
     /**
      * Recursively delete a directory.
-     *
-     * @param string $dir
-     * @param bool $deleteSelf
-     * @return bool
      */
     private function deleteDirectory(string $dir, bool $deleteSelf = true): bool
     {
@@ -348,9 +339,9 @@ class FileCache implements CacheInterface
             return true;
         }
 
-        $items = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST,
         );
 
         foreach ($items as $item) {
@@ -379,8 +370,8 @@ class FileCache implements CacheInterface
         $size = 0;
 
         if (is_dir($this->cacheDir)) {
-            $iterator = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($this->cacheDir, \FilesystemIterator::SKIP_DOTS)
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($this->cacheDir, FilesystemIterator::SKIP_DOTS),
             );
 
             foreach ($iterator as $file) {

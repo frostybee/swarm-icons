@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 /**
  * Clear the icon cache.
@@ -26,17 +27,18 @@ class CacheClearCommand extends Command
                 'p',
                 InputOption::VALUE_REQUIRED,
                 'Cache directory path',
-                sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'swarm-icons'
+                sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'swarm-icons',
             )
-            ->setHelp(<<<'HELP'
-The <info>cache:clear</info> command clears all cached icons.
+            ->setHelp(
+                <<<'HELP'
+                    The <info>cache:clear</info> command clears all cached icons.
 
-    <info>php bin/swarm-icons cache:clear</info>
+                        <info>php bin/swarm-icons cache:clear</info>
 
-Use the --path option to specify a custom cache directory:
+                    Use the --path option to specify a custom cache directory:
 
-    <info>php bin/swarm-icons cache:clear --path=/var/cache/icons</info>
-HELP
+                        <info>php bin/swarm-icons cache:clear --path=/var/cache/icons</info>
+                    HELP
             );
     }
 
@@ -67,7 +69,7 @@ HELP
             ]);
 
             return Command::SUCCESS;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $io->error("Failed to clear cache: {$e->getMessage()}");
             return Command::FAILURE;
         }
@@ -75,9 +77,6 @@ HELP
 
     /**
      * Format bytes to human-readable size.
-     *
-     * @param int $bytes
-     * @return string
      */
     private function formatBytes(int $bytes): string
     {

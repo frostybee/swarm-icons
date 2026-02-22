@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Provider;
 
-use Frostybee\SwarmIcons\Icon;
+use FilesystemIterator;
 use Frostybee\SwarmIcons\Exception\ProviderException;
+use Frostybee\SwarmIcons\Icon;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use FilesystemIterator;
+use Throwable;
 
 /**
  * Provides icons from a local filesystem directory.
@@ -29,7 +30,7 @@ class DirectoryProvider implements IconProviderInterface
     public function __construct(
         private readonly string $directory,
         private readonly bool $recursive = true,
-        private readonly string $extension = 'svg'
+        private readonly string $extension = 'svg',
     ) {
         if (!is_dir($directory)) {
             throw new ProviderException("Directory does not exist: {$directory}");
@@ -45,7 +46,7 @@ class DirectoryProvider implements IconProviderInterface
      */
     public function get(string $name): ?Icon
     {
-        if ($this->cache !== null && array_key_exists($name, $this->cache)) {
+        if ($this->cache !== null && \array_key_exists($name, $this->cache)) {
             return $this->cache[$name];
         }
 
@@ -57,11 +58,11 @@ class DirectoryProvider implements IconProviderInterface
 
         try {
             return Icon::fromFile($filePath);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new ProviderException(
                 "Failed to load icon '{$name}' from {$filePath}: {$e->getMessage()}",
                 0,
-                $e
+                $e,
             );
         }
     }
@@ -89,14 +90,14 @@ class DirectoryProvider implements IconProviderInterface
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator(
                     $this->directory,
-                    FilesystemIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS
+                    FilesystemIterator::SKIP_DOTS | FilesystemIterator::FOLLOW_SYMLINKS,
                 ),
-                RecursiveIteratorIterator::SELF_FIRST
+                RecursiveIteratorIterator::SELF_FIRST,
             );
         } else {
             $iterator = new FilesystemIterator(
                 $this->directory,
-                FilesystemIterator::SKIP_DOTS
+                FilesystemIterator::SKIP_DOTS,
             );
         }
 
@@ -125,6 +126,7 @@ class DirectoryProvider implements IconProviderInterface
      * Resolve icon name to file path.
      *
      * @param string $name Icon name (e.g., "home" or "outline/home")
+     *
      * @return string|null Absolute file path or null if not found
      */
     private function resolveFilePath(string $name): ?string
@@ -156,6 +158,7 @@ class DirectoryProvider implements IconProviderInterface
      * Convert file path to icon name.
      *
      * @param string $path Relative file path
+     *
      * @return string Icon name
      */
     private function pathToIconName(string $path): string
@@ -175,8 +178,6 @@ class DirectoryProvider implements IconProviderInterface
      * Preload all icons into memory cache.
      *
      * Useful for performance when all icons will be used.
-     *
-     * @return void
      */
     public function preload(): void
     {
@@ -192,8 +193,6 @@ class DirectoryProvider implements IconProviderInterface
 
     /**
      * Clear the memory cache.
-     *
-     * @return void
      */
     public function clearCache(): void
     {

@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
-use Frostybee\SwarmIcons\IconManager;
-use Frostybee\SwarmIcons\Icon;
-use Frostybee\SwarmIcons\IconRenderer;
-use Frostybee\SwarmIcons\Provider\DirectoryProvider;
 use Frostybee\SwarmIcons\Exception\IconNotFoundException;
 use Frostybee\SwarmIcons\Exception\InvalidIconNameException;
+use Frostybee\SwarmIcons\Icon;
+use Frostybee\SwarmIcons\IconManager;
+use Frostybee\SwarmIcons\IconRenderer;
+use Frostybee\SwarmIcons\Provider\DirectoryProvider;
 use PHPUnit\Framework\TestCase;
 
 class IconManagerTest extends TestCase

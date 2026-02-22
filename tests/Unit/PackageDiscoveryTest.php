@@ -35,10 +35,10 @@ class PackageDiscoveryTest extends TestCase
     {
         $vendorPath = $this->createMockVendor([
             [
-                'name'  => 'frostybee/swarm-icons-tabler',
+                'name' => 'frostybee/swarm-icons-tabler',
                 'extra' => [
                     'swarm-icons' => [
-                        'prefix'         => 'tabler',
+                        'prefix' => 'tabler',
                         'provider-class' => 'Frostybee\\SwarmIcons\\Tabler\\TablerIconSet',
                     ],
                 ],
@@ -57,14 +57,14 @@ class PackageDiscoveryTest extends TestCase
     {
         $vendorPath = $this->createMockVendor([
             [
-                'name'  => 'some/other-package',
+                'name' => 'some/other-package',
                 'extra' => ['branch-alias' => ['dev-main' => '1.0-dev']],
             ],
             [
-                'name'  => 'frostybee/swarm-icons-tabler',
+                'name' => 'frostybee/swarm-icons-tabler',
                 'extra' => [
                     'swarm-icons' => [
-                        'prefix'         => 'tabler',
+                        'prefix' => 'tabler',
                         'provider-class' => 'Frostybee\\SwarmIcons\\Tabler\\TablerIconSet',
                     ],
                 ],
@@ -81,7 +81,7 @@ class PackageDiscoveryTest extends TestCase
     {
         $vendorPath = $this->createMockVendor([
             [
-                'name'  => 'frostybee/swarm-icons-bad',
+                'name' => 'frostybee/swarm-icons-bad',
                 'extra' => [
                     'swarm-icons' => [
                         'provider-class' => 'Some\\Class',
@@ -100,7 +100,7 @@ class PackageDiscoveryTest extends TestCase
     {
         $vendorPath = $this->createMockVendor([
             [
-                'name'  => 'frostybee/swarm-icons-bad',
+                'name' => 'frostybee/swarm-icons-bad',
                 'extra' => [
                     'swarm-icons' => [
                         'prefix' => 'tabler',
@@ -120,16 +120,16 @@ class PackageDiscoveryTest extends TestCase
         $vendorPath = $this->createMockVendor(
             [
                 [
-                    'name'  => 'frostybee/swarm-icons-tabler',
+                    'name' => 'frostybee/swarm-icons-tabler',
                     'extra' => [
                         'swarm-icons' => [
-                            'prefix'         => 'tabler',
+                            'prefix' => 'tabler',
                             'provider-class' => 'Frostybee\\SwarmIcons\\Tabler\\TablerIconSet',
                         ],
                     ],
                 ],
             ],
-            wrapInPackagesKey: true
+            wrapInPackagesKey: true,
         );
 
         $result = PackageDiscovery::discover($vendorPath);
@@ -142,19 +142,19 @@ class PackageDiscoveryTest extends TestCase
     {
         $vendorPath = $this->createMockVendor([
             [
-                'name'  => 'frostybee/swarm-icons-tabler',
+                'name' => 'frostybee/swarm-icons-tabler',
                 'extra' => [
                     'swarm-icons' => [
-                        'prefix'         => 'tabler',
+                        'prefix' => 'tabler',
                         'provider-class' => 'Frostybee\\SwarmIcons\\Tabler\\TablerIconSet',
                     ],
                 ],
             ],
             [
-                'name'  => 'frostybee/swarm-icons-lucide',
+                'name' => 'frostybee/swarm-icons-lucide',
                 'extra' => [
                     'swarm-icons' => [
-                        'prefix'         => 'lucide',
+                        'prefix' => 'lucide',
                         'provider-class' => 'Frostybee\\SwarmIcons\\Lucide\\LucideIconSet',
                     ],
                 ],
@@ -173,10 +173,10 @@ class PackageDiscoveryTest extends TestCase
     {
         $vendorPath = $this->createMockVendor([
             [
-                'name'  => 'frostybee/swarm-icons-fake',
+                'name' => 'frostybee/swarm-icons-fake',
                 'extra' => [
                     'swarm-icons' => [
-                        'prefix'         => 'fake',
+                        'prefix' => 'fake',
                         'provider-class' => 'This\\Class\\Does\\Not\\Exist',
                     ],
                 ],
@@ -203,7 +203,7 @@ class PackageDiscoveryTest extends TestCase
     private function createMockVendor(array $packages, bool $wrapInPackagesKey = false): string
     {
         $tmpDir = sys_get_temp_dir() . '/swarm-icons-test-' . uniqid();
-        mkdir($tmpDir . '/composer', 0755, true);
+        mkdir($tmpDir . '/composer', 0o755, true);
 
         $data = $wrapInPackagesKey ? ['packages' => $packages] : $packages;
         file_put_contents($tmpDir . '/composer/installed.json', json_encode($data));

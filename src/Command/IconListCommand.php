@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 /**
  * List available icons from a provider.
@@ -25,41 +26,42 @@ class IconListCommand extends Command
                 'prefix',
                 'p',
                 InputOption::VALUE_REQUIRED,
-                'Icon set prefix (e.g., tabler, heroicons)'
+                'Icon set prefix (e.g., tabler, heroicons)',
             )
             ->addOption(
                 'path',
                 null,
                 InputOption::VALUE_REQUIRED,
-                'Path to SVG directory (for local icon sets)'
+                'Path to SVG directory (for local icon sets)',
             )
             ->addOption(
                 'iconify',
                 null,
                 InputOption::VALUE_NONE,
-                'Fetch icon list from Iconify API instead of local directory'
+                'Fetch icon list from Iconify API instead of local directory',
             )
             ->addOption(
                 'search',
                 's',
                 InputOption::VALUE_REQUIRED,
-                'Filter icons by substring match'
+                'Filter icons by substring match',
             )
-            ->setHelp(<<<'HELP'
-The <info>icon:list</info> command lists available icons from a provider.
+            ->setHelp(
+                <<<'HELP'
+                    The <info>icon:list</info> command lists available icons from a provider.
 
-List icons from a local directory:
+                    List icons from a local directory:
 
-    <info>php bin/swarm-icons icon:list --path=/path/to/svgs</info>
+                        <info>php bin/swarm-icons icon:list --path=/path/to/svgs</info>
 
-List icons from an Iconify set:
+                    List icons from an Iconify set:
 
-    <info>php bin/swarm-icons icon:list --prefix=tabler --iconify</info>
+                        <info>php bin/swarm-icons icon:list --prefix=tabler --iconify</info>
 
-Filter icons by name:
+                    Filter icons by name:
 
-    <info>php bin/swarm-icons icon:list --path=/path/to/svgs --search=home</info>
-HELP
+                        <info>php bin/swarm-icons icon:list --path=/path/to/svgs --search=home</info>
+                    HELP
             );
     }
 
@@ -103,7 +105,7 @@ HELP
             if ($search !== null && $search !== '') {
                 $icons = array_values(array_filter(
                     $icons,
-                    fn(string $name): bool => str_contains($name, $search)
+                    fn(string $name): bool => str_contains($name, $search),
                 ));
             }
 
@@ -117,10 +119,10 @@ HELP
             $io->title('Icons in ' . $path);
             $this->displayIcons($io, $icons);
             $io->newLine();
-            $io->text("<info>" . count($icons) . "</info> icon(s) found");
+            $io->text("<info>" . \count($icons) . "</info> icon(s) found");
 
             return Command::SUCCESS;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $io->error("Failed to list icons: {$e->getMessage()}");
             return Command::FAILURE;
         }
@@ -134,7 +136,7 @@ HELP
 
         $ctx = stream_context_create(['http' => [
             'timeout' => 15,
-            'header'  => "User-Agent: swarm-icons-cli/1.0\r\n",
+            'header' => "User-Agent: swarm-icons-cli/1.0\r\n",
         ]]);
 
         $json = @file_get_contents($url, false, $ctx);
@@ -145,7 +147,7 @@ HELP
         }
 
         $data = json_decode($json, true);
-        if (!is_array($data)) {
+        if (!\is_array($data)) {
             $io->error('Invalid response from Iconify API.');
             return Command::FAILURE;
         }
@@ -157,7 +159,7 @@ HELP
         if ($search !== null && $search !== '') {
             $icons = array_values(array_filter(
                 $icons,
-                fn(string $name): bool => str_contains($name, $search)
+                fn(string $name): bool => str_contains($name, $search),
             ));
         }
 
@@ -172,7 +174,7 @@ HELP
         $io->title("{$title} ({$prefix})");
         $this->displayIcons($io, $icons);
         $io->newLine();
-        $io->text("<info>" . count($icons) . "</info> icon(s) found");
+        $io->text("<info>" . \count($icons) . "</info> icon(s) found");
 
         return Command::SUCCESS;
     }
@@ -181,6 +183,7 @@ HELP
      * Extract icon names from Iconify collection API response.
      *
      * @param array<string, mixed> $data
+     *
      * @return array<int, string>
      */
     private function extractIconNames(array $data): array
@@ -188,13 +191,13 @@ HELP
         // The API returns icons grouped by categories, or as a flat "uncategorized" list
         $icons = [];
 
-        if (isset($data['uncategorized']) && is_array($data['uncategorized'])) {
+        if (isset($data['uncategorized']) && \is_array($data['uncategorized'])) {
             $icons = array_merge($icons, $data['uncategorized']);
         }
 
-        if (isset($data['categories']) && is_array($data['categories'])) {
+        if (isset($data['categories']) && \is_array($data['categories'])) {
             foreach ($data['categories'] as $categoryIcons) {
-                if (is_array($categoryIcons)) {
+                if (\is_array($categoryIcons)) {
                     $icons = array_merge($icons, $categoryIcons);
                 }
             }

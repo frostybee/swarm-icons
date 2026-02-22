@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
-use Frostybee\SwarmIcons\Icon;
 use Frostybee\SwarmIcons\Exception\ProviderException;
+use Frostybee\SwarmIcons\Icon;
 use PHPUnit\Framework\TestCase;
 
 class IconTest extends TestCase

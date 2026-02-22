@@ -7,6 +7,7 @@ namespace Frostybee\SwarmIcons;
 use Frostybee\SwarmIcons\Exception\IconNotFoundException;
 use Frostybee\SwarmIcons\Exception\InvalidIconNameException;
 use Frostybee\SwarmIcons\Provider\IconProviderInterface;
+use Throwable;
 
 /**
  * Central icon registry and resolver.
@@ -26,16 +27,14 @@ class IconManager
      * @param IconRenderer $renderer Icon renderer instance
      */
     public function __construct(
-        private IconRenderer $renderer = new IconRenderer()
-    ) {
-    }
+        private IconRenderer $renderer = new IconRenderer(),
+    ) {}
 
     /**
      * Register an icon provider for a prefix.
      *
      * @param string $prefix Provider prefix (e.g., 'tabler', 'heroicons')
      * @param IconProviderInterface $provider Provider instance
-     * @return self
      */
     public function register(string $prefix, IconProviderInterface $provider): self
     {
@@ -46,9 +45,6 @@ class IconManager
 
     /**
      * Get a registered provider.
-     *
-     * @param string $prefix
-     * @return IconProviderInterface|null
      */
     public function getProvider(string $prefix): ?IconProviderInterface
     {
@@ -57,9 +53,6 @@ class IconManager
 
     /**
      * Check if a provider is registered.
-     *
-     * @param string $prefix
-     * @return bool
      */
     public function hasProvider(string $prefix): bool
     {
@@ -78,9 +71,6 @@ class IconManager
 
     /**
      * Set the default prefix.
-     *
-     * @param string|null $prefix
-     * @return self
      */
     public function setDefaultPrefix(?string $prefix): self
     {
@@ -91,8 +81,6 @@ class IconManager
 
     /**
      * Get the default prefix.
-     *
-     * @return string|null
      */
     public function getDefaultPrefix(): ?string
     {
@@ -103,7 +91,6 @@ class IconManager
      * Set the fallback icon name.
      *
      * @param string|null $iconName Full icon name with prefix (e.g., 'tabler:question-mark')
-     * @return self
      */
     public function setFallbackIcon(?string $iconName): self
     {
@@ -114,8 +101,6 @@ class IconManager
 
     /**
      * Get the fallback icon name.
-     *
-     * @return string|null
      */
     public function getFallbackIcon(): ?string
     {
@@ -130,10 +115,12 @@ class IconManager
      * - "name" → use default prefix
      *
      * @param string $name Icon name (with or without prefix)
-     * @param array<string, string|int|float|bool|null> $attributes Additional attributes
-     * @return Icon Rendered icon
+     * @param array<string, bool|float|int|string|null> $attributes Additional attributes
+     *
      * @throws IconNotFoundException
      * @throws InvalidIconNameException
+     *
+     * @return Icon Rendered icon
      */
     public function get(string $name, array $attributes = []): Icon
     {
@@ -152,7 +139,7 @@ class IconManager
             if ($this->fallbackIcon !== null && $this->fallbackIcon !== $name) {
                 try {
                     return $this->get($this->fallbackIcon, $attributes);
-                } catch (\Throwable) {
+                } catch (Throwable) {
                     // Fallback failed, throw original error
                 }
             }
@@ -168,7 +155,6 @@ class IconManager
      * Check if an icon exists.
      *
      * @param string $name Icon name (with or without prefix)
-     * @return bool
      */
     public function has(string $name): bool
     {
@@ -191,8 +177,10 @@ class IconManager
      * Parse icon name into prefix and name components.
      *
      * @param string $name Full icon name
-     * @return array{0: string, 1: string} [prefix, name]
+     *
      * @throws InvalidIconNameException
+     *
+     * @return array{0: string, 1: string} [prefix, name]
      */
     private function parseName(string $name): array
     {
@@ -206,7 +194,7 @@ class IconManager
         if (str_contains($name, ':')) {
             $parts = explode(':', $name, 2);
 
-            if (count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
+            if (\count($parts) !== 2 || empty($parts[0]) || empty($parts[1])) {
                 throw InvalidIconNameException::forName($name);
             }
 
@@ -216,7 +204,7 @@ class IconManager
         // No prefix → use default
         if ($this->defaultPrefix === null) {
             throw new InvalidIconNameException(
-                "Icon name '{$name}' has no prefix and no default prefix is set"
+                "Icon name '{$name}' has no prefix and no default prefix is set",
             );
         }
 
@@ -225,8 +213,6 @@ class IconManager
 
     /**
      * Get the icon renderer.
-     *
-     * @return IconRenderer
      */
     public function getRenderer(): IconRenderer
     {
@@ -235,9 +221,6 @@ class IconManager
 
     /**
      * Set the icon renderer.
-     *
-     * @param IconRenderer $renderer
-     * @return self
      */
     public function setRenderer(IconRenderer $renderer): self
     {
@@ -250,6 +233,7 @@ class IconManager
      * Get all icons from a specific provider.
      *
      * @param string $prefix Provider prefix
+     *
      * @return iterable<string> Icon names (without prefix)
      */
     public function all(string $prefix): iterable

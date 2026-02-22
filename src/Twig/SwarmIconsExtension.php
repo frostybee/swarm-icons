@@ -18,9 +18,8 @@ class SwarmIconsExtension extends AbstractExtension
      * @param SwarmIconsRuntime $runtime Runtime instance
      */
     public function __construct(
-        private readonly SwarmIconsRuntime $runtime
-    ) {
-    }
+        private readonly SwarmIconsRuntime $runtime,
+    ) {}
 
     /**
      * {@inheritdoc}
@@ -34,19 +33,19 @@ class SwarmIconsExtension extends AbstractExtension
             new TwigFunction(
                 'icon',
                 [$this->runtime, 'renderIcon'],
-                ['is_safe' => ['html']]
+                ['is_safe' => ['html']],
             ),
 
             // Check if icon exists (for conditional rendering)
             new TwigFunction(
                 'icon_exists',
-                [$this->runtime, 'hasIcon']
+                [$this->runtime, 'hasIcon'],
             ),
 
             // Get icon object for advanced manipulation
             new TwigFunction(
                 'get_icon',
-                [$this->runtime, 'getIcon']
+                [$this->runtime, 'getIcon'],
             ),
         ];
     }

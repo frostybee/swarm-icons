@@ -167,10 +167,15 @@ echo icon('home', ['aria-label' => 'Home']);
 
 ```bash
 composer install
-composer test
-composer phpstan
-composer test-all
 ```
+
+| Command | Description |
+|---------|-------------|
+| `composer test` | Run PHPUnit tests |
+| `composer phpstan` | Run PHPStan (level 8) |
+| `composer cs-check` | Check code style (dry-run) |
+| `composer cs-fix` | Auto-fix code style |
+| `composer test-all` | PHPStan + CS check + tests |
 
 ## License
 

@@ -21,15 +21,12 @@ class Icon implements Stringable
      */
     public function __construct(
         private string $content,
-        private array $attributes = []
-    ) {
-    }
+        private array $attributes = [],
+    ) {}
 
     /**
      * Create an Icon from an SVG file.
      *
-     * @param string $filePath
-     * @return self
      * @throws ProviderException
      */
     public static function fromFile(string $filePath): self
@@ -43,7 +40,7 @@ class Icon implements Stringable
      * Create an Icon from SVG string content.
      *
      * @param string $svgContent Complete SVG markup
-     * @return self
+     *
      * @throws ProviderException
      */
     public static function fromString(string $svgContent): self
@@ -57,7 +54,7 @@ class Icon implements Stringable
      * Create an Icon from Iconify API data.
      *
      * @param array<string, mixed> $data Iconify icon data
-     * @return self
+     *
      * @throws ProviderException
      */
     public static function fromIconifyData(array $data): self
@@ -88,8 +85,6 @@ class Icon implements Stringable
 
     /**
      * Get the inner SVG content.
-     *
-     * @return string
      */
     public function getContent(): string
     {
@@ -108,10 +103,6 @@ class Icon implements Stringable
 
     /**
      * Get a specific attribute value.
-     *
-     * @param string $name
-     * @param string|null $default
-     * @return string|null
      */
     public function getAttribute(string $name, ?string $default = null): ?string
     {
@@ -120,9 +111,6 @@ class Icon implements Stringable
 
     /**
      * Check if an attribute exists.
-     *
-     * @param string $name
-     * @return bool
      */
     public function hasAttribute(string $name): bool
     {
@@ -132,9 +120,8 @@ class Icon implements Stringable
     /**
      * Set or merge attributes (returns new instance).
      *
-     * @param array<string, string|int|float|bool|null> $attributes
+     * @param array<string, bool|float|int|string|null> $attributes
      * @param bool $merge Whether to merge with existing attributes
-     * @return self
      */
     public function attr(array $attributes, bool $merge = true): self
     {
@@ -156,12 +143,11 @@ class Icon implements Stringable
     /**
      * Add or append CSS classes (returns new instance).
      *
-     * @param string|array<int, string> $classes
-     * @return self
+     * @param array<int, string>|string $classes
      */
     public function class(string|array $classes): self
     {
-        $classString = is_array($classes) ? implode(' ', $classes) : $classes;
+        $classString = \is_array($classes) ? implode(' ', $classes) : $classes;
         $existing = $this->getAttribute('class', '');
 
         $merged = trim($existing . ' ' . $classString);
@@ -172,8 +158,7 @@ class Icon implements Stringable
     /**
      * Set width and height attributes (returns new instance).
      *
-     * @param string|int $size Size value (e.g., '24', '1.5rem', 24)
-     * @return self
+     * @param int|string $size Size value (e.g., '24', '1.5rem', 24)
      */
     public function size(string|int $size): self
     {
@@ -187,9 +172,6 @@ class Icon implements Stringable
 
     /**
      * Set stroke-width attribute (returns new instance).
-     *
-     * @param string|int|float $width
-     * @return self
      */
     public function strokeWidth(string|int|float $width): self
     {
@@ -198,9 +180,6 @@ class Icon implements Stringable
 
     /**
      * Set fill attribute (returns new instance).
-     *
-     * @param string $fill
-     * @return self
      */
     public function fill(string $fill): self
     {
@@ -209,9 +188,6 @@ class Icon implements Stringable
 
     /**
      * Set stroke attribute (returns new instance).
-     *
-     * @param string $stroke
-     * @return self
      */
     public function stroke(string $stroke): self
     {
@@ -220,8 +196,6 @@ class Icon implements Stringable
 
     /**
      * Render the icon as an SVG string.
-     *
-     * @return string
      */
     public function toHtml(): string
     {
@@ -232,8 +206,6 @@ class Icon implements Stringable
 
     /**
      * Render attributes as a string.
-     *
-     * @return string
      */
     private function renderAttributes(): string
     {
@@ -256,13 +228,10 @@ class Icon implements Stringable
 
     /**
      * Normalize attribute value to string.
-     *
-     * @param string|int|float|bool $value
-     * @return string
      */
     private function normalizeAttributeValue(string|int|float|bool $value): string
     {
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             return $value ? 'true' : 'false';
         }
 
@@ -271,8 +240,6 @@ class Icon implements Stringable
 
     /**
      * Convert to string (calls toHtml()).
-     *
-     * @return string
      */
     public function __toString(): string
     {
@@ -296,7 +263,6 @@ class Icon implements Stringable
      * Unserialize from cached data.
      *
      * @param array<string, mixed> $data
-     * @return void
      */
     public function __unserialize(array $data): void
     {

@@ -17,6 +17,7 @@ interface IconProviderInterface
      * Get an icon by name.
      *
      * @param string $name Icon name (without prefix)
+     *
      * @return Icon|null Icon instance or null if not found
      */
     public function get(string $name): ?Icon;
@@ -25,7 +26,6 @@ interface IconProviderInterface
      * Check if an icon exists.
      *
      * @param string $name Icon name (without prefix)
-     * @return bool
      */
     public function has(string $name): bool;
 

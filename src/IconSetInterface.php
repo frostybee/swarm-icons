@@ -33,8 +33,6 @@ interface IconSetInterface
 
     /**
      * Register this icon set with the given IconManager.
-     *
-     * @param IconManager $manager
      */
     public static function register(IconManager $manager): void;
 }

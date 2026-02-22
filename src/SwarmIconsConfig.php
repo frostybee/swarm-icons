@@ -43,8 +43,6 @@ class SwarmIconsConfig
 
     /**
      * Create a new configuration builder.
-     *
-     * @return self
      */
     public static function create(): self
     {
@@ -57,7 +55,6 @@ class SwarmIconsConfig
      * @param string $prefix Provider prefix (e.g., 'custom', 'my-icons')
      * @param string $directory Path to SVG directory
      * @param bool $recursive Whether to scan subdirectories
-     * @return self
      */
     public function addDirectory(string $prefix, string $directory, bool $recursive = true): self
     {
@@ -72,7 +69,6 @@ class SwarmIconsConfig
      *
      * @param string $prefix Icon set prefix (e.g., 'heroicons', 'lucide', 'tabler')
      * @param int $timeout HTTP timeout in seconds
-     * @return self
      */
     public function addIconifySet(string $prefix, int $timeout = 10): self
     {
@@ -90,7 +86,6 @@ class SwarmIconsConfig
      * @param string $directory Path to local SVG directory
      * @param bool $recursive Whether to scan subdirectories
      * @param int $timeout HTTP timeout for Iconify API
-     * @return self
      */
     public function addHybridSet(string $prefix, string $directory, bool $recursive = true, int $timeout = 10): self
     {
@@ -106,9 +101,6 @@ class SwarmIconsConfig
 
     /**
      * Set the default icon prefix.
-     *
-     * @param string $prefix
-     * @return self
      */
     public function defaultPrefix(string $prefix): self
     {
@@ -122,7 +114,6 @@ class SwarmIconsConfig
      *
      * @param string $path Absolute path to cache directory
      * @param int $ttl Cache TTL in seconds (0 = infinite)
-     * @return self
      */
     public function cachePath(string $path, int $ttl = 0): self
     {
@@ -135,9 +126,6 @@ class SwarmIconsConfig
 
     /**
      * Set a custom cache implementation.
-     *
-     * @param CacheInterface $cache
-     * @return self
      */
     public function cache(CacheInterface $cache): self
     {
@@ -148,8 +136,6 @@ class SwarmIconsConfig
 
     /**
      * Disable caching (use NullCache).
-     *
-     * @return self
      */
     public function noCache(): self
     {
@@ -162,7 +148,6 @@ class SwarmIconsConfig
      * Set global default attributes for all icons.
      *
      * @param array<string, string> $attributes
-     * @return self
      */
     public function defaultAttributes(array $attributes): self
     {
@@ -176,7 +161,6 @@ class SwarmIconsConfig
      *
      * @param string $prefix Provider prefix
      * @param array<string, string> $attributes
-     * @return self
      */
     public function prefixAttributes(string $prefix, array $attributes): self
     {
@@ -198,13 +182,12 @@ class SwarmIconsConfig
      * @param string|null $vendorPath Absolute path to vendor directory.
      *                                Defaults to the standard Composer vendor location
      *                                relative to this file.
-     * @return self
      */
     public function discoverPackages(?string $vendorPath = null): self
     {
         if ($vendorPath === null) {
             // Resolve vendor/ relative to this library's installation path
-            $vendorPath = dirname(__DIR__, 3) . '/vendor';
+            $vendorPath = \dirname(__DIR__, 3) . '/vendor';
         }
 
         PackageDiscovery::registerAll($this->manager, $vendorPath);
@@ -216,7 +199,6 @@ class SwarmIconsConfig
      * Set the fallback icon.
      *
      * @param string $iconName Full icon name with prefix (e.g., 'tabler:question-mark')
-     * @return self
      */
     public function fallbackIcon(string $iconName): self
     {
@@ -227,8 +209,6 @@ class SwarmIconsConfig
 
     /**
      * Build and return the configured IconManager.
-     *
-     * @return IconManager
      */
     public function build(): IconManager
     {
@@ -258,8 +238,6 @@ class SwarmIconsConfig
 
     /**
      * Get or create the cache instance.
-     *
-     * @return CacheInterface
      */
     private function getOrCreateCache(): CacheInterface
     {

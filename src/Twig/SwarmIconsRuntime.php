@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Twig;
 
-use Frostybee\SwarmIcons\Icon;
-use Frostybee\SwarmIcons\IconManager;
 use Frostybee\SwarmIcons\Exception\IconNotFoundException;
 use Frostybee\SwarmIcons\Exception\InvalidIconNameException;
+use Frostybee\SwarmIcons\Icon;
+use Frostybee\SwarmIcons\IconManager;
 use Twig\Extension\RuntimeExtensionInterface;
 
 /**
@@ -23,15 +23,15 @@ class SwarmIconsRuntime implements RuntimeExtensionInterface
      */
     public function __construct(
         private readonly IconManager $manager,
-        private readonly bool $silentOnMissing = false
-    ) {
-    }
+        private readonly bool $silentOnMissing = false,
+    ) {}
 
     /**
      * Render an icon in a Twig template.
      *
      * @param string $name Icon name (with or without prefix)
-     * @param array<string, string|int|float|bool|null> $attributes Additional attributes
+     * @param array<string, bool|float|int|string|null> $attributes Additional attributes
+     *
      * @return string Rendered SVG HTML
      */
     public function renderIcon(string $name, array $attributes = []): string
@@ -54,7 +54,6 @@ class SwarmIconsRuntime implements RuntimeExtensionInterface
      * Useful for conditional rendering in templates.
      *
      * @param string $name Icon name
-     * @return bool
      */
     public function hasIcon(string $name): bool
     {
@@ -65,7 +64,8 @@ class SwarmIconsRuntime implements RuntimeExtensionInterface
      * Get icon as an Icon object (for advanced manipulation in templates).
      *
      * @param string $name Icon name
-     * @param array<string, string|int|float|bool|null> $attributes Additional attributes
+     * @param array<string, bool|float|int|string|null> $attributes Additional attributes
+     *
      * @return Icon|null Icon instance or null if not found
      */
     public function getIcon(string $name, array $attributes = []): ?Icon
@@ -82,6 +82,7 @@ class SwarmIconsRuntime implements RuntimeExtensionInterface
      *
      * @param string $name Icon name
      * @param string $error Error message
+     *
      * @return string HTML comment
      */
     private function renderMissingIconComment(string $name, string $error): string

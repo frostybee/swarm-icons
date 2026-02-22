@@ -26,9 +26,6 @@ class ChainProvider implements IconProviderInterface
 
     /**
      * Add a provider to the chain.
-     *
-     * @param IconProviderInterface $provider
-     * @return self
      */
     public function addProvider(IconProviderInterface $provider): self
     {
@@ -95,11 +92,9 @@ class ChainProvider implements IconProviderInterface
 
     /**
      * Get the number of providers in the chain.
-     *
-     * @return int
      */
     public function count(): int
     {
-        return count($this->providers);
+        return \count($this->providers);
     }
 }

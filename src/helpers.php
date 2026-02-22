@@ -13,10 +13,12 @@ if (!function_exists('icon')) {
      * You must call SwarmIcons::setManager() before using this function.
      *
      * @param string $name Icon name (with or without prefix, e.g., 'tabler:home' or 'home')
-     * @param array<string, string|int|float|bool|null> $attributes Additional attributes
-     * @return Icon Rendered icon
+     * @param array<string, bool|float|int|string|null> $attributes Additional attributes
+     *
      * @throws \Frostybee\SwarmIcons\Exception\IconNotFoundException
      * @throws \Frostybee\SwarmIcons\Exception\InvalidIconNameException
+     *
+     * @return Icon Rendered icon
      */
     function icon(string $name, array $attributes = []): Icon
     {

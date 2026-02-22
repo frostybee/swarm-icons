@@ -9,6 +9,4 @@ use Exception;
 /**
  * Base exception for all SwarmIcons exceptions.
  */
-class SwarmIconsException extends Exception
-{
-}
+class SwarmIconsException extends Exception {}

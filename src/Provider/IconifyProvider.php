@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Provider;
 
-use Frostybee\SwarmIcons\Icon;
-use Frostybee\SwarmIcons\Exception\ProviderException;
 use Frostybee\SwarmIcons\Cache\NullCache;
+use Frostybee\SwarmIcons\Exception\ProviderException;
+use Frostybee\SwarmIcons\Icon;
+use JsonException;
 use Psr\SimpleCache\CacheInterface;
+use Throwable;
 
 /**
  * Provides icons from the Iconify API.
@@ -43,7 +45,7 @@ class IconifyProvider implements IconProviderInterface
         ?CacheInterface $cache = null,
         int $timeout = 10,
         int $cacheTtl = 0,
-        array $apiHosts = []
+        array $apiHosts = [],
     ) {
         $this->cache = $cache ?? new NullCache();
         $this->timeout = $timeout;
@@ -78,11 +80,11 @@ class IconifyProvider implements IconProviderInterface
             $this->cache->set($cacheKey, $icon, $this->cacheTtl);
 
             return $icon;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new ProviderException(
                 "Failed to create icon from Iconify data for '{$this->prefix}:{$name}': {$e->getMessage()}",
                 0,
-                $e
+                $e,
             );
         }
     }
@@ -117,6 +119,7 @@ class IconifyProvider implements IconProviderInterface
      * More efficient than multiple individual get() calls.
      *
      * @param array<string> $names Icon names
+     *
      * @return array<string, Icon> Map of name => Icon
      */
     public function fetchMany(array $names): array
@@ -152,7 +155,7 @@ class IconifyProvider implements IconProviderInterface
                     // Cache it
                     $cacheKey = $this->getCacheKey($name);
                     $this->cache->set($cacheKey, $icon, $this->cacheTtl);
-                } catch (\Throwable) {
+                } catch (Throwable) {
                     // Skip invalid icons
                     continue;
                 }
@@ -166,6 +169,7 @@ class IconifyProvider implements IconProviderInterface
      * Fetch a single icon from the Iconify API.
      *
      * @param string $name Icon name
+     *
      * @return array<string, mixed>|null Icon data or null if not found
      */
     private function fetchIcon(string $name): ?array
@@ -188,10 +192,10 @@ class IconifyProvider implements IconProviderInterface
 
         // Merge with set defaults if present
         if (isset($data['width'])) {
-            $iconData['width'] = $iconData['width'] ?? $data['width'];
+            $iconData['width'] ??= $data['width'];
         }
         if (isset($data['height'])) {
-            $iconData['height'] = $iconData['height'] ?? $data['height'];
+            $iconData['height'] ??= $data['height'];
         }
 
         return $iconData;
@@ -201,6 +205,7 @@ class IconifyProvider implements IconProviderInterface
      * Fetch multiple icons from the Iconify API.
      *
      * @param array<string> $names Icon names
+     *
      * @return array<string, array<string, mixed>> Map of name => icon data
      */
     private function fetchMultipleIcons(array $names): array
@@ -225,10 +230,10 @@ class IconifyProvider implements IconProviderInterface
         foreach ($data['icons'] as $name => $iconData) {
             // Merge with set defaults if present
             if (isset($data['width'])) {
-                $iconData['width'] = $iconData['width'] ?? $data['width'];
+                $iconData['width'] ??= $data['width'];
             }
             if (isset($data['height'])) {
-                $iconData['height'] = $iconData['height'] ?? $data['height'];
+                $iconData['height'] ??= $data['height'];
             }
 
             $result[$name] = $iconData;
@@ -240,7 +245,6 @@ class IconifyProvider implements IconProviderInterface
     /**
      * Make HTTP request with fallback hosts.
      *
-     * @param string $url
      * @return string|null Response body or null on failure
      */
     private function makeHttpRequest(string $url): ?string
@@ -255,7 +259,7 @@ class IconifyProvider implements IconProviderInterface
                 if ($response !== null) {
                     return $response;
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // Try next host
                 continue;
             }
@@ -267,7 +271,6 @@ class IconifyProvider implements IconProviderInterface
     /**
      * Perform HTTP GET request using file_get_contents.
      *
-     * @param string $url
      * @return string|null Response body or null on failure
      */
     private function httpGet(string $url): ?string
@@ -299,7 +302,6 @@ class IconifyProvider implements IconProviderInterface
     /**
      * Parse JSON response.
      *
-     * @param string $response
      * @return array<string, mixed>|null
      */
     private function parseJsonResponse(string $response): ?array
@@ -307,21 +309,18 @@ class IconifyProvider implements IconProviderInterface
         try {
             $data = json_decode($response, true, 512, JSON_THROW_ON_ERROR);
 
-            if (!is_array($data)) {
+            if (!\is_array($data)) {
                 return null;
             }
 
             return $data;
-        } catch (\JsonException) {
+        } catch (JsonException) {
             return null;
         }
     }
 
     /**
      * Get cache key for an icon.
-     *
-     * @param string $name
-     * @return string
      */
     private function getCacheKey(string $name): string
     {
@@ -330,8 +329,6 @@ class IconifyProvider implements IconProviderInterface
 
     /**
      * Get the icon set prefix.
-     *
-     * @return string
      */
     public function getPrefix(): string
     {

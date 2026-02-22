@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
-use Frostybee\SwarmIcons\Provider\DirectoryProvider;
 use Frostybee\SwarmIcons\Exception\ProviderException;
+use Frostybee\SwarmIcons\Provider\DirectoryProvider;
 use PHPUnit\Framework\TestCase;
 
 class DirectoryProviderTest extends TestCase

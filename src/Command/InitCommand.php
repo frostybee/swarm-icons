@@ -25,27 +25,28 @@ class InitCommand extends Command
                 'o',
                 InputOption::VALUE_REQUIRED,
                 'Output file path',
-                'swarm-icons.php'
+                'swarm-icons.php',
             )
             ->addOption(
                 'force',
                 'f',
                 InputOption::VALUE_NONE,
-                'Overwrite existing file'
+                'Overwrite existing file',
             )
-            ->setHelp(<<<'HELP'
-The <info>init</info> command generates a starter configuration file.
+            ->setHelp(
+                <<<'HELP'
+                    The <info>init</info> command generates a starter configuration file.
 
-    <info>php bin/swarm-icons init</info>
+                        <info>php bin/swarm-icons init</info>
 
-Specify a custom output path:
+                    Specify a custom output path:
 
-    <info>php bin/swarm-icons init --output=config/swarm-icons.php</info>
+                        <info>php bin/swarm-icons init --output=config/swarm-icons.php</info>
 
-Overwrite an existing file:
+                    Overwrite an existing file:
 
-    <info>php bin/swarm-icons init --force</info>
-HELP
+                        <info>php bin/swarm-icons init --force</info>
+                    HELP
             );
     }
 
@@ -72,9 +73,9 @@ HELP
         }
 
         // Ensure parent directory exists
-        $dir = dirname($outputPath);
+        $dir = \dirname($outputPath);
         if (!is_dir($dir)) {
-            if (!@mkdir($dir, 0755, true)) {
+            if (!@mkdir($dir, 0o755, true)) {
                 $io->error("Cannot create directory: {$dir}");
                 return Command::FAILURE;
             }
@@ -99,76 +100,76 @@ HELP
     private function getTemplate(): string
     {
         return <<<'PHP'
-<?php
+            <?php
 
-/**
- * SwarmIcons Configuration
- *
- * This file configures the SwarmIcons icon manager. Uncomment and adjust
- * the options below to suit your project.
- *
- * @see https://github.com/frostybee/swarm-icons
- */
+            /**
+             * SwarmIcons Configuration
+             *
+             * This file configures the SwarmIcons icon manager. Uncomment and adjust
+             * the options below to suit your project.
+             *
+             * @see https://github.com/frostybee/swarm-icons
+             */
 
-declare(strict_types=1);
+            declare(strict_types=1);
 
-use Frostybee\SwarmIcons\SwarmIcons;
-use Frostybee\SwarmIcons\SwarmIconsConfig;
+            use Frostybee\SwarmIcons\SwarmIcons;
+            use Frostybee\SwarmIcons\SwarmIconsConfig;
 
-$manager = SwarmIconsConfig::create()
+            $manager = SwarmIconsConfig::create()
 
-    // -------------------------------------------------------------------------
-    // Icon Providers
-    // -------------------------------------------------------------------------
+                // -------------------------------------------------------------------------
+                // Icon Providers
+                // -------------------------------------------------------------------------
 
-    // Local SVG directory:
-    // ->addDirectory('custom', __DIR__ . '/resources/icons')
+                // Local SVG directory:
+                // ->addDirectory('custom', __DIR__ . '/resources/icons')
 
-    // Iconify API (fetches on demand, caches locally):
-    // ->addIconifySet('tabler')
+                // Iconify API (fetches on demand, caches locally):
+                // ->addIconifySet('tabler')
 
-    // Hybrid: local files first, Iconify API as fallback:
-    // ->addHybridSet('heroicons', __DIR__ . '/resources/heroicons')
+                // Hybrid: local files first, Iconify API as fallback:
+                // ->addHybridSet('heroicons', __DIR__ . '/resources/heroicons')
 
-    // Auto-discover installed swarm-icons-* Composer packages:
-    // ->discoverPackages()
+                // Auto-discover installed swarm-icons-* Composer packages:
+                // ->discoverPackages()
 
-    // -------------------------------------------------------------------------
-    // Cache
-    // -------------------------------------------------------------------------
+                // -------------------------------------------------------------------------
+                // Cache
+                // -------------------------------------------------------------------------
 
-    // File-based cache (recommended for production):
-    ->cachePath(__DIR__ . '/cache/icons')
+                // File-based cache (recommended for production):
+                ->cachePath(__DIR__ . '/cache/icons')
 
-    // Cache TTL in seconds (0 = forever):
-    // ->cachePath(__DIR__ . '/cache/icons', ttl: 3600)
+                // Cache TTL in seconds (0 = forever):
+                // ->cachePath(__DIR__ . '/cache/icons', ttl: 3600)
 
-    // Disable caching (for development):
-    // ->noCache()
+                // Disable caching (for development):
+                // ->noCache()
 
-    // -------------------------------------------------------------------------
-    // Defaults
-    // -------------------------------------------------------------------------
+                // -------------------------------------------------------------------------
+                // Defaults
+                // -------------------------------------------------------------------------
 
-    // Default prefix (allows icon('home') instead of icon('tabler:home')):
-    // ->defaultPrefix('tabler')
+                // Default prefix (allows icon('home') instead of icon('tabler:home')):
+                // ->defaultPrefix('tabler')
 
-    // Global attributes applied to all icons:
-    // ->defaultAttributes(['class' => 'icon'])
+                // Global attributes applied to all icons:
+                // ->defaultAttributes(['class' => 'icon'])
 
-    // Prefix-specific attributes:
-    // ->prefixAttributes('tabler', ['stroke-width' => '1.5'])
+                // Prefix-specific attributes:
+                // ->prefixAttributes('tabler', ['stroke-width' => '1.5'])
 
-    // Fallback icon when requested icon is not found:
-    // ->fallbackIcon('tabler:question-mark')
+                // Fallback icon when requested icon is not found:
+                // ->fallbackIcon('tabler:question-mark')
 
-    ->build();
+                ->build();
 
-// Register globally for the icon() helper function:
-SwarmIcons::setManager($manager);
+            // Register globally for the icon() helper function:
+            SwarmIcons::setManager($manager);
 
-return $manager;
+            return $manager;
 
-PHP;
+            PHP;
     }
 }

@@ -41,6 +41,7 @@ nbproject/
 .DS_STORE
 cache.properties
 .php_cs.cache
+.php-cs-fixer.cache
 
 .phpunit.result.cache
 .phpunit.cache/

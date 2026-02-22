@@ -7,6 +7,4 @@ namespace Frostybee\SwarmIcons\Exception;
 /**
  * Thrown when a provider encounters an error.
  */
-class ProviderException extends SwarmIconsException
-{
-}
+class ProviderException extends SwarmIconsException {}

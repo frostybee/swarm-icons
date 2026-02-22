@@ -17,9 +17,8 @@ class IconRenderer
      */
     public function __construct(
         private array $defaultAttributes = [],
-        private array $prefixAttributes = []
-    ) {
-    }
+        private array $prefixAttributes = [],
+    ) {}
 
     /**
      * Render an icon with merged attributes.
@@ -30,7 +29,8 @@ class IconRenderer
      *
      * @param Icon $icon Base icon instance
      * @param string|null $prefix Icon prefix (for prefix-specific attributes)
-     * @param array<string, string|int|float|bool|null> $attributes Caller-provided attributes
+     * @param array<string, bool|float|int|string|null> $attributes Caller-provided attributes
+     *
      * @return Icon Rendered icon with merged attributes
      */
     public function render(Icon $icon, ?string $prefix = null, array $attributes = []): Icon
@@ -60,7 +60,8 @@ class IconRenderer
      * Merge attributes with special handling for CSS classes.
      *
      * @param array<string, string> $base Base attributes
-     * @param array<string, string|int|float|bool|null> $override Overriding attributes
+     * @param array<string, bool|float|int|string|null> $override Overriding attributes
+     *
      * @return array<string, string>
      */
     private function mergeAttributes(array $base, array $override): array
@@ -93,6 +94,7 @@ class IconRenderer
      * - Otherwise → add aria-hidden="true" (decorative)
      *
      * @param array<string, string> $attributes
+     *
      * @return array<string, string>
      */
     private function applyAriaRules(array $attributes): array
@@ -116,13 +118,10 @@ class IconRenderer
 
     /**
      * Normalize attribute value to string.
-     *
-     * @param string|int|float|bool $value
-     * @return string
      */
     private function normalizeAttributeValue(string|int|float|bool $value): string
     {
-        if (is_bool($value)) {
+        if (\is_bool($value)) {
             return $value ? 'true' : 'false';
         }
 
@@ -133,7 +132,6 @@ class IconRenderer
      * Set global default attributes.
      *
      * @param array<string, string> $attributes
-     * @return void
      */
     public function setDefaultAttributes(array $attributes): void
     {
@@ -153,9 +151,7 @@ class IconRenderer
     /**
      * Set prefix-specific default attributes.
      *
-     * @param string $prefix
      * @param array<string, string> $attributes
-     * @return void
      */
     public function setPrefixAttributes(string $prefix, array $attributes): void
     {
@@ -165,7 +161,6 @@ class IconRenderer
     /**
      * Get prefix-specific default attributes.
      *
-     * @param string $prefix
      * @return array<string, string>
      */
     public function getPrefixAttributes(string $prefix): array

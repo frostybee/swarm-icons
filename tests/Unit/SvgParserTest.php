@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
-use Frostybee\SwarmIcons\SvgParser;
 use Frostybee\SwarmIcons\Exception\ProviderException;
+use Frostybee\SwarmIcons\SvgParser;
 use PHPUnit\Framework\TestCase;
 
 class SvgParserTest extends TestCase

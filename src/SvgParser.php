@@ -7,6 +7,7 @@ namespace Frostybee\SwarmIcons;
 use DOMDocument;
 use DOMElement;
 use Frostybee\SwarmIcons\Exception\ProviderException;
+use Throwable;
 
 /**
  * Utility for parsing SVG files and extracting content and attributes.
@@ -17,8 +18,10 @@ class SvgParser
      * Parse SVG content and extract inner content and attributes.
      *
      * @param string $svgContent The SVG content to parse
-     * @return array{content: string, attributes: array<string, string>}
+     *
      * @throws ProviderException
+     *
+     * @return array{content: string, attributes: array<string, string>}
      */
     public static function parse(string $svgContent): array
     {
@@ -31,7 +34,7 @@ class SvgParser
         // Try DOMDocument first (most reliable)
         try {
             $result = self::parseWithDom($svgContent);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // Fallback to regex parsing
             $result = self::parseWithRegex($svgContent);
         }
@@ -45,9 +48,9 @@ class SvgParser
     /**
      * Parse SVG using DOMDocument.
      *
-     * @param string $svgContent
-     * @return array{content: string, attributes: array<string, string>}
      * @throws ProviderException
+     *
+     * @return array{content: string, attributes: array<string, string>}
      */
     private static function parseWithDom(string $svgContent): array
     {
@@ -94,9 +97,9 @@ class SvgParser
     /**
      * Parse SVG using regex (fallback).
      *
-     * @param string $svgContent
-     * @return array{content: string, attributes: array<string, string>}
      * @throws ProviderException
+     *
+     * @return array{content: string, attributes: array<string, string>}
      */
     private static function parseWithRegex(string $svgContent): array
     {
@@ -124,9 +127,6 @@ class SvgParser
 
     /**
      * Sanitize SVG inner content by removing script tags and event handlers.
-     *
-     * @param string $content
-     * @return string
      */
     private static function sanitizeContent(string $content): string
     {
@@ -145,9 +145,9 @@ class SvgParser
     /**
      * Parse SVG from a file.
      *
-     * @param string $filePath
-     * @return array{content: string, attributes: array<string, string>}
      * @throws ProviderException
+     *
+     * @return array{content: string, attributes: array<string, string>}
      */
     public static function parseFile(string $filePath): array
     {
@@ -170,16 +170,13 @@ class SvgParser
 
     /**
      * Validate if a string is valid SVG.
-     *
-     * @param string $content
-     * @return bool
      */
     public static function isValidSvg(string $content): bool
     {
         try {
             self::parse($content);
             return true;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }

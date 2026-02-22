@@ -32,6 +32,7 @@ class PackageDiscovery
      * Scan installed Composer packages and return metadata for all swarm-icons sets.
      *
      * @param string $vendorPath Absolute path to the Composer vendor directory
+     *
      * @return array<int, array{prefix: string, provider-class: string, package: string}>
      */
     public static function discover(string $vendorPath): array
@@ -48,25 +49,25 @@ class PackageDiscovery
         }
 
         $data = json_decode($json, true);
-        if (!is_array($data)) {
+        if (!\is_array($data)) {
             return [];
         }
 
         // Composer >= 2.0 wraps packages under a "packages" key
         $packages = $data['packages'] ?? $data;
-        if (!is_array($packages)) {
+        if (!\is_array($packages)) {
             return [];
         }
 
         $discovered = [];
 
         foreach ($packages as $package) {
-            if (!is_array($package)) {
+            if (!\is_array($package)) {
                 continue;
             }
 
             $extra = $package['extra'] ?? [];
-            if (!isset($extra['swarm-icons']) || !is_array($extra['swarm-icons'])) {
+            if (!isset($extra['swarm-icons']) || !\is_array($extra['swarm-icons'])) {
                 continue;
             }
 
@@ -74,7 +75,7 @@ class PackageDiscovery
             $prefix = $meta['prefix'] ?? null;
             $providerClass = $meta['provider-class'] ?? null;
 
-            if (!is_string($prefix) || $prefix === '' || !is_string($providerClass) || $providerClass === '') {
+            if (!\is_string($prefix) || $prefix === '' || !\is_string($providerClass) || $providerClass === '') {
                 continue;
             }
 
@@ -91,7 +92,6 @@ class PackageDiscovery
     /**
      * Discover and register all icon set packages with the given manager.
      *
-     * @param IconManager $manager
      * @param string $vendorPath Absolute path to the Composer vendor directory
      */
     public static function registerAll(IconManager $manager, string $vendorPath): void

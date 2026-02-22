@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Cache;
 
+use DateInterval;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -24,7 +25,7 @@ class NullCache implements CacheInterface
     /**
      * {@inheritdoc}
      */
-    public function set(string $key, mixed $value, null|int|\DateInterval $ttl = null): bool
+    public function set(string $key, mixed $value, null|int|DateInterval $ttl = null): bool
     {
         return true;
     }
@@ -61,9 +62,10 @@ class NullCache implements CacheInterface
 
     /**
      * {@inheritdoc}
+     *
      * @param iterable<string, mixed> $values
      */
-    public function setMultiple(iterable $values, null|int|\DateInterval $ttl = null): bool
+    public function setMultiple(iterable $values, null|int|DateInterval $ttl = null): bool
     {
         return true;
     }
