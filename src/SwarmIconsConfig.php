@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons;
 
-use Frostybee\SwarmIcons\Provider\DirectoryProvider;
-use Frostybee\SwarmIcons\Provider\IconifyProvider;
-use Frostybee\SwarmIcons\Provider\ChainProvider;
 use Frostybee\SwarmIcons\Cache\FileCache;
 use Frostybee\SwarmIcons\Cache\NullCache;
+use Frostybee\SwarmIcons\Discovery\PackageDiscovery;
+use Frostybee\SwarmIcons\Provider\ChainProvider;
+use Frostybee\SwarmIcons\Provider\DirectoryProvider;
+use Frostybee\SwarmIcons\Provider\IconifyProvider;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -184,6 +185,29 @@ class SwarmIconsConfig
         }
 
         $this->prefixAttributes[$prefix] = array_merge($this->prefixAttributes[$prefix], $attributes);
+
+        return $this;
+    }
+
+    /**
+     * Auto-discover and register installed icon set packages.
+     *
+     * Scans vendor/composer/installed.json for packages that declare
+     * "extra.swarm-icons" metadata and registers their providers.
+     *
+     * @param string|null $vendorPath Absolute path to vendor directory.
+     *                                Defaults to the standard Composer vendor location
+     *                                relative to this file.
+     * @return self
+     */
+    public function discoverPackages(?string $vendorPath = null): self
+    {
+        if ($vendorPath === null) {
+            // Resolve vendor/ relative to this library's installation path
+            $vendorPath = dirname(__DIR__, 3) . '/vendor';
+        }
+
+        PackageDiscovery::registerAll($this->manager, $vendorPath);
 
         return $this;
     }
