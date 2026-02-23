@@ -34,5 +34,6 @@ jobs:
           repository_name: '${{ matrix.package.local }}'
           user_name: 'frostybee'
           user_email: 'frostybee@users.noreply.github.com'
+          tag: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}
