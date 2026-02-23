@@ -21,7 +21,7 @@
             "role": "Developer"
         }
     ],
-    "homepage": "https://github.com/frostybee/swarm-icons",
+    "homepage": "https://github.com/swarm-icons/swarm-icons",
     "require": {
         "php": "^8.2",
         "psr/simple-cache": "^3.0"
