@@ -33,6 +33,7 @@
         "phpunit/phpunit": "^10.5",
         "symfony/console": "^7.0",
         "symfony/var-dumper": "^6.4|^7.0",
+        "league/commonmark": "^2.0",
         "twig/twig": "^3.0"
     },
     "suggest": {
@@ -58,7 +59,9 @@
             "Frostybee\\SwarmIcons\\Lucide\\": "packages/swarm-icons-lucide/src/",
             "Frostybee\\SwarmIcons\\Bootstrap\\": "packages/swarm-icons-bootstrap/src/",
             "Frostybee\\SwarmIcons\\Phosphor\\": "packages/swarm-icons-phosphor/src/",
-            "Frostybee\\SwarmIcons\\Simple\\": "packages/swarm-icons-simple/src/"
+            "Frostybee\\SwarmIcons\\Simple\\": "packages/swarm-icons-simple/src/",
+            "Frostybee\\SwarmIcons\\CommonMark\\": "packages/swarm-icons-commonmark/src/",
+            "Frostybee\\SwarmIcons\\CommonMark\\Tests\\": "packages/swarm-icons-commonmark/tests/"
         }
     },
     "minimum-stability": "stable",

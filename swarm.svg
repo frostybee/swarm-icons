@@ -15,7 +15,8 @@
   </defs>
 
   <!-- Background -->
-  <circle cx="100" cy="95" r="92" fill="url(#bggrad)" stroke="#FFB300" stroke-width="2"/>
+  <rect width="200" height="200" fill="#2c3f6b"/>
+  <circle cx="100" cy="100" r="98" fill="url(#bggrad)" stroke="#FFB300" stroke-width="2"/>
 
   <!-- Orbital rings -->
   <ellipse cx="100" cy="90" rx="72" ry="28" fill="none" stroke="#FFB300" stroke-width="1" opacity="0.35" transform="rotate(-35, 100, 90)"/>
