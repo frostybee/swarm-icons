@@ -1,11 +1,10 @@
-#!/usr/bin/env php
 <?php
 
 /**
  * SwarmIcons — Icon Set Build Script
  *
  * Downloads SVG files from upstream npm packages and places them into
- * the corresponding packages/swarm-icons-*/resources/svg/ directories.
+ * the corresponding packages/swarm-icons-{key}/resources/svg/ directories.
  *
  * Usage:
  *   php bin/build-icon-sets.php              # Build all icon sets
@@ -40,7 +39,7 @@ $iconSets = [
     ],
     'heroicons' => [
         'package'  => 'heroicons',
-        'svg_path' => 'optimized/24/outline/*.svg',
+        'svg_path' => '24/outline/*.svg',
         'dest'     => 'outline',
         'flatten'  => true,
     ],

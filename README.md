@@ -17,12 +17,12 @@ Install only the icon sets you need as separate packages:
 
 | Package | Icons | Install |
 |---------|------:|---------|
-| [swarm-icons-heroicons](https://github.com/swarm-icons/swarm-icons-heroicons) | 292 | `composer require frostybee/swarm-icons-heroicons` |
-| [swarm-icons-tabler](https://github.com/swarm-icons/swarm-icons-tabler) | 5,000+ | `composer require frostybee/swarm-icons-tabler` |
-| [swarm-icons-lucide](https://github.com/swarm-icons/swarm-icons-lucide) | 1,500+ | `composer require frostybee/swarm-icons-lucide` |
-| [swarm-icons-bootstrap](https://github.com/swarm-icons/swarm-icons-bootstrap) | 2,000+ | `composer require frostybee/swarm-icons-bootstrap` |
-| [swarm-icons-phosphor](https://github.com/swarm-icons/swarm-icons-phosphor) | 9,072 | `composer require frostybee/swarm-icons-phosphor` |
-| [swarm-icons-simple](https://github.com/swarm-icons/swarm-icons-simple) | 3,000+ | `composer require frostybee/swarm-icons-simple` |
+| [swarm-icons-heroicons](https://github.com/swarm-icons/swarm-icons-heroicons) | 324 | `composer require frostybee/swarm-icons-heroicons` |
+| [swarm-icons-tabler](https://github.com/swarm-icons/swarm-icons-tabler) | 4,985 | `composer require frostybee/swarm-icons-tabler` |
+| [swarm-icons-lucide](https://github.com/swarm-icons/swarm-icons-lucide) | 1,936 | `composer require frostybee/swarm-icons-lucide` |
+| [swarm-icons-bootstrap](https://github.com/swarm-icons/swarm-icons-bootstrap) | 2,078 | `composer require frostybee/swarm-icons-bootstrap` |
+| [swarm-icons-phosphor](https://github.com/swarm-icons/swarm-icons-phosphor) | 1,512 (regular variant) | `composer require frostybee/swarm-icons-phosphor` |
+| [swarm-icons-simple](https://github.com/swarm-icons/swarm-icons-simple) | 3,397 | `composer require frostybee/swarm-icons-simple` |
 
 Each package requires `frostybee/swarm-icons` as a dependency. It will be installed automatically. Or skip the packages entirely and use the [Iconify API](https://iconify.design) at runtime to access 200,000+ icons on demand.
 
