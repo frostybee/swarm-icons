@@ -24,11 +24,11 @@ Install only the icon sets you need as separate packages:
 | [swarm-icons-phosphor](https://github.com/swarm-icons/swarm-icons-phosphor) | 9,072 | `composer require frostybee/swarm-icons-phosphor` |
 | [swarm-icons-simple](https://github.com/swarm-icons/swarm-icons-simple) | 3,000+ | `composer require frostybee/swarm-icons-simple` |
 
-Each package requires `frostybee/swarm-icons` as a dependency — it will be installed automatically. Or skip the packages entirely and use the [Iconify API](https://iconify.design) at runtime to access 200,000+ icons on demand.
+Each package requires `frostybee/swarm-icons` as a dependency. It will be installed automatically. Or skip the packages entirely and use the [Iconify API](https://iconify.design) at runtime to access 200,000+ icons on demand.
 
 ## Installation
 
-Install the core library only if you plan to use the Iconify API at runtime or your own local SVG files. If you want a bundled icon set, install one of the [packages above](#icon-set-packages) instead — the core library will be pulled in automatically.
+Install the core library only if you plan to use the Iconify API at runtime or your own local SVG files. If you want a bundled icon set, install one of the [packages above](#icon-set-packages) instead. The core library will be pulled in automatically.
 
 ```bash
 composer require frostybee/swarm-icons
