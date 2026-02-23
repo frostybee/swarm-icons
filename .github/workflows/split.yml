@@ -1,0 +1,36 @@
+name: Monorepo Split
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - { local: 'swarm-icons-bootstrap',  remote: 'swarm-icons/swarm-icons-bootstrap' }
+          - { local: 'swarm-icons-heroicons',   remote: 'swarm-icons/swarm-icons-heroicons' }
+          - { local: 'swarm-icons-lucide',      remote: 'swarm-icons/swarm-icons-lucide' }
+          - { local: 'swarm-icons-phosphor',    remote: 'swarm-icons/swarm-icons-phosphor' }
+          - { local: 'swarm-icons-simple',      remote: 'swarm-icons/swarm-icons-simple' }
+          - { local: 'swarm-icons-tabler',      remote: 'swarm-icons/swarm-icons-tabler' }
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: symplify/monorepo-split-github-action@v2.3.0
+        with:
+          package_directory: 'packages/${{ matrix.package.local }}'
+          repository_organization: 'swarm-icons'
+          repository_name: '${{ matrix.package.local }}'
+        env:
+          GITHUB_TOKEN: ${{ secrets.SPLIT_TOKEN }}

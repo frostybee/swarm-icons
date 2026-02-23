@@ -3,7 +3,7 @@
 </p>
 
 <h1 align="center">Swarm Icons</h1>
-<p align="center"><strong>A PHP Library for Rendering SVG Icons</strong></p>
+<p align="center"><strong>A Framework-Agnostic PHP Library for Rendering SVG Icons</strong></p>
 
 <p align="center">
   <a href="https://packagist.org/packages/frostybee/swarm-icons"><img src="https://img.shields.io/packagist/v/frostybee/swarm-icons.svg" alt="Latest Version"></a>
@@ -11,7 +11,24 @@
   <a href="https://packagist.org/packages/frostybee/swarm-icons"><img src="https://img.shields.io/packagist/l/frostybee/swarm-icons.svg" alt="License"></a>
 </p>
 
+## Icon Set Packages
+
+Install only the icon sets you need as separate packages:
+
+| Package | Icons | Install |
+|---------|------:|---------|
+| [swarm-icons-heroicons](https://github.com/swarm-icons/swarm-icons-heroicons) | 292 | `composer require frostybee/swarm-icons-heroicons` |
+| [swarm-icons-tabler](https://github.com/swarm-icons/swarm-icons-tabler) | 5,000+ | `composer require frostybee/swarm-icons-tabler` |
+| [swarm-icons-lucide](https://github.com/swarm-icons/swarm-icons-lucide) | 1,500+ | `composer require frostybee/swarm-icons-lucide` |
+| [swarm-icons-bootstrap](https://github.com/swarm-icons/swarm-icons-bootstrap) | 2,000+ | `composer require frostybee/swarm-icons-bootstrap` |
+| [swarm-icons-phosphor](https://github.com/swarm-icons/swarm-icons-phosphor) | 9,072 | `composer require frostybee/swarm-icons-phosphor` |
+| [swarm-icons-simple](https://github.com/swarm-icons/swarm-icons-simple) | 3,000+ | `composer require frostybee/swarm-icons-simple` |
+
+Each package requires `frostybee/swarm-icons` as a dependency — it will be installed automatically. Or skip the packages entirely and use the [Iconify API](https://iconify.design) at runtime to access 200,000+ icons on demand.
+
 ## Installation
+
+Install the core library only if you plan to use the Iconify API at runtime or your own local SVG files. If you want a bundled icon set, install one of the [packages above](#icon-set-packages) instead — the core library will be pulled in automatically.
 
 ```bash
 composer require frostybee/swarm-icons
