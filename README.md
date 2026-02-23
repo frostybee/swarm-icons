@@ -1,10 +1,15 @@
-# SwarmIcons
+<p align="center">
+  <img src="swarm.svg" alt="SwarmIcons" width="160">
+</p>
 
-A PHP library for rendering SVG icons. Works with any PHP project, supports local icon files and the Iconify API, and includes a Twig extension.
+<h1 align="center">Swarm Icons</h1>
+<p align="center"><strong>A PHP Library for Rendering SVG Icons</strong></p>
 
-[![Latest Version](https://img.shields.io/packagist/v/frostybee/swarm-icons.svg)](https://packagist.org/packages/frostybee/swarm-icons)
-[![PHP Version](https://img.shields.io/packagist/php-v/frostybee/swarm-icons.svg)](https://packagist.org/packages/frostybee/swarm-icons)
-[![License](https://img.shields.io/packagist/l/frostybee/swarm-icons.svg)](https://packagist.org/packages/frostybee/swarm-icons)
+<p align="center">
+  <a href="https://packagist.org/packages/frostybee/swarm-icons"><img src="https://img.shields.io/packagist/v/frostybee/swarm-icons.svg" alt="Latest Version"></a>
+  <a href="https://packagist.org/packages/frostybee/swarm-icons"><img src="https://img.shields.io/packagist/php-v/frostybee/swarm-icons.svg" alt="PHP Version"></a>
+  <a href="https://packagist.org/packages/frostybee/swarm-icons"><img src="https://img.shields.io/packagist/l/frostybee/swarm-icons.svg" alt="License"></a>
+</p>
 
 ## Installation
 
@@ -179,8 +184,4 @@ composer install
 
 ## License
 
-MIT. See [LICENSE](LICENSE) for details.
-
-## Credits
-
-Created by **frostybee**.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
