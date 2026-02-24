@@ -80,7 +80,7 @@ class Icon implements Stringable
             $attributes['height'] = (string) $data['height'];
         }
 
-        return new self((string) $data['body'], $attributes);
+        return new self(SvgParser::sanitizeContent((string) $data['body']), $attributes);
     }
 
     /**
@@ -266,7 +266,7 @@ class Icon implements Stringable
      */
     public function __unserialize(array $data): void
     {
-        $this->content = $data['content'];
-        $this->attributes = $data['attributes'];
+        $this->content = \is_string($data['content'] ?? null) ? $data['content'] : '';
+        $this->attributes = \is_array($data['attributes'] ?? null) ? $data['attributes'] : [];
     }
 }

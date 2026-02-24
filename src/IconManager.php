@@ -116,13 +116,14 @@ class IconManager
      *
      * @param string $name Icon name (with or without prefix)
      * @param array<string, bool|float|int|string|null> $attributes Additional attributes
+     * @param bool $resolvingFallback Whether we are already resolving a fallback icon
      *
      * @throws IconNotFoundException
      * @throws InvalidIconNameException
      *
      * @return Icon Rendered icon
      */
-    public function get(string $name, array $attributes = []): Icon
+    public function get(string $name, array $attributes = [], bool $resolvingFallback = false): Icon
     {
         [$prefix, $iconName] = $this->parseName($name);
 
@@ -135,10 +136,10 @@ class IconManager
         $icon = $provider->get($iconName);
 
         if ($icon === null) {
-            // Try fallback icon
-            if ($this->fallbackIcon !== null && $this->fallbackIcon !== $name) {
+            // Try fallback icon (only if not already resolving a fallback)
+            if (!$resolvingFallback && $this->fallbackIcon !== null) {
                 try {
-                    return $this->get($this->fallbackIcon, $attributes);
+                    return $this->get($this->fallbackIcon, $attributes, true);
                 } catch (Throwable) {
                     // Fallback failed, throw original error
                 }

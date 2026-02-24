@@ -104,7 +104,9 @@ class SvgParser
     private static function parseWithRegex(string $svgContent): array
     {
         // Match opening SVG tag with attributes
-        if (!preg_match('/<svg([^>]*)>(.*)<\/svg>/is', $svgContent, $matches)) {
+        // Note: [^>]* can fail if attribute values contain '>', but this is a rare edge case
+        // in the regex fallback path — the DOM parser handles those cases correctly.
+        if (!preg_match('/<svg(\s[^>]*)?>(.*)(?:<\/svg>)/is', $svgContent, $matches)) {
             throw new ProviderException('Invalid SVG format: no SVG tags found');
         }
 
@@ -126,18 +128,24 @@ class SvgParser
     }
 
     /**
-     * Sanitize SVG inner content by removing script tags and event handlers.
+     * Sanitize SVG inner content by removing dangerous elements and attributes.
      */
-    private static function sanitizeContent(string $content): string
+    public static function sanitizeContent(string $content): string
     {
         // Remove <script> tags and their content
         $content = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $content) ?? $content;
+
+        // Remove <foreignObject> elements (can embed arbitrary HTML/scripts)
+        $content = preg_replace('/<foreignObject\b[^>]*>.*?<\/foreignObject>/is', '', $content) ?? $content;
 
         // Remove event handler attributes (on*) - handles quoted, unquoted, and mismatched quotes
         $content = preg_replace('/\s+on\w+\s*=\s*(?:"[^"]*"|\'[^\']*\'|[^\s>]*)/i', '', $content) ?? $content;
 
         // Neutralize javascript: URIs in href/src/xlink:href
         $content = preg_replace('/\b(href|src|xlink:href)\s*=\s*["\']?\s*javascript:/i', '$1="#"', $content) ?? $content;
+
+        // Remove external resource references in <use> and <image> elements
+        $content = preg_replace('/(<(?:use|image)\b[^>]*)\b(href|xlink:href)\s*=\s*["\']https?:\/\/[^"\']*["\']/', '$1', $content) ?? $content;
 
         return $content;
     }

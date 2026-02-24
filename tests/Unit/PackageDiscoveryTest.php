@@ -12,9 +12,29 @@ class PackageDiscoveryTest extends TestCase
 {
     private string $fixturesPath;
 
+    /** @var array<string> */
+    private array $tempDirs = [];
+
     protected function setUp(): void
     {
         $this->fixturesPath = __DIR__ . '/../Fixtures';
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->tempDirs as $dir) {
+            if (is_dir($dir)) {
+                $items = new \RecursiveIteratorIterator(
+                    new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+                    \RecursiveIteratorIterator::CHILD_FIRST,
+                );
+                foreach ($items as $item) {
+                    $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
+                }
+                @rmdir($dir);
+            }
+        }
+        $this->tempDirs = [];
     }
 
     public function test_discover_returns_empty_for_missing_vendor_path(): void
@@ -208,14 +228,7 @@ class PackageDiscoveryTest extends TestCase
         $data = $wrapInPackagesKey ? ['packages' => $packages] : $packages;
         file_put_contents($tmpDir . '/composer/installed.json', json_encode($data));
 
-        // Clean up after test
-        register_shutdown_function(static function () use ($tmpDir): void {
-            if (is_dir($tmpDir)) {
-                array_map('unlink', glob($tmpDir . '/composer/*') ?: []);
-                @rmdir($tmpDir . '/composer');
-                @rmdir($tmpDir);
-            }
-        });
+        $this->tempDirs[] = $tmpDir;
 
         return $tmpDir;
     }

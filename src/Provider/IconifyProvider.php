@@ -210,8 +210,8 @@ class IconifyProvider implements IconProviderInterface
      */
     private function fetchMultipleIcons(array $names): array
     {
-        $iconsList = implode(',', array_map('urlencode', $names));
-        $url = self::API_BASE_URL . '/' . urlencode($this->prefix) . '.json?icons=' . $iconsList;
+        $iconsList = implode(',', $names);
+        $url = self::API_BASE_URL . '/' . urlencode($this->prefix) . '.json?icons=' . urlencode($iconsList);
 
         $response = $this->makeHttpRequest($url);
 
@@ -273,7 +273,7 @@ class IconifyProvider implements IconProviderInterface
      *
      * @return string|null Response body or null on failure
      */
-    private function httpGet(string $url): ?string
+    protected function httpGet(string $url): ?string
     {
         $context = stream_context_create([
             'http' => [
@@ -284,15 +284,15 @@ class IconifyProvider implements IconProviderInterface
             ],
         ]);
 
-        $http_response_header = [];
         $response = @file_get_contents($url, false, $context);
 
         if ($response === false) {
             return null;
         }
 
-        // Check HTTP status code from the magic $http_response_header variable
-        if (!isset($http_response_header[0]) || !str_contains($http_response_header[0], ' 200 ')) {
+        // Check HTTP status code
+        $responseHeaders = http_get_last_response_headers();
+        if (!isset($responseHeaders[0]) || !preg_match('/^HTTP\/[\d.]+ 200\b/', $responseHeaders[0])) {
             return null;
         }
 

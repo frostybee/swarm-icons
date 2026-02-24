@@ -173,6 +173,64 @@ $twig->addExtension(new SwarmIconsExtension(
 {{ star.size(32).class('text-yellow-500') }}
 ```
 
+## Blade
+
+No extra package is needed. Register the icon manager once in a service provider, then use the global `icon()` helper in your Blade templates.
+
+**1. Register the manager in `AppServiceProvider`:**
+
+```php
+use Frostybee\SwarmIcons\SwarmIcons;
+use Frostybee\SwarmIcons\SwarmIconsConfig;
+
+public function register(): void
+{
+    $manager = SwarmIconsConfig::create()
+        ->addIconSet('heroicons')
+        ->build();
+
+    SwarmIcons::setManager($manager);
+}
+```
+
+**2. Use `icon()` in your Blade templates:**
+
+```blade
+{!! icon('heroicons:home') !!}
+{!! icon('heroicons:home', ['class' => 'w-6 h-6', 'aria-label' => 'Home']) !!}
+{!! icon('heroicons:home')->size(24)->class('text-blue-500') !!}
+```
+
+Use `{!! !!}` (unescaped) since `icon()` returns raw SVG markup. The standard `{{ }}` syntax would escape the HTML.
+
+## CommonMark
+
+Install the [CommonMark extension](https://github.com/swarm-icons/swarm-icons-commonmark) to render icons in markdown:
+
+```bash
+composer require frostybee/swarm-icons-commonmark
+```
+
+```php
+use Frostybee\SwarmIcons\CommonMark\IconExtension;
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\MarkdownConverter;
+
+$environment = new Environment();
+$environment->addExtension(new CommonMarkCoreExtension());
+$environment->addExtension(new IconExtension($manager));
+
+$converter = new MarkdownConverter($environment);
+```
+
+Then use the `:icon[]` syntax in your markdown:
+
+```markdown
+Click :icon[heroicons:home] to go home.
+:icon[heroicons:user class="w-6 h-6"] Profile
+```
+
 ## Accessibility
 
 Decorative icons get `aria-hidden="true"` automatically. Add `aria-label` to mark an icon as meaningful:

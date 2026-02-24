@@ -87,8 +87,8 @@ class SwarmIconsRuntime implements RuntimeExtensionInterface
      */
     private function renderMissingIconComment(string $name, string $error): string
     {
-        $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
-        $safeError = htmlspecialchars($error, ENT_QUOTES, 'UTF-8');
+        $safeName = str_replace('--', '- -', htmlspecialchars($name, ENT_QUOTES, 'UTF-8'));
+        $safeError = str_replace('--', '- -', htmlspecialchars($error, ENT_QUOTES, 'UTF-8'));
 
         return "<!-- SwarmIcons: Icon '{$safeName}' not found ({$safeError}) -->";
     }

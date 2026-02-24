@@ -76,6 +76,12 @@ class CacheWarmCommand extends Command
         $cachePath = $input->getOption('cache-path');
         /** @var string $timeoutStr */
         $timeoutStr = $input->getOption('timeout');
+
+        if (!is_numeric($timeoutStr) || (int) $timeoutStr <= 0) {
+            $io->error("Invalid --timeout value: '{$timeoutStr}'. Must be a positive integer.");
+            return Command::FAILURE;
+        }
+
         $timeout = (int) $timeoutStr;
 
         if ($prefix === null || $prefix === '') {

@@ -1,6 +1,8 @@
 icons-lib/
 profile/
 
+cache/
+
 env.php
 config/env.php
 # Documentation files to exclude from version control

@@ -61,7 +61,12 @@ class InitCommand extends Command
 
         // Resolve relative paths against current working directory
         if (!str_starts_with($outputPath, '/') && !preg_match('#^[A-Za-z]:[/\\\\]#', $outputPath)) {
-            $outputPath = getcwd() . DIRECTORY_SEPARATOR . $outputPath;
+            $cwd = getcwd();
+            if ($cwd === false) {
+                $io->error('Cannot determine current working directory.');
+                return Command::FAILURE;
+            }
+            $outputPath = $cwd . DIRECTORY_SEPARATOR . $outputPath;
         }
 
         if (file_exists($outputPath) && !$force) {

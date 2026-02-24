@@ -146,9 +146,16 @@ class IconListCommand extends Command
             return Command::FAILURE;
         }
 
+        // Verify HTTP 200 status
+        $responseHeaders = http_get_last_response_headers();
+        if (!isset($responseHeaders[0]) || !preg_match('/^HTTP\/[\d.]+ 200\b/', $responseHeaders[0])) {
+            $io->error("Iconify API returned a non-200 response for prefix '{$prefix}'.");
+            return Command::FAILURE;
+        }
+
         $data = json_decode($json, true);
-        if (!\is_array($data)) {
-            $io->error('Invalid response from Iconify API.');
+        if (!\is_array($data) || isset($data['error'])) {
+            $io->error('Invalid or unknown icon set prefix: ' . $prefix);
             return Command::FAILURE;
         }
 
@@ -213,6 +220,10 @@ class IconListCommand extends Command
      */
     private function displayIcons(SymfonyStyle $io, array $icons): void
     {
+        if (empty($icons)) {
+            return;
+        }
+
         // Determine column width based on longest icon name
         $maxLen = max(array_map('strlen', $icons));
         $colWidth = $maxLen + 4;

@@ -219,7 +219,6 @@ class SwarmIconsConfig
             $provider = new IconifyProvider($set['prefix'], $cache, $set['timeout'], $this->cacheTtl);
             $this->manager->register($set['prefix'], $provider);
         }
-        $this->deferredIconifySets = [];
 
         foreach ($this->deferredHybridSets as $set) {
             $localProvider = new DirectoryProvider($set['directory'], $set['recursive']);
@@ -227,7 +226,6 @@ class SwarmIconsConfig
             $chainProvider = new ChainProvider([$localProvider, $iconifyProvider]);
             $this->manager->register($set['prefix'], $chainProvider);
         }
-        $this->deferredHybridSets = [];
 
         // Apply default attributes
         $renderer = new IconRenderer($this->defaultAttributes, $this->prefixAttributes);

@@ -75,9 +75,6 @@ class CacheClearCommand extends Command
         }
     }
 
-    /**
-     * Format bytes to human-readable size.
-     */
     private function formatBytes(int $bytes): string
     {
         if ($bytes < 1024) {
