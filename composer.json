@@ -38,7 +38,8 @@
     },
     "suggest": {
         "twig/twig": "For Twig template integration (^3.0)",
-        "symfony/console": "For CLI commands (^6.4|^7.0)"
+        "symfony/console": "For CLI commands (^6.4|^7.0)",
+        "iconify/json": "Install to use JsonCollectionProvider for offline access to 200,000+ icons"
     },
     "bin": [
         "bin/swarm-icons"
@@ -54,12 +55,6 @@
     "autoload-dev": {
         "psr-4": {
             "Frostybee\\SwarmIcons\\Tests\\": "tests/",
-            "Frostybee\\SwarmIcons\\Tabler\\": "packages/swarm-icons-tabler/src/",
-            "Frostybee\\SwarmIcons\\Heroicons\\": "packages/swarm-icons-heroicons/src/",
-            "Frostybee\\SwarmIcons\\Lucide\\": "packages/swarm-icons-lucide/src/",
-            "Frostybee\\SwarmIcons\\Bootstrap\\": "packages/swarm-icons-bootstrap/src/",
-            "Frostybee\\SwarmIcons\\Phosphor\\": "packages/swarm-icons-phosphor/src/",
-            "Frostybee\\SwarmIcons\\Simple\\": "packages/swarm-icons-simple/src/",
             "Frostybee\\SwarmIcons\\CommonMark\\": "packages/swarm-icons-commonmark/src/",
             "Frostybee\\SwarmIcons\\CommonMark\\Tests\\": "packages/swarm-icons-commonmark/tests/"
         }
@@ -82,9 +77,6 @@
             "@test"
         ]
     },
-    "repositories": [
-        {"type": "path", "url": "packages/*"}
-    ],
     "extra": {
         "branch-alias": {
             "dev-main": "1.0-dev"

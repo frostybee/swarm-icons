@@ -10,6 +10,7 @@ use Frostybee\SwarmIcons\Discovery\PackageDiscovery;
 use Frostybee\SwarmIcons\Provider\ChainProvider;
 use Frostybee\SwarmIcons\Provider\DirectoryProvider;
 use Frostybee\SwarmIcons\Provider\IconifyProvider;
+use Frostybee\SwarmIcons\Provider\JsonCollectionProvider;
 use Psr\SimpleCache\CacheInterface;
 
 /**
@@ -35,6 +36,9 @@ class SwarmIconsConfig
 
     /** @var array<array{prefix: string, directory: string, recursive: bool, timeout: int}> Deferred hybrid registrations */
     private array $deferredHybridSets = [];
+
+    /** @var array<array{prefix: string, jsonFilePath: string}> Deferred JSON collection registrations */
+    private array $deferredJsonCollections = [];
 
     private function __construct()
     {
@@ -75,6 +79,40 @@ class SwarmIconsConfig
         $this->deferredIconifySets[] = ['prefix' => $prefix, 'timeout' => $timeout];
 
         return $this;
+    }
+
+    /**
+     * Register a JSON collection provider.
+     *
+     * Loads icons from an Iconify-format JSON collection file.
+     *
+     * @param string $prefix Provider prefix (e.g., 'tabler', 'mdi')
+     * @param string $jsonFilePath Absolute path to the JSON collection file
+     */
+    public function addJsonCollection(string $prefix, string $jsonFilePath): self
+    {
+        $this->deferredJsonCollections[] = ['prefix' => $prefix, 'jsonFilePath' => $jsonFilePath];
+
+        return $this;
+    }
+
+    /**
+     * Register a JSON collection from the iconify/json package.
+     *
+     * Automatically resolves the JSON file path within the iconify/json package.
+     *
+     * @param string $prefix Icon set prefix (e.g., 'tabler', 'mdi', 'heroicons')
+     * @param string|null $vendorPath Absolute path to vendor directory (auto-detected if null)
+     */
+    public function addIconifyJsonSet(string $prefix, ?string $vendorPath = null): self
+    {
+        if ($vendorPath === null) {
+            $vendorPath = \dirname(__DIR__, 3) . '/vendor';
+        }
+
+        $jsonFilePath = $vendorPath . '/iconify/json/json/' . $prefix . '.json';
+
+        return $this->addJsonCollection($prefix, $jsonFilePath);
     }
 
     /**
@@ -174,6 +212,37 @@ class SwarmIconsConfig
     }
 
     /**
+     * Auto-discover and register JSON icon sets from a directory.
+     *
+     * Scans the given directory for *.json files and registers each as
+     * a JSON collection provider, using the filename (without extension)
+     * as the prefix.
+     *
+     * @param string|null $jsonDir Absolute path to directory containing JSON collections.
+     *                             Defaults to resources/json/ relative to this package.
+     */
+    public function discoverJsonSets(?string $jsonDir = null): self
+    {
+        if ($jsonDir === null) {
+            $jsonDir = \dirname(__DIR__) . '/resources/json';
+        }
+        if (!is_dir($jsonDir)) {
+            return $this;
+        }
+        $files = glob($jsonDir . '/*.json');
+        if ($files === false) {
+            return $this;
+        }
+        sort($files);
+        foreach ($files as $file) {
+            $prefix = pathinfo($file, PATHINFO_FILENAME);
+            $this->addJsonCollection($prefix, $file);
+        }
+
+        return $this;
+    }
+
+    /**
      * Auto-discover and register installed icon set packages.
      *
      * Scans vendor/composer/installed.json for packages that declare
@@ -217,6 +286,11 @@ class SwarmIconsConfig
 
         foreach ($this->deferredIconifySets as $set) {
             $provider = new IconifyProvider($set['prefix'], $cache, $set['timeout'], $this->cacheTtl);
+            $this->manager->register($set['prefix'], $provider);
+        }
+
+        foreach ($this->deferredJsonCollections as $set) {
+            $provider = new JsonCollectionProvider($set['jsonFilePath'], $cache, $this->cacheTtl);
             $this->manager->register($set['prefix'], $provider);
         }
 

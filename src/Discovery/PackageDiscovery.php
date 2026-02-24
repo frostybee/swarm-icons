@@ -6,11 +6,13 @@ namespace Frostybee\SwarmIcons\Discovery;
 
 use Frostybee\SwarmIcons\IconManager;
 use Frostybee\SwarmIcons\IconSetInterface;
+use JsonException;
 
 /**
  * Discovers and registers icon set packages installed via Composer.
  *
- * Icon set packages declare themselves in their composer.json:
+ * Icon set packages declare themselves in their composer.json using either
+ * a single-set object or a multi-set array:
  *
  * ```json
  * "extra": {
@@ -18,6 +20,17 @@ use Frostybee\SwarmIcons\IconSetInterface;
  *         "prefix": "tabler",
  *         "provider-class": "Frostybee\\SwarmIcons\\Tabler\\TablerIconSet"
  *     }
+ * }
+ * ```
+ *
+ * Multi-set packages (e.g., swarm-icons-json) use an array:
+ *
+ * ```json
+ * "extra": {
+ *     "swarm-icons": [
+ *         {"prefix": "mdi", "provider-class": "Frostybee\\SwarmIcons\\Json\\MdiIconSet"},
+ *         {"prefix": "fa-solid", "provider-class": "Frostybee\\SwarmIcons\\Json\\FaSolidIconSet"}
+ *     ]
  * }
  * ```
  *
@@ -50,7 +63,7 @@ class PackageDiscovery
 
         try {
             $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
+        } catch (JsonException) {
             return [];
         }
 
@@ -76,19 +89,30 @@ class PackageDiscovery
                 continue;
             }
 
-            $meta = $extra['swarm-icons'];
-            $prefix = $meta['prefix'] ?? null;
-            $providerClass = $meta['provider-class'] ?? null;
+            $swarmIcons = $extra['swarm-icons'];
+            $packageName = $package['name'] ?? 'unknown';
 
-            if (!\is_string($prefix) || $prefix === '' || !\is_string($providerClass) || $providerClass === '') {
-                continue;
+            // Support both single-set (object) and multi-set (array of objects) formats
+            $entries = isset($swarmIcons['prefix']) ? [$swarmIcons] : $swarmIcons;
+
+            foreach ($entries as $meta) {
+                if (!\is_array($meta)) {
+                    continue;
+                }
+
+                $prefix = $meta['prefix'] ?? null;
+                $providerClass = $meta['provider-class'] ?? null;
+
+                if (!\is_string($prefix) || $prefix === '' || !\is_string($providerClass) || $providerClass === '') {
+                    continue;
+                }
+
+                $discovered[] = [
+                    'prefix' => $prefix,
+                    'provider-class' => $providerClass,
+                    'package' => $packageName,
+                ];
             }
-
-            $discovered[] = [
-                'prefix' => $prefix,
-                'provider-class' => $providerClass,
-                'package' => $package['name'] ?? 'unknown',
-            ];
         }
 
         return $discovered;

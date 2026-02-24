@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
+use FilesystemIterator;
 use Frostybee\SwarmIcons\Cache\FileCache;
-use Frostybee\SwarmIcons\Cache\NullCache;
 use Frostybee\SwarmIcons\Icon;
 use Frostybee\SwarmIcons\Provider\IconifyProvider;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Testable subclass that overrides httpGet() to avoid real HTTP requests.
@@ -65,9 +67,9 @@ class IconifyProviderTest extends TestCase
             return;
         }
 
-        $items = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST,
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST,
         );
 
         foreach ($items as $item) {

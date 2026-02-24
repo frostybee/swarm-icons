@@ -1,4 +1,7 @@
 icons-lib/
+
+# Downloaded JSON icon collections (populated by json:download or build-icon-sets.php)
+resources/json/*.json
 profile/
 
 cache/
@@ -34,9 +37,6 @@ var/tmp/*
 !cache/tmp/
 cache/tmp/*
 !cache/tmp/.htaccess
-
-# Claude Code
-.claude/
 
 # IDEs
 .idea/

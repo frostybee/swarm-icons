@@ -1,0 +1,34 @@
+{
+    "prefix": "test",
+    "info": {
+        "name": "Test Icons",
+        "total": 3
+    },
+    "icons": {
+        "home": {
+            "body": "<path d=\"M3 12l9-9 9 9\" stroke=\"currentColor\"/>"
+        },
+        "user": {
+            "body": "<circle cx=\"12\" cy=\"7\" r=\"4\"/>",
+            "width": 32,
+            "height": 32
+        },
+        "star": {
+            "body": "<polygon points=\"12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9\"/>"
+        }
+    },
+    "aliases": {
+        "house": {
+            "parent": "home"
+        },
+        "person": {
+            "parent": "user",
+            "hFlip": true
+        },
+        "chained-alias": {
+            "parent": "house"
+        }
+    },
+    "width": 24,
+    "height": 24
+}

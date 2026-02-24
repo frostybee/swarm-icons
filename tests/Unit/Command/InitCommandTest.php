@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit\Command;
 
+use FilesystemIterator;
 use Frostybee\SwarmIcons\Command\InitCommand;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -22,9 +25,9 @@ class InitCommandTest extends TestCase
     protected function tearDown(): void
     {
         if (is_dir($this->tempDir)) {
-            $items = new \RecursiveIteratorIterator(
-                new \RecursiveDirectoryIterator($this->tempDir, \FilesystemIterator::SKIP_DOTS),
-                \RecursiveIteratorIterator::CHILD_FIRST,
+            $items = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($this->tempDir, FilesystemIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST,
             );
             foreach ($items as $item) {
                 $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());

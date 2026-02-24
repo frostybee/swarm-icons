@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
+use FilesystemIterator;
 use Frostybee\SwarmIcons\Discovery\PackageDiscovery;
 use Frostybee\SwarmIcons\IconManager;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class PackageDiscoveryTest extends TestCase
 {
@@ -24,9 +27,9 @@ class PackageDiscoveryTest extends TestCase
     {
         foreach ($this->tempDirs as $dir) {
             if (is_dir($dir)) {
-                $items = new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-                    \RecursiveIteratorIterator::CHILD_FIRST,
+                $items = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::CHILD_FIRST,
                 );
                 foreach ($items as $item) {
                     $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());

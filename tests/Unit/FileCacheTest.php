@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
 use DateInterval;
+use FilesystemIterator;
 use Frostybee\SwarmIcons\Cache\FileCache;
 use Frostybee\SwarmIcons\Exception\CacheInvalidArgumentException;
 use Frostybee\SwarmIcons\Icon;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class FileCacheTest extends TestCase
 {
@@ -54,9 +57,9 @@ class FileCacheTest extends TestCase
             return;
         }
 
-        $items = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::CHILD_FIRST,
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST,
         );
 
         foreach ($items as $item) {

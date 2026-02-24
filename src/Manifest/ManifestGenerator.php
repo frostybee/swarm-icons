@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Frostybee\SwarmIcons\Manifest;
 
 use Frostybee\SwarmIcons\IconManager;
+use RuntimeException;
 
 /**
  * Generates a JSON manifest of all available icon names.
@@ -67,11 +68,11 @@ class ManifestGenerator
 
         $dir = \dirname($outputPath);
         if (!is_dir($dir) && !@mkdir($dir, 0o755, true) && !is_dir($dir)) {
-            throw new \RuntimeException("Failed to create directory: {$dir}");
+            throw new RuntimeException("Failed to create directory: {$dir}");
         }
 
         if (file_put_contents($outputPath, $json) === false) {
-            throw new \RuntimeException("Failed to write manifest to: {$outputPath}");
+            throw new RuntimeException("Failed to write manifest to: {$outputPath}");
         }
 
         $totalIcons = 0;

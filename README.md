@@ -11,24 +11,7 @@
   <a href="https://packagist.org/packages/frostybee/swarm-icons"><img src="https://img.shields.io/packagist/l/frostybee/swarm-icons.svg" alt="License"></a>
 </p>
 
-## Icon Set Packages
-
-Install only the icon sets you need as separate packages:
-
-| Package | Icons | Install |
-|---------|------:|---------|
-| [swarm-icons-heroicons](https://github.com/swarm-icons/swarm-icons-heroicons) | 324 | `composer require frostybee/swarm-icons-heroicons` |
-| [swarm-icons-tabler](https://github.com/swarm-icons/swarm-icons-tabler) | 4,985 | `composer require frostybee/swarm-icons-tabler` |
-| [swarm-icons-lucide](https://github.com/swarm-icons/swarm-icons-lucide) | 1,936 | `composer require frostybee/swarm-icons-lucide` |
-| [swarm-icons-bootstrap](https://github.com/swarm-icons/swarm-icons-bootstrap) | 2,078 | `composer require frostybee/swarm-icons-bootstrap` |
-| [swarm-icons-phosphor](https://github.com/swarm-icons/swarm-icons-phosphor) | 1,512 (regular variant) | `composer require frostybee/swarm-icons-phosphor` |
-| [swarm-icons-simple](https://github.com/swarm-icons/swarm-icons-simple) | 3,397 | `composer require frostybee/swarm-icons-simple` |
-
-Each package requires `frostybee/swarm-icons` as a dependency. It will be installed automatically. Or skip the packages entirely and use the [Iconify API](https://iconify.design) at runtime to access 200,000+ icons on demand.
-
 ## Installation
-
-Install the core library only if you plan to use the Iconify API at runtime or your own local SVG files. If you want a bundled icon set, install one of the [packages above](#icon-set-packages) instead. The core library will be pulled in automatically.
 
 ```bash
 composer require frostybee/swarm-icons
@@ -38,28 +21,35 @@ Requires PHP 8.2+ and `psr/simple-cache` ^3.0.
 
 ## Quick Start
 
-Register a directory of SVG files, then render icons by name:
+Download icon sets, auto-discover them, and render:
+
+```bash
+# Download the sets you need (no Node.js required)
+php bin/swarm-icons json:download mdi tabler heroicons
+```
 
 ```php
-use Frostybee\SwarmIcons\IconManager;
-use Frostybee\SwarmIcons\Provider\DirectoryProvider;
 use Frostybee\SwarmIcons\SwarmIcons;
+use Frostybee\SwarmIcons\SwarmIconsConfig;
 
-$manager = new IconManager();
-$manager->register('custom', new DirectoryProvider('/path/to/svgs'));
-$manager->setDefaultPrefix('custom');
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets()
+    ->cachePath('/var/cache/icons')
+    ->build();
 
-echo $manager->get('home', ['class' => 'w-6 h-6']);
+SwarmIcons::setManager($manager);
+
+echo icon('mdi:home', ['class' => 'w-6 h-6']);
 // <svg class="w-6 h-6" aria-hidden="true">...</svg>
 ```
 
-You can also set up a global helper for use throughout your app:
+You can also register local SVG directories or use the Iconify API at runtime:
 
 ```php
-SwarmIcons::setManager($manager);
-
-echo icon('home');
-echo icon('custom:home', ['class' => 'w-6 h-6', 'aria-label' => 'Home']);
+$manager = SwarmIconsConfig::create()
+    ->addDirectory('custom', '/path/to/svgs')
+    ->addIconifySet('heroicons')
+    ->build();
 ```
 
 ## Fluent Builder
@@ -114,6 +104,73 @@ $manager->register('heroicons', $provider);
 ```
 
 Some popular sets: `heroicons`, `lucide`, `tabler`, `bootstrap`, `phosphor`, `simple-icons`.
+
+### JSON Collection Sets
+
+The core library includes 21 additional icon sets available as downloadable JSON collections from the [Iconify](https://iconify.design) ecosystem. Each set is downloaded on demand from npm — no Node.js required.
+
+```bash
+# List available sets and their download status
+php bin/swarm-icons json:download
+
+# Download specific sets
+php bin/swarm-icons json:download mdi fa-solid fa-brands
+
+# Download all 21 sets
+php bin/swarm-icons json:download --all
+```
+
+Once downloaded, icons are available immediately:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addJsonCollection('mdi', '/path/to/mdi.json')
+    ->cachePath('/var/cache/icons')
+    ->build();
+
+echo icon('mdi:home');
+echo icon('fa-solid:star');
+```
+
+<details>
+<summary><strong>Available JSON icon sets (21)</strong></summary>
+
+| Prefix | Name | Icons |
+|--------|------|------:|
+| `mdi` | Material Design Icons | ~7,400+ |
+| `fa-solid` | Font Awesome Solid | ~1,400+ |
+| `fa-regular` | Font Awesome Regular | ~150+ |
+| `fa-brands` | Font Awesome Brands | ~460+ |
+| `carbon` | Carbon Icons | ~2,100+ |
+| `octicon` | GitHub Octicons | ~500+ |
+| `fluent` | Fluent UI System Icons | ~11,000+ |
+| `ion` | Ionicons | ~1,300+ |
+| `ri` | Remix Icons | ~2,800+ |
+| `iconoir` | Iconoir | ~1,500+ |
+| `mingcute` | MingCute | ~2,800+ |
+| `solar` | Solar Icons | ~7,000+ |
+| `uil` | Unicons Line | ~1,200+ |
+| `bx` | BoxIcons | ~1,500+ |
+| `line-md` | Material Line Icons | ~300+ |
+| `tabler` | Tabler Icons | ~5,000+ |
+| `heroicons` | Heroicons | ~300+ |
+| `lucide` | Lucide Icons | ~1,900+ |
+| `bi` | Bootstrap Icons | ~2,000+ |
+| `ph` | Phosphor Icons | ~1,500+ |
+| `simple-icons` | Simple Icons | ~3,400+ |
+
+</details>
+
+Downloaded sets are recorded in a `swarm-icons.json` manifest in your project root. To automatically re-download them after `composer install` or `composer update`, add this to your `composer.json`:
+
+```json
+"scripts": {
+    "post-install-cmd": ["swarm-icons json:download"],
+    "post-update-cmd": ["swarm-icons json:download"]
+}
+```
+
+JSON files are lazy-loaded (parsed only on first icon access) and individual icons are cached via PSR-16, so subsequent requests never touch the JSON file again.
 
 ### Hybrid (local + Iconify fallback)
 

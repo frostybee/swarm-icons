@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Tests\Unit;
 
+use FilesystemIterator;
 use Frostybee\SwarmIcons\Cache\NullCache;
 use Frostybee\SwarmIcons\IconManager;
 use Frostybee\SwarmIcons\Provider\ChainProvider;
-use Frostybee\SwarmIcons\Provider\DirectoryProvider;
 use Frostybee\SwarmIcons\Provider\IconifyProvider;
 use Frostybee\SwarmIcons\SwarmIconsConfig;
 use PHPUnit\Framework\TestCase;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 class SwarmIconsConfigTest extends TestCase
 {
@@ -94,9 +96,9 @@ class SwarmIconsConfigTest extends TestCase
             $this->assertDirectoryExists($cachePath);
         } finally {
             if (is_dir($cachePath)) {
-                $items = new \RecursiveIteratorIterator(
-                    new \RecursiveDirectoryIterator($cachePath, \FilesystemIterator::SKIP_DOTS),
-                    \RecursiveIteratorIterator::CHILD_FIRST,
+                $items = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($cachePath, FilesystemIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::CHILD_FIRST,
                 );
                 foreach ($items as $item) {
                     $item->isDir() ? @rmdir($item->getPathname()) : @unlink($item->getPathname());
@@ -161,6 +163,28 @@ class SwarmIconsConfigTest extends TestCase
         // Getting a nonexistent icon should return the fallback
         $icon = $manager->get('custom:nonexistent');
         $this->assertStringContainsString('svg', $icon->toHtml());
+    }
+
+    public function test_discover_json_sets_registers_providers(): void
+    {
+        $jsonDir = \dirname(__DIR__) . '/Fixtures';
+
+        $manager = SwarmIconsConfig::create()
+            ->noCache()
+            ->discoverJsonSets($jsonDir)
+            ->build();
+
+        // test-collection.json should be registered under prefix "test-collection"
+        $this->assertNotNull($manager->getProvider('test-collection'));
+    }
+
+    public function test_discover_json_sets_returns_self_for_missing_dir(): void
+    {
+        $config = SwarmIconsConfig::create();
+
+        $result = $config->discoverJsonSets('/nonexistent/path');
+
+        $this->assertSame($config, $result);
     }
 
     public function test_fluent_chaining(): void

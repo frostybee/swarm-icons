@@ -27,6 +27,7 @@ use Frostybee\SwarmIcons\Command\CacheClearCommand;
 use Frostybee\SwarmIcons\Command\CacheWarmCommand;
 use Frostybee\SwarmIcons\Command\IconListCommand;
 use Frostybee\SwarmIcons\Command\InitCommand;
+use Frostybee\SwarmIcons\Command\JsonDownloadCommand;
 use Symfony\Component\Console\Application;
 
 $application = new Application('SwarmIcons CLI', '1.0.0');
@@ -36,5 +37,6 @@ $application->add(new CacheClearCommand());
 $application->add(new CacheWarmCommand());
 $application->add(new IconListCommand());
 $application->add(new InitCommand());
+$application->add(new JsonDownloadCommand());
 
 $application->run();
