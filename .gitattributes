@@ -24,11 +24,15 @@ docs/* linguist-documentation
 /.gitattributes     export-ignore
 /.gitignore         export-ignore
 /.editorconfig      export-ignore
+/phpunit.xml        export-ignore
 /phpunit.xml.dist   export-ignore
+/phpstan.neon       export-ignore
 /phpstan.neon.dist  export-ignore
+/.php-cs-fixer.php  export-ignore
 /.phpunit.cache     export-ignore
 /.phpstan           export-ignore
 /icons-lib          export-ignore
+/docs               export-ignore
 /cache              export-ignore
 /templates          export-ignore
 /demo               export-ignore

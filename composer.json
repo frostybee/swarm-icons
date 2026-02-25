@@ -21,7 +21,7 @@
             "role": "Developer"
         }
     ],
-    "homepage": "https://github.com/swarm-icons/swarm-icons",
+    "homepage": "https://github.com/frostybee/swarm-icons",
     "require": {
         "php": "^8.2",
         "psr/simple-cache": "^3.0"
@@ -75,6 +75,18 @@
             "@phpstan",
             "@cs-check",
             "@test"
+        ]
+    },
+    "archive": {
+        "exclude": [
+            "/demo",
+            "/docs",
+            "/icons-lib",
+            "/.github",
+            "/tests",
+            "/.php-cs-fixer.php",
+            "/phpstan.neon",
+            "/phpunit.xml"
         ]
     },
     "extra": {
