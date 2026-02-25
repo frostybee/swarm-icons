@@ -26,7 +26,7 @@ class IconRenderer
     /**
      * Render an icon with merged attributes.
      *
-     * Merge order: icon defaults → global defaults → prefix defaults → caller attributes
+     * Merge order: icon defaults → global defaults → prefix defaults → suffix defaults → caller attributes
      * CSS classes are merged (not replaced).
      * Automatic ARIA: decorative icons get aria-hidden="true", labeled icons get role="img".
      *

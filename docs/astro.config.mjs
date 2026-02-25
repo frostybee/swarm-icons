@@ -57,44 +57,49 @@ export default defineConfig({
                 {
                     label: 'Getting Started',
                     items: [
-                        { label: 'Installation',  slug: 'getting-started/installation' },
-                        { label: 'Quick Start',   slug: 'getting-started/quick-start' },
-                        { label: 'Core Concepts', slug: 'getting-started/core-concepts' },
+                        { label: 'Why Swarm Icons?', slug: 'getting-started/why-swarm-icons' },
+                        { label: 'Installation',     slug: 'getting-started/installation' },
+                        { label: 'Quick Start',      slug: 'getting-started/quick-start' },
+                        { label: 'Core Concepts',    slug: 'getting-started/core-concepts' },
                     ],
                 },
                 {
                     label: 'Providers',
                     items: [
-                        { label: 'Overview',               slug: 'providers/overview' },
-                        { label: 'Local SVG',              slug: 'providers/local-svg' },
-                        { label: 'JSON Collections',       slug: 'providers/json-collections' },
-                        { label: 'Iconify API (Runtime)',   slug: 'providers/iconify-api' },
-                        { label: 'Hybrid (ChainProvider)', slug: 'providers/hybrid' },
+                        { label: 'Using Local SVG Files',  slug: 'providers/local-svg' },
+                        { label: 'Using JSON Collections', slug: 'providers/json-collections' },
+                        { label: 'Using the Iconify API',  slug: 'providers/iconify-api' },
+                        { label: 'Using Hybrid Provider',  slug: 'providers/hybrid' },
+                    ],
+                },
+                {
+                    label: 'Configuration',
+                    items: [
+                        { label: 'Configuration Builder',  slug: 'configuration/builder' },
+                        { label: 'Defaults & Rendering',   slug: 'configuration/defaults-and-rendering' },
+                        { label: 'Advanced Options',        slug: 'configuration/advanced-options' },
                     ],
                 },
                 {
                     label: 'Guides',
                     items: [
-                        { label: 'CLI: json:download',  slug: 'guides/json-download' },
-                        { label: 'Twig',                slug: 'guides/twig' },
-                        { label: 'Using with Laravel',  slug: 'guides/laravel-blade' },
-                        { label: 'CommonMark',          slug: 'guides/commonmark' },
-                        { label: 'Accessibility',       slug: 'guides/accessibility' },
+                        { label: 'Twig Integration', slug: 'guides/twig' },
+                        { label: 'Laravel Blade',    slug: 'guides/laravel-blade' },
+                        { label: 'CommonMark',       slug: 'guides/commonmark' },
+                        { label: 'Accessibility',    slug: 'guides/accessibility' },
                     ],
                 },
                 {
                     label: 'Reference',
                     items: [
-                        { label: 'Configuration', slug: 'reference/configuration' },
-                        { label: 'Fluent API',    slug: 'reference/fluent-api' },
-                        { label: 'CLI Commands',  slug: 'reference/cli-commands' },
+                        { label: 'Fluent API', slug: 'reference/fluent-api' },
                     ],
                 },
                 {
-                    label: 'Development',
+                    label: 'CLI Reference',
                     items: [
-                        { label: 'Commands',     slug: 'development/commands' },
-                        { label: 'Contributing', slug: 'development/contributing' },
+                        { label: 'Icon Set Commands', slug: 'cli/icon-sets' },
+                        { label: 'Cache & Utilities', slug: 'cli/cache-and-utilities' },
                     ],
                 },
             ],

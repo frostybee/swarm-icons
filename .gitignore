@@ -2,7 +2,7 @@ icons-lib/
 
 swarm-icons.json
 
-# Downloaded JSON icon collections (populated by json:download or build-icon-sets.php)
+# Downloaded JSON icon collections (populated by json:download)
 resources/json/*.json
 profile/
 

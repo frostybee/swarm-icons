@@ -103,7 +103,7 @@ const codeTwig = `{# Register once in your bootstrap #}
     <!-- Hero -->
     <section class="hero">
       <div class="hero-content">
-        <img src={logo.src} alt="Swarm Icons" class="hero-logo" width="80" height="80" />
+        <img src={logo.src} alt="Swarm Icons" class="hero-logo" width="140" height="140" />
         <div class="hero-title-row">
           <h1 class="hero-title">Swarm Icons</h1>
           <div class="hero-badge">PHP 8.2+</div>
@@ -146,70 +146,74 @@ const codeTwig = `{# Register once in your bootstrap #}
         <h2 class="section-title">Four ways to work with icons</h2>
         <p class="section-subtitle">Mix and match providers to suit your project</p>
       </div>
-      <div class="comparison-grid">
-        <div class="comparison-column">
-          <span class="comparison-label">JSON Collections</span>
-          <div class="code-block">
-            <div class="code-header">
-              <div class="code-dots"><span></span><span></span><span></span></div>
-              <span class="code-filename">Offline . no HTTP at runtime</span>
-            </div>
-            <div class="code-dark">
-              <Code code={codeJsonCollections} lang="php" theme="github-dark-high-contrast" />
-            </div>
-            <div class="code-light">
-              <Code code={codeJsonCollections} lang="php" theme="light-plus" />
-            </div>
-          </div>
-          <p class="comparison-desc">Download sets once via CLI. Icons are lazy-loaded and PSR-16 cached. Works fully offline after setup.</p>
+      <div class="tabs">
+        <div class="tab-bar" role="tablist">
+          <button class="tab active" role="tab" aria-selected="true" data-tab="0">JSON Collections</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="1">Config Builder</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="2">Fluent Icon API</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="3">Twig Integration</button>
         </div>
-        <div class="comparison-column">
-          <span class="comparison-label">Config Builder</span>
-          <div class="code-block">
-            <div class="code-header">
-              <div class="code-dots"><span></span><span></span><span></span></div>
-              <span class="code-filename">Fluent setup API</span>
-            </div>
-            <div class="code-dark">
-              <Code code={codeConfigBuilder} lang="php" theme="github-dark-high-contrast" />
-            </div>
-            <div class="code-light">
-              <Code code={codeConfigBuilder} lang="php" theme="light-plus" />
-            </div>
-          </div>
-          <p class="comparison-desc">Mix providers, set defaults, configure suffix rules, define aliases, and set fallbacks . all in one fluent chain.</p>
-        </div>
-        <div class="comparison-column">
-          <span class="comparison-label">Fluent Icon API</span>
-          <div class="code-block">
-            <div class="code-header">
-              <div class="code-dots"><span></span><span></span><span></span></div>
-              <span class="code-filename">Immutable value objects</span>
-            </div>
-            <div class="code-dark">
-              <Code code={codeFluentApi} lang="php" theme="github-dark-high-contrast" />
-            </div>
-            <div class="code-light">
-              <Code code={codeFluentApi} lang="php" theme="light-plus" />
+        <div class="tab-panels">
+          <div class="tab-panel active" data-panel="0" role="tabpanel">
+            <p class="tab-desc">Download sets once via CLI. Icons are lazy-loaded and PSR-16 cached. Works fully offline after setup.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span></span><span></span><span></span></div>
+                <span class="code-filename">Offline &mdash; no HTTP at runtime</span>
+              </div>
+              <div class="code-dark">
+                <Code code={codeJsonCollections} lang="php" theme="github-dark-high-contrast" />
+              </div>
+              <div class="code-light">
+                <Code code={codeJsonCollections} lang="php" theme="light-plus" />
+              </div>
             </div>
           </div>
-          <p class="comparison-desc">Every icon method returns a new instance. Chain size, class, stroke, fill, and custom attributes safely.</p>
-        </div>
-        <div class="comparison-column">
-          <span class="comparison-label">Twig Integration</span>
-          <div class="code-block">
-            <div class="code-header">
-              <div class="code-dots"><span></span><span></span><span></span></div>
-              <span class="code-filename">Twig templates</span>
-            </div>
-            <div class="code-dark">
-              <Code code={codeTwig} lang="twig" theme="github-dark-high-contrast" />
-            </div>
-            <div class="code-light">
-              <Code code={codeTwig} lang="twig" theme="light-plus" />
+          <div class="tab-panel" data-panel="1" role="tabpanel">
+            <p class="tab-desc">Mix providers, set defaults, configure suffix rules, define aliases, and set fallbacks &mdash; all in one fluent chain.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span></span><span></span><span></span></div>
+                <span class="code-filename">Fluent setup API</span>
+              </div>
+              <div class="code-dark">
+                <Code code={codeConfigBuilder} lang="php" theme="github-dark-high-contrast" />
+              </div>
+              <div class="code-light">
+                <Code code={codeConfigBuilder} lang="php" theme="light-plus" />
+              </div>
             </div>
           </div>
-          <p class="comparison-desc">Dedicated Twig extension with <code>icon()</code>, <code>icon_exists()</code>, and <code>get_icon()</code> functions.</p>
+          <div class="tab-panel" data-panel="2" role="tabpanel">
+            <p class="tab-desc">Every icon method returns a new instance. Chain size, class, stroke, fill, and custom attributes safely.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span></span><span></span><span></span></div>
+                <span class="code-filename">Immutable value objects</span>
+              </div>
+              <div class="code-dark">
+                <Code code={codeFluentApi} lang="php" theme="github-dark-high-contrast" />
+              </div>
+              <div class="code-light">
+                <Code code={codeFluentApi} lang="php" theme="light-plus" />
+              </div>
+            </div>
+          </div>
+          <div class="tab-panel" data-panel="3" role="tabpanel">
+            <p class="tab-desc">Dedicated Twig extension with <code>icon()</code>, <code>icon_exists()</code>, and <code>get_icon()</code> functions.</p>
+            <div class="code-block">
+              <div class="code-header">
+                <div class="code-dots"><span></span><span></span><span></span></div>
+                <span class="code-filename">Twig templates</span>
+              </div>
+              <div class="code-dark">
+                <Code code={codeTwig} lang="twig" theme="github-dark-high-contrast" />
+              </div>
+              <div class="code-light">
+                <Code code={codeTwig} lang="twig" theme="light-plus" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -222,60 +226,72 @@ const codeTwig = `{# Register once in your bootstrap #}
       </div>
       <div class="feature-grid">
         <article class="feature-card">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-              <path d="M2 17l10 5 10-5"/>
-              <path d="M2 12l10 5 10-5"/>
-            </svg>
-          </div>
-          <h3>200,000+ Icons</h3>
+          <h3>
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                <path d="M2 17l10 5 10-5"/>
+                <path d="M2 12l10 5 10-5"/>
+              </svg>
+            </div>
+            200,000+ Icons
+          </h3>
           <p>Access any of the 200+ Iconify icon sets at runtime or pre-download them for offline use. No Node.js required.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M8 12l2 2 4-4"/>
-            </svg>
-          </div>
-          <h3>Modern PHP 8.2+</h3>
+          <h3>
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M8 12l2 2 4-4"/>
+              </svg>
+            </div>
+            Modern PHP 8.2+
+          </h3>
           <p>Strict types, fully typed codebase, immutable value objects, PSR-4 autoloading, PHPStan Level 8.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
-            </svg>
-          </div>
-          <h3>PSR-16 Caching</h3>
-          <p>Bring your own cache or use the built-in file cache. Icons are cached forever by default . zero overhead after first render.</p>
+          <h3>
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+              </svg>
+            </div>
+            PSR-16 Caching
+          </h3>
+          <p>Bring your own cache or use the built-in file cache. Icons are cached forever by default &mdash; zero overhead after first render.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <h3>XSS-Safe SVG</h3>
+          <h3>
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            XSS-Safe SVG
+          </h3>
           <p>Built-in sanitizer strips <code>&lt;script&gt;</code>, <code>on*</code> handlers, <code>javascript:</code> URIs, and external resource references.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-            </svg>
-          </div>
-          <h3>Twig &amp; Blade</h3>
+          <h3>
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+              </svg>
+            </div>
+            Twig &amp; Blade
+          </h3>
           <p>A dedicated Twig extension with <code>icon()</code>, <code>icon_exists()</code>, and <code>get_icon()</code>. Laravel Blade works via the global helper.</p>
         </article>
         <article class="feature-card">
-          <div class="feature-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-          </div>
-          <h3>Accessibility Built-in</h3>
+          <h3>
+            <div class="feature-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+            </div>
+            Accessibility Built-in
+          </h3>
           <p>Decorative icons get <code>aria-hidden="true"</code> automatically. Add <code>aria-label</code> to mark icons as meaningful.</p>
         </article>
       </div>
@@ -307,6 +323,19 @@ const codeTwig = `{# Register once in your bootstrap #}
       const theme = event.matches ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', theme);
       localStorage.setItem('starlight-theme', theme);
+    });
+
+    // Tabs
+    const tabBar = document.querySelector('.tab-bar');
+    tabBar?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('.tab') as HTMLElement | null;
+      if (!btn) return;
+      const idx = btn.dataset.tab;
+      tabBar.querySelectorAll('.tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelector(`.tab-panel[data-panel="${idx}"]`)?.classList.add('active');
     });
 
     const copyBtn = document.getElementById('copy-install');
@@ -444,8 +473,8 @@ const codeTwig = `{# Register once in your bootstrap #}
   }
 
   .hero-logo {
-    width: 80px;
-    height: 80px;
+    width: 140px;
+    height: 140px;
     margin-bottom: 1rem;
     animation: fadeInUp 0.6s ease-out 0.05s both;
   }
@@ -591,21 +620,43 @@ const codeTwig = `{# Register once in your bootstrap #}
   .section-title { font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 600; letter-spacing: -0.02em; }
   .section-subtitle { font-size: 1rem; color: var(--color-text-muted); margin-top: 0.5rem; }
 
-  /* Comparison */
+  /* Comparison / Tabs */
   .comparison {
     padding: 5rem 0;
     border-bottom: 1px solid var(--color-border);
   }
 
-  .comparison-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+  .tabs { max-width: 48rem; margin: 0 auto; }
+
+  .tab-bar {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: 1.5rem;
   }
 
-  .comparison-column { display: flex; flex-direction: column; }
-  .comparison-label { font-size: 0.875rem; font-weight: 600; color: var(--color-accent); margin-bottom: 0.75rem; }
-  .comparison-desc { font-size: 0.875rem; color: var(--color-text-muted); margin-top: 1rem; line-height: 1.5; }
+  .tab {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .tab:hover { color: var(--color-text); }
+  .tab.active { color: var(--color-accent); border-bottom-color: var(--color-accent); font-weight: 600; }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .tab-desc { font-size: 0.9rem; color: var(--color-text-muted); margin-bottom: 1rem; line-height: 1.5; text-align: center; }
 
   /* Features */
   .features { padding: 5rem 0; border-bottom: 1px solid var(--color-border); }
@@ -640,20 +691,28 @@ const codeTwig = `{# Register once in your bootstrap #}
   .feature-card:nth-child(5) { animation-delay: 0.3s; }
   .feature-card:nth-child(6) { animation-delay: 0.35s; }
 
-  .feature-icon {
+  .feature-card h3 {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    margin-bottom: 1rem;
-    color: var(--color-accent);
-    background: var(--color-accent-bg);
-    border-radius: 0.5rem;
+    gap: 0.625rem;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
   }
 
-  .feature-icon svg { width: 1.25rem; height: 1.25rem; }
-  .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--color-accent);
+    background: var(--color-accent-bg);
+    border-radius: 0.375rem;
+  }
+
+  .feature-icon svg { width: 1rem; height: 1rem; }
   .feature-card p { font-size: 0.9375rem; color: var(--color-text-muted); line-height: 1.6; }
   .feature-card code { font-size: 0.85em; padding: 0.125rem 0.375rem; background: var(--color-bg-alt); border-radius: 0.25rem; }
 
@@ -667,7 +726,8 @@ const codeTwig = `{# Register once in your bootstrap #}
   /* Mobile */
   @media (max-width: 900px) {
     .hero { padding: 4rem 0; }
-    .comparison-grid { grid-template-columns: 1fr; }
+    .tab-bar { gap: 0; }
+    .tab { padding: 0.625rem 0.75rem; font-size: 0.8125rem; }
     .code-block pre,
     .code-block :global(pre) { white-space: pre-wrap; word-wrap: break-word; overflow-x: visible; }
     .code-block code,

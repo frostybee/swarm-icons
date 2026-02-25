@@ -1,100 +1,85 @@
 ---
-title: Using with Laravel
-description: Integrate Swarm Icons into a Laravel application using the global swarm_icon() helper in Blade templates.
+title: Laravel Blade
+description: Use Swarm Icons in Laravel Blade templates with the swarm_icon() helper.
 ---
 
-No extra package is needed for Laravel. Register the icon manager once in a service provider, then use the global `swarm_icon()` helper in your Blade templates.
+Swarm Icons works in Laravel out of the box (no extra package needed). Register the manager once in a service provider, and the `swarm_icon()` helper is available in every Blade template.
 
-## Setup
+## Register the manager
 
-**1. Register the manager in `AppServiceProvider`:**
+Add this to your `AppServiceProvider`:
 
 ```php
 use Frostybee\SwarmIcons\SwarmIcons;
 use Frostybee\SwarmIcons\SwarmIconsConfig;
 
-public function register(): void
+class AppServiceProvider extends ServiceProvider
 {
-    $manager = SwarmIconsConfig::create()
-        ->addIconifySet('heroicons')
-        ->cachePath(storage_path('icons'))
-        ->build();
+    public function register(): void
+    {
+        $manager = SwarmIconsConfig::create()
+            ->discoverJsonSets(resource_path('json'))
+            ->cachePath(storage_path('framework/cache/icons'))
+            ->defaultPrefix('tabler')
+            ->defaultAttributes(['class' => 'icon'])
+            ->build();
 
-    SwarmIcons::setManager($manager);
+        SwarmIcons::setManager($manager);
+    }
 }
 ```
 
-Or use `discoverJsonSets()` if you've pre-downloaded sets:
+## Use icons in Blade
 
-```php
-$manager = SwarmIconsConfig::create()
-    ->discoverJsonSets(resource_path('json'))
-    ->cachePath(storage_path('icons'))
-    ->build();
-
-SwarmIcons::setManager($manager);
-```
-
-**2. Use `swarm_icon()` in your Blade templates:**
+Since `swarm_icon()` returns raw SVG, you need unescaped output:
 
 ```blade
-{!! swarm_icon('heroicons:home') !!}
-{!! swarm_icon('heroicons:user', ['class' => 'w-6 h-6']) !!}
-{!! swarm_icon('heroicons:home', ['aria-label' => 'Home']) !!}
+{!! swarm_icon('home') !!}
+{!! swarm_icon('heroicons:check', ['class' => 'w-6 h-6']) !!}
+{!! swarm_icon('tabler:star', ['aria-label' => 'Favorite']) !!}
 ```
 
 :::caution
-Always use `{!! !!}` (unescaped output) since `swarm_icon()` returns raw SVG markup. The standard `{{ }}` syntax escapes HTML and will render the SVG as visible text.
+Always use `{!! !!}`, not `{{ }}`. Double-curly braces escape HTML, which would render the SVG as visible markup text instead of an icon.
 :::
 
-## Fluent API in Blade
-
-The fluent Icon API also works in Blade:
+You can chain fluent methods inline:
 
 ```blade
-{!! swarm_icon('heroicons:home')->size(24)->class('text-blue-500') !!}
-{!! $manager->get('tabler:star')->size(20)->class('text-yellow-400') !!}
+{!! swarm_icon('home')->size(24)->class('text-blue-500') !!}
+{!! swarm_icon('tabler:star')->fill('currentColor')->strokeWidth(1.5) !!}
 ```
 
-## Blade Component (Optional)
-
-For cleaner templates, you can wrap `swarm_icon()` in a Blade component. Create `resources/views/components/icon.blade.php`:
+And check for existence before rendering:
 
 ```blade
-@props(['name', 'class' => '', 'label' => null])
-
-@php
-    $attrs = ['class' => $class];
-    if ($label) {
-        $attrs['aria-label'] = $label;
-    }
-@endphp
-
-{!! swarm_icon($name, $attrs) !!}
+@if(SwarmIcons::has('heroicons:user'))
+    {!! swarm_icon('heroicons:user') !!}
+@endif
 ```
 
-Then use it in templates:
+## Where to put your icons
 
-```blade
-<x-icon name="heroicons:home" class="w-5 h-5" />
-<x-icon name="heroicons:user" class="w-6 h-6" label="User profile" />
-```
-
-## Recommended Directory Structure
+A typical Laravel project might organize icon files like this:
 
 ```
 resources/
-├── json/         ← downloaded JSON sets (via json:download)
-│   ├── mdi.json
+├── json/               ← downloaded JSON collections
 │   ├── tabler.json
-│   └── heroicons.json
-storage/
-└── icons/        ← PSR-16 file cache
+│   ├── heroicons.json
+│   └── mdi.json
+└── icons/              ← custom SVG icons (if any)
+    ├── logo.svg
+    └── brand.svg
 ```
 
-```php
-$manager = SwarmIconsConfig::create()
-    ->discoverJsonSets(resource_path('json'))
-    ->cachePath(storage_path('icons'))
-    ->build();
+Download sets into the right place with `--dest`:
+
+```bash
+vendor/bin/swarm-icons json:download tabler heroicons mdi --dest=resources/json
 ```
+
+## See also
+
+- [Fluent API](/swarm-icons/reference/fluent-api/): all available methods on the `Icon` value object
+- [Accessibility](/swarm-icons/guides/accessibility/): decorative vs meaningful icons and ARIA best practices

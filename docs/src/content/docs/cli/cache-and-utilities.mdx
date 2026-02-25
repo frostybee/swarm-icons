@@ -1,0 +1,122 @@
+---
+title: Cache & Utilities
+description: CLI commands for cache management, icon listing, and project initialization.
+---
+
+These commands help with day-to-day operations: clearing the cache, pre-warming icons for production, listing what's available, and scaffolding a new config file.
+
+## Clear the cache
+
+`cache:clear` wipes all cached icon files from disk and reports how much space was freed:
+
+:::caution
+This deletes every cached icon. They'll be rebuilt automatically on the next request, but there will be a one-time performance hit while the cache repopulates.
+:::
+
+```bash
+vendor/bin/swarm-icons cache:clear
+vendor/bin/swarm-icons cache:clear --path=/var/cache/icons
+```
+
+| Option | Short | Default |
+|--------|-------|---------|
+| `--path` | `-p` | `sys_get_temp_dir()/swarm-icons` |
+
+```
+ [OK] Cache cleared successfully!
+      Removed 142 cached files (856.3 KB)
+      Location: /tmp/swarm-icons
+```
+
+## Warm the cache
+
+If you're using the Iconify API provider in production and want zero HTTP requests at runtime, `cache:warm` pre-fetches icons during deployment. It batches everything into a single request:
+
+```bash
+vendor/bin/swarm-icons cache:warm --prefix=tabler --icons=home,user,settings,arrow-left
+```
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--prefix` | `-p` | Icon set prefix (required) | - |
+| `--icons` | `-i` | Comma-separated icon names (required) | - |
+| `--cache-path` | | Cache directory | `sys_get_temp_dir()/swarm-icons` |
+| `--timeout` | `-t` | HTTP timeout in seconds | `10` |
+
+```
+ [OK] Warmed 4 icon(s) for prefix 'tabler'
+      All icons fetched successfully
+      Cache now contains 146 files (862.1 KB)
+```
+
+If some icons can't be found, the command tells you which ones failed and still caches the rest.
+
+## List available icons
+
+`icon:list` shows what icons are available from a local directory or an Iconify set:
+
+```bash
+# From a local SVG directory
+vendor/bin/swarm-icons icon:list --path=/path/to/svgs
+
+# From an Iconify set (fetches from API)
+vendor/bin/swarm-icons icon:list --prefix=tabler --iconify
+
+# Filter by name
+vendor/bin/swarm-icons icon:list --prefix=heroicons --iconify --search=chevron
+```
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--prefix` | `-p` | Icon set prefix (for Iconify mode) | - |
+| `--path` | | Path to local SVG directory | - |
+| `--iconify` | | Fetch from Iconify API instead of local files | `false` |
+| `--search` | `-s` | Filter by substring | - |
+
+Local mode (`--path`) works offline and is instant. Iconify mode (`--prefix` + `--iconify`) needs network access.
+
+## Generate a starter config
+
+`init` creates a `swarm-icons.php` file with commented examples for every option: providers, cache, defaults, and the global helper. Uncomment what you need and you're ready to go:
+
+```bash
+vendor/bin/swarm-icons init
+vendor/bin/swarm-icons init --output=config/swarm-icons.php
+vendor/bin/swarm-icons init --force   # overwrite an existing file
+```
+
+| Option | Short | Default |
+|--------|-------|---------|
+| `--output` | `-o` | `swarm-icons.php` |
+| `--force` | `-f` | `false` |
+
+The generated file looks like this:
+
+```php
+<?php
+
+use Frostybee\SwarmIcons\SwarmIcons;
+use Frostybee\SwarmIcons\SwarmIconsConfig;
+
+$manager = SwarmIconsConfig::create()
+
+    // Icon Providers
+    // ->addDirectory('custom', __DIR__ . '/resources/icons')
+    // ->addIconifySet('tabler')
+    // ->addHybridSet('heroicons', __DIR__ . '/resources/heroicons')
+    // ->discoverPackages()
+
+    // Cache
+    ->cachePath(__DIR__ . '/cache/icons')
+
+    // Defaults
+    // ->defaultPrefix('tabler')
+    // ->defaultAttributes(['class' => 'icon'])
+    // ->fallbackIcon('tabler:question-mark')
+
+    ->build();
+
+SwarmIcons::setManager($manager);
+
+return $manager;
+```

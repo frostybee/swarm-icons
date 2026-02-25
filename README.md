@@ -258,7 +258,7 @@ Use `{!! !!}` (unescaped) since `swarm_icon()` returns raw SVG markup. The stand
 
 ## CommonMark
 
-Install the [CommonMark extension](https://github.com/swarm-icons/swarm-icons-commonmark) to render icons in markdown:
+Install the [CommonMark extension](https://github.com/frostybee/swarm-icons-commonmark) to render icons in markdown:
 
 ```bash
 composer require frostybee/swarm-icons-commonmark

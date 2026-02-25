@@ -1,87 +1,99 @@
 ---
-title: Local SVG (DirectoryProvider)
-description: Load icons from local .svg files on disk using DirectoryProvider.
+title: Using Local SVG Files
+description: Load icons from your own .svg files on disk using DirectoryProvider.
 ---
 
-`DirectoryProvider` maps icon names to `.svg` files on disk. It supports subdirectory notation and recursive directory scanning.
+If you have your own SVG files (custom icons, brand assets, or designer exports), point Swarm Icons at the folder and you're done.
 
-## Basic Usage
-
-```php
-use Frostybee\SwarmIcons\Provider\DirectoryProvider;
-
-$provider = new DirectoryProvider('/path/to/svgs', recursive: true);
-$manager->register('custom', $provider);
-
-$manager->get('custom:home');          // → home.svg
-$manager->get('custom:outline/user'); // → outline/user.svg
-```
-
-## Via the Config Builder
+## Getting started
 
 ```php
 $manager = SwarmIconsConfig::create()
-    ->addDirectory('custom', '/path/to/svgs')
-    ->addDirectory('flat', '/path/to/flat-icons', recursive: false)
+    ->addDirectory('custom', __DIR__ . '/resources/icons')
     ->build();
+
+echo $manager->get('custom:home');   // loads resources/icons/home.svg
+echo $manager->get('custom:close');  // loads resources/icons/close.svg
 ```
 
-## Prefix Is Up to You
+The first argument is the **prefix**: a name you choose. The second is the path to your SVG directory. That's all it takes.
 
-The prefix is entirely your choice . it's just a string you use to namespace icons. Whatever you pass as the first argument becomes the prefix in `get()` calls:
+## How names map to files
+
+The icon name (the part after the `:`) maps directly to a filename, minus the `.svg` extension:
+
+```php
+$manager->get('custom:home');        // → home.svg
+$manager->get('custom:arrow-left');  // → arrow-left.svg
+```
+
+No magic, no transformation. The name *is* the filename.
+
+## Organizing with subdirectories
+
+By default, the provider scans subdirectories recursively. Use `/` to reach icons inside them:
+
+```
+resources/icons/
+├── home.svg
+├── close.svg
+├── outline/
+│   ├── home.svg
+│   └── user.svg
+└── solid/
+    ├── home.svg
+    └── user.svg
+```
+
+```php
+echo $manager->get('icons:home');            // home.svg
+echo $manager->get('icons:outline/home');    // outline/home.svg
+echo $manager->get('icons:solid/user');      // solid/user.svg
+```
+
+This is useful for icon sets that ship variants in separate folders, like Heroicons with its `outline/` and `solid/` directories.
+
+If you only want top-level files, disable the recursive scan:
+
+```php
+->addDirectory('flat', '/path/to/icons', recursive: false)
+```
+
+## Multiple directories
+
+Register as many directories as you need, each under its own prefix:
 
 ```php
 $manager = SwarmIconsConfig::create()
     ->addDirectory('app', __DIR__ . '/resources/icons')
     ->addDirectory('brand', __DIR__ . '/assets/brand')
-    ->addDirectory('ui', __DIR__ . '/svgs')
     ->build();
 
 echo $manager->get('app:logo');
 echo $manager->get('brand:wordmark');
-echo $manager->get('ui:close');
 ```
 
-## Icon Name → File Name
+## Security
 
-The icon name (the part after `:`) maps directly to the **filename** of the `.svg` file, without the extension:
+`DirectoryProvider` guards against path traversal. Any icon name that would resolve outside the registered directory is rejected: requests like `../../../etc/passwd` won't load.
 
-- `get('ui:close')` → looks for `close.svg` in the registered directory
-- `get('ui:outline/home')` → looks for `outline/home.svg` (when `recursive: true`)
+## Listing what's available
 
-## Multiple Directories
-
-Register as many directories as you need under different prefixes:
+From PHP:
 
 ```php
-$manager = SwarmIconsConfig::create()
-    ->addDirectory('icons', __DIR__ . '/resources/icons')
-    ->addDirectory('solid', __DIR__ . '/resources/icons/solid')
-    ->addDirectory('outline', __DIR__ . '/resources/icons/outline')
-    ->defaultPrefix('icons')
-    ->build();
-
-echo swarm_icon('home');          // → icons/home.svg (default prefix)
-echo swarm_icon('solid:star');    // → solid/star.svg
-echo swarm_icon('outline:star');  // → outline/star.svg
+foreach ($manager->all('custom') as $name) {
+    echo $name . "\n";   // home, close, outline/home, ...
+}
 ```
 
-## Path Traversal Protection
-
-`DirectoryProvider` enforces that resolved file paths stay within the registered directory. Attempts to escape via `../` in icon names are rejected.
-
-## Listing All Icons
-
-Use `all()` to get every icon name found in the directory:
-
-```php
-$names = $provider->all();
-// ['home', 'user', 'settings', 'outline/chevron-down', ...]
-```
-
-Or via the CLI:
+Or from the CLI:
 
 ```bash
-php bin/swarm-icons icon:list --path=/path/to/svgs
-php bin/swarm-icons icon:list --path=/path/to/svgs --search=arrow
+vendor/bin/swarm-icons icon:list --path=/path/to/svgs
 ```
+
+## See also
+
+- [Using JSON Collections](/swarm-icons/providers/json-collections/): pre-downloaded Iconify sets for production
+- [Using Hybrid Provider](/swarm-icons/providers/hybrid/): combine local SVGs with API fallback

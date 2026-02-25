@@ -1,0 +1,131 @@
+---
+title: Defaults & Rendering
+description: Control how icons are rendered with global defaults, prefix defaults, suffix-based attributes, and the attribute merge pipeline.
+---
+
+Most icons in your app will share the same size, stroke width, or base class. Instead of repeating those attributes on every call, you set them once and let the rendering pipeline handle the rest.
+
+## How attributes are merged
+
+When an icon is rendered, Swarm Icons applies attributes in layers. Each layer can add new values or override previous ones:
+
+1. **Icon defaults**: what the SVG file already has (`viewBox`, `xmlns`, etc.)
+2. **Global defaults**: your `defaultAttributes()`, applied to everything
+3. **Prefix defaults**: your `prefixAttributes()`, scoped to a specific set
+4. **Suffix defaults**: your `prefixSuffix()`, matched by icon name ending
+5. **Caller attributes**: what you pass to `swarm_icon()` or `get()`
+
+The last layer always wins. But CSS classes are special: they **accumulate** across every layer instead of replacing.
+
+## Global defaults
+
+These apply to every icon, regardless of which set it comes from:
+
+```php
+->defaultAttributes(['class' => 'icon', 'aria-hidden' => 'true'])
+```
+
+Now every `swarm_icon()` call includes `class="icon"` and `aria-hidden="true"` without you having to pass them.
+
+## Prefix defaults
+
+Different icon sets often need different styling. Tabler icons might need a smaller size than Heroicons, or MDI icons might need `fill` instead of `stroke`:
+
+```php
+->prefixAttributes('heroicons', ['class' => 'w-6 h-6', 'stroke-width' => '1.5'])
+->prefixAttributes('tabler', ['class' => 'w-5 h-5'])
+->prefixAttributes('mdi', ['class' => 'w-6 h-6', 'fill' => 'currentColor'])
+```
+
+These only apply to icons from that specific prefix. They stack on top of your global defaults.
+
+## How classes accumulate
+
+:::note
+CSS classes are always **appended**, never replaced. This is different from all other attributes, where the last layer wins.
+:::
+
+This is the key behavior to understand:
+
+```php
+// Config:
+->defaultAttributes(['class' => 'icon'])
+->prefixAttributes('tabler', ['class' => 'w-5 h-5'])
+```
+
+```php
+echo swarm_icon('tabler:home', ['class' => 'text-blue-500']);
+// class="icon w-5 h-5 text-blue-500"
+```
+
+All three classes are present: `icon` from global defaults, `w-5 h-5` from prefix defaults, and `text-blue-500` from the call site. This means you can set a base size for all Tabler icons globally and still add per-instance classes without losing anything.
+
+## Suffix-based attributes
+
+Some icon sets ship variants as distinct names with a suffix, like Heroicons with `home-solid` and `home-outline`. You can apply different defaults based on that suffix:
+
+```php
+->prefixSuffix('heroicons', 'solid',   ['fill' => 'currentColor', 'stroke' => 'none'])
+->prefixSuffix('heroicons', 'outline', ['stroke' => 'currentColor', 'fill' => 'none'])
+```
+
+The renderer checks if the icon name ends with `-solid`, `-outline`, etc., and applies the matching rule:
+
+```php
+echo $manager->get('heroicons:home-solid');    // fill="currentColor" stroke="none"
+echo $manager->get('heroicons:home-outline');  // stroke="currentColor" fill="none"
+```
+
+You can also define a catch-all for names that don't match any suffix, use an empty string:
+
+```php
+->prefixSuffix('heroicons', '',  ['stroke' => 'currentColor', 'fill' => 'none'])
+//                          ^^^  applied when no other suffix matches
+```
+
+Each prefix has its own independent suffix rules, so Heroicons and Tabler can have completely different setups.
+
+## Seeing it all together
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->addIconifySet('tabler')
+    ->defaultAttributes(['class' => 'icon'])
+    ->prefixAttributes('heroicons', ['class' => 'w-6 h-6'])
+    ->prefixAttributes('tabler', ['class' => 'w-5 h-5'])
+    ->prefixSuffix('heroicons', 'solid',   ['fill' => 'currentColor'])
+    ->prefixSuffix('heroicons', 'outline', ['stroke' => 'currentColor', 'fill' => 'none'])
+    ->build();
+```
+
+```php
+$manager->get('heroicons:home-solid');
+// → class="icon w-6 h-6" fill="currentColor"
+
+$manager->get('heroicons:home-outline');
+// → class="icon w-6 h-6" stroke="currentColor" fill="none"
+
+$manager->get('tabler:home');
+// → class="icon w-5 h-5"
+
+$manager->get('heroicons:home-solid', ['class' => 'text-red', 'fill' => 'red']);
+// → class="icon w-6 h-6 text-red" fill="red" (caller overrides fill, appends class)
+```
+
+## Inspecting your configuration
+
+If you need to debug what's being applied, you can inspect the renderer directly:
+
+```php
+$renderer = $manager->getRenderer();
+
+$renderer->getDefaultAttributes();              // ['class' => 'icon']
+$renderer->getPrefixAttributes('heroicons');     // ['class' => 'w-6 h-6']
+$renderer->getSuffixAttributes('heroicons');     // ['solid' => [...], 'outline' => [...]]
+```
+
+## See also
+
+- [Configuration Builder](/swarm-icons/configuration/builder/): registering providers, caching, and the full builder API
+- [Fluent API](/swarm-icons/reference/fluent-api/): per-icon attribute methods like `size()`, `class()`, and `fill()`

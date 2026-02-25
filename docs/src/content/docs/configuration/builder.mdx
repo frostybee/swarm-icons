@@ -1,0 +1,156 @@
+---
+title: Configuration Builder
+description: "Full reference for SwarmIconsConfig: the fluent builder for providers, caching, and rendering defaults."
+---
+
+Everything in Swarm Icons starts with the builder. You chain a few method calls to describe where your icons live, how they should be cached, and what defaults to apply, then call `build()` to get a ready-to-use manager.
+
+## Minimal setup
+
+```php
+use Frostybee\SwarmIcons\SwarmIconsConfig;
+
+$manager = SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->build();
+
+echo $manager->get('heroicons:home');
+```
+
+That's a working setup. Everything below is optional. Use what you need.
+
+## Registering providers
+
+You can mix provider types freely. Each one gets its own prefix:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets()                              // all downloaded JSON sets
+    ->addIconifySet('heroicons')                      // live API
+    ->addDirectory('custom', __DIR__ . '/my-icons')   // local SVGs
+    ->build();
+```
+
+Here's what's available:
+
+| Method | What it does |
+|--------|-------------|
+| `addDirectory(prefix, path)` | Scans a local folder for `.svg` files |
+| `addJsonCollection(prefix, path)` | Loads a specific Iconify JSON file |
+| `addIconifyJsonSet(prefix)` | Resolves a JSON file from `vendor/iconify/json/` |
+| `addIconifySet(prefix)` | Fetches icons on demand from the Iconify API |
+| `addHybridSet(prefix, path)` | Local files first, API as fallback |
+| `discoverJsonSets(dir?)` | Auto-registers every `.json` file in a directory |
+| `discoverPackages(vendor?)` | Auto-discovers Composer packages that provide icon sets |
+
+Each provider type is documented in the [Providers](/swarm-icons/providers/local-svg/) section.
+
+## Setting a default prefix
+
+If most of your icons come from one set, set it as the default so you can skip the prefix:
+
+```php
+->defaultPrefix('tabler')
+
+echo swarm_icon('home');         // resolves to tabler:home
+echo swarm_icon('mdi:account');  // other sets still need the prefix
+```
+
+## Caching
+
+All cache-aware providers (Iconify API, JSON collections) share the cache you configure here.
+
+```php
+->cachePath('/var/cache/icons')                // file cache, never expires
+->cachePath('/var/cache/icons', ttl: 3600)     // expires after 1 hour
+->cache($myPsr16CacheInstance)                 // any PSR-16 implementation
+->noCache()                                    // disable caching entirely
+```
+
+If you don't configure anything, Swarm Icons uses a file cache in the system temp directory (reasonable for development, but you'll want an explicit path for production).
+
+## Default attributes
+
+Instead of passing the same classes or styles to every `swarm_icon()` call, set them once.
+
+**Global defaults** apply to every icon:
+
+```php
+->defaultAttributes(['class' => 'icon', 'aria-hidden' => 'true'])
+```
+
+**Prefix defaults** apply to icons from a specific set (useful when sets need different sizing):
+
+```php
+->prefixAttributes('heroicons', ['class' => 'w-6 h-6', 'stroke-width' => '1.5'])
+->prefixAttributes('tabler', ['class' => 'w-5 h-5'])
+```
+
+The full attribute merge pipeline (how globals, prefix defaults, suffix rules, and caller attributes interact) is covered in [Defaults & Rendering](/swarm-icons/configuration/defaults-and-rendering/).
+
+## Error handling
+
+**Fallback icon**: show a placeholder instead of throwing when an icon is missing:
+
+```php
+->fallbackIcon('heroicons:question-mark-circle')
+```
+
+**Ignore not found**: return an empty string instead of throwing:
+
+```php
+->ignoreNotFound()
+```
+
+These can be combined for a two-layer safety net. See [Advanced Options](/swarm-icons/configuration/advanced-options/) for details.
+
+## The global helper
+
+After building, register the manager so `swarm_icon()` works anywhere:
+
+```php
+use Frostybee\SwarmIcons\SwarmIcons;
+
+SwarmIcons::setManager($manager);
+
+echo swarm_icon('heroicons:home');
+```
+
+## Putting it all together
+
+Here's a production-ready config that uses most of what's available:
+
+```php
+use Frostybee\SwarmIcons\SwarmIconsConfig;
+use Frostybee\SwarmIcons\SwarmIcons;
+
+$manager = SwarmIconsConfig::create()
+    // Providers
+    ->discoverJsonSets()
+    ->addIconifySet('heroicons')
+    ->addDirectory('custom', __DIR__ . '/resources/icons')
+    // Caching
+    ->cachePath(__DIR__ . '/cache/icons', ttl: 86400)
+    // Defaults
+    ->defaultPrefix('tabler')
+    ->defaultAttributes(['class' => 'icon'])
+    ->prefixAttributes('heroicons', ['class' => 'w-6 h-6'])
+    ->prefixAttributes('tabler', ['class' => 'w-5 h-5', 'stroke-width' => '1.5'])
+    ->prefixSuffix('heroicons', 'solid', ['fill' => 'currentColor'])
+    ->prefixSuffix('heroicons', 'outline', ['stroke' => 'currentColor', 'fill' => 'none'])
+    // Aliases & error handling
+    ->alias('check', 'heroicons:check-circle')
+    ->alias('close', 'heroicons:x-mark')
+    ->fallbackIcon('heroicons:question-mark-circle')
+    ->ignoreNotFound()
+    ->build();
+
+SwarmIcons::setManager($manager);
+```
+
+You don't need all of this. Start with a provider and a cache path, then add defaults and aliases as your usage grows.
+
+## See also
+
+- [Defaults & Rendering](/swarm-icons/configuration/defaults-and-rendering/): how the attribute merge pipeline works
+- [Advanced Options](/swarm-icons/configuration/advanced-options/): aliases, fallback icons, and package discovery

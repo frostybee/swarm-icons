@@ -1,24 +1,25 @@
 ---
-title: Hybrid (ChainProvider)
-description: Combine multiple providers with ChainProvider . try local files first, fall back to the Iconify API.
+title: Using Hybrid Provider
+description: Combine local files with API fallback using ChainProvider for flexible icon resolution.
 ---
 
-`ChainProvider` tries providers in sequence . it stops at the first one that returns a result. The classic use case is: try local files first, fall back to the live Iconify API if the icon isn't found locally.
+Sometimes you need icons from more than one source under the same prefix. The `ChainProvider` tries providers in sequence and returns the first match: perfect for layering local files with an API fallback.
 
-## How It Works
+## The quick way
 
-```
-swarm_icon('icons:home')
-  → DirectoryProvider: look for home.svg on disk → not found
-  → IconifyProvider: fetch from api.iconify.design → found ✓
-```
+The builder has a shorthand that pairs a local directory with the Iconify API:
 
-```
-swarm_icon('icons:custom-logo')
-  → DirectoryProvider: look for custom-logo.svg → found ✓ (stops here)
+```php
+$manager = SwarmIconsConfig::create()
+    ->addHybridSet('icons', __DIR__ . '/resources/icons')
+    ->build();
 ```
 
-## Basic Usage
+When you request an icon, it checks your local folder first. If the file isn't there, it fetches from the Iconify API and caches the result. You get the best of both worlds: fast local resolution with automatic API coverage for anything you haven't downloaded yet.
+
+## Building a custom chain
+
+For more control, assemble the chain yourself. Providers are tried in the order you list them:
 
 ```php
 use Frostybee\SwarmIcons\Provider\ChainProvider;
@@ -27,47 +28,53 @@ use Frostybee\SwarmIcons\Provider\IconifyProvider;
 use Frostybee\SwarmIcons\Cache\FileCache;
 
 $manager->register('icons', new ChainProvider([
-    new DirectoryProvider('/path/to/custom/icons'),
-    new IconifyProvider('heroicons', new FileCache('/var/cache/icons')),
+    new DirectoryProvider('/path/to/overrides'),
+    new DirectoryProvider('/path/to/base-icons'),
+    new IconifyProvider('heroicons', new FileCache('/tmp/cache')),
 ]));
 ```
 
-## Via the Config Builder
+The first provider to find the icon wins. The rest are never asked.
 
-`addHybridSet()` creates a `ChainProvider` that tries a local directory first and falls back to the Iconify API:
+## When this is useful
 
-```php
-SwarmIconsConfig::create()
-    ->addHybridSet('icons', '/path/to/custom/icons')
-    ->addHybridSet('icons', '/path/to/custom/icons', recursive: true, timeout: 10)
-    ->build();
-```
-
-## Use Cases
-
-**Custom icons with Iconify fallback**: Ship your brand icons locally, but fall back to a large icon set for everything else:
+**Gradual migration**: You're moving from local SVGs to Iconify sets. Keep the old files on disk while the API fills in the gaps. Remove local files at your own pace:
 
 ```php
-SwarmIconsConfig::create()
-    ->addHybridSet('ui', __DIR__ . '/resources/brand-icons')
-    ->build();
-
-echo swarm_icon('ui:brand-logo');   // served from local file
-echo swarm_icon('ui:arrow-right');  // fetched from Iconify API
+->addHybridSet('icons', __DIR__ . '/legacy-icons')
 ```
 
-**Gradual migration**: You're migrating from local SVGs to an Iconify set. During the migration, ChainProvider serves existing local icons while falling back to Iconify for anything not yet in your local collection.
-
-**Overrides**: Bundle a few modified versions of icons locally and let Iconify serve everything else.
-
-## Combining Multiple Hybrid Sets
-
-Multiple providers can be chained under different prefixes:
+**Local overrides**: Your designer tweaked a few icons from an Iconify set. Drop the custom SVGs in a folder and they take priority over the API versions:
 
 ```php
-SwarmIconsConfig::create()
-    ->addHybridSet('ui', __DIR__ . '/resources/ui-icons')
-    ->addHybridSet('brand', __DIR__ . '/resources/brand-icons')
-    ->addIconifySet('mdi')     // pure API (no local fallback)
-    ->build();
+new ChainProvider([
+    new DirectoryProvider('/path/to/custom'),   // your home.svg wins
+    new IconifyProvider('heroicons', $cache),    // everything else from API
+]);
 ```
+
+**Offline resilience**: Prefer the API for fresh data, but keep a local copy as insurance when the network is unavailable:
+
+```php
+new ChainProvider([
+    new IconifyProvider('tabler', $cache),
+    new DirectoryProvider('/path/to/offline-fallback'),
+]);
+```
+
+## Choosing the right provider
+
+| | Local SVG | JSON Collections | Iconify API | Hybrid |
+|---|---|---|---|---|
+| Works offline | Yes | Yes | No | Partially |
+| Setup effort | Copy SVG files | Run `json:download` | None | Copy SVGs |
+| Icon catalog | Your files only | Downloaded sets | 200,000+ | Both |
+| Best for | Custom icons | Production apps | Prototyping | Migration, overrides |
+
+For most production apps, [JSON Collections](/swarm-icons/providers/json-collections/) are the simplest path: fast, offline, no moving parts. Hybrid shines when you need local overrides or are transitioning between icon sources.
+
+## See also
+
+- [Using Local SVG Files](/swarm-icons/providers/local-svg/): loading icons from your own `.svg` files
+- [Using the Iconify API](/swarm-icons/providers/iconify-api/): fetching icons on demand over HTTP
+- [Using JSON Collections](/swarm-icons/providers/json-collections/): the recommended approach for production

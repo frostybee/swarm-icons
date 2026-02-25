@@ -1,82 +1,110 @@
 ---
 title: Accessibility
-description: How Swarm Icons handles ARIA attributes for decorative and semantic icons.
+description: How Swarm Icons handles ARIA attributes automatically and best practices for accessible icon usage.
 ---
 
-Swarm Icons applies ARIA attributes automatically based on how you use each icon. The pattern follows the [W3C recommendations for SVG icons](https://www.w3.org/TR/svg-aam-1.0/).
+Swarm Icons handles the most common accessibility patterns for you. Most of the time, you don't need to think about it. The defaults do the right thing.
 
-## Decorative Icons
+## The two kinds of icons
 
-Icons without an `aria-label` are treated as **decorative** and receive `aria-hidden="true"` automatically. Screen readers will skip them entirely:
+Every icon on a page is either **decorative** or **meaningful**:
 
-```php
-echo swarm_icon('home');
-// <svg aria-hidden="true" ...>...</svg>
-```
+- **Decorative** icons sit next to text that already explains what's going on. A trash can icon next to the word "Delete": the icon is decoration, the text carries the meaning.
+- **Meaningful** icons stand alone as the only way to understand an action. A trash can icon with no text: screen readers need to know what it does.
 
-## Semantic Icons
+Swarm Icons detects which case you're in and adds the right ARIA attributes automatically.
 
-Add an `aria-label` to mark an icon as **meaningful**. Swarm Icons automatically adds `role="img"` to make the label accessible:
+## Decorative icons (the default)
 
-```php
-echo swarm_icon('home', ['aria-label' => 'Go home']);
-// <svg role="img" aria-label="Go home" ...>...</svg>
-```
-
-## Setting Default ARIA Attributes
-
-You can set `aria-hidden` globally via `defaultAttributes()` and then override it on specific icons:
+If you don't pass `aria-label` or `aria-labelledby`, the icon is treated as decorative and hidden from screen readers:
 
 ```php
-$manager = SwarmIconsConfig::create()
-    ->addIconifySet('heroicons')
-    ->defaultAttributes(['aria-hidden' => 'true'])  // all icons decorative by default
-    ->build();
-
-// Override for a specific meaningful icon
-echo $manager->get('heroicons:home', ['aria-label' => 'Home', 'aria-hidden' => null]);
+echo swarm_icon('tabler:home');
+// → <svg aria-hidden="true" ...>...</svg>
 ```
 
-## In Twig Templates
+This is the right behavior for the majority of icons (the ones that sit next to visible text):
+
+```php
+echo swarm_icon('tabler:home') . ' Home';
+echo '<button>' . swarm_icon('tabler:trash') . ' Delete</button>';
+echo '<a href="/">' . swarm_icon('tabler:home') . ' Dashboard</a>';
+```
+
+In all of these, the text does the communicating. The icon is visual reinforcement.
+
+## Meaningful icons
+
+When an icon is the **only** indicator of what something does, give it an `aria-label`. Swarm Icons will add `role="img"` automatically:
+
+```php
+echo swarm_icon('tabler:home', ['aria-label' => 'Home']);
+// → <svg role="img" aria-label="Home" ...>...</svg>
+```
+
+This matters most for icon-only controls:
+
+```php
+// Icon-only button
+echo '<button>' . swarm_icon('tabler:trash', ['aria-label' => 'Delete item']) . '</button>';
+
+// Icon-only link
+echo '<a href="/settings">' . swarm_icon('tabler:settings', ['aria-label' => 'Settings']) . '</a>';
+```
+
+Without `aria-label`, a screen reader user wouldn't know what these controls do.
+
+You can also use `aria-labelledby` to reference another element on the page:
+
+```php
+echo '<h2 id="section-title">Dashboard</h2>';
+echo swarm_icon('tabler:layout-dashboard', ['aria-labelledby' => 'section-title']);
+```
+
+## Overriding the defaults
+
+If you set `aria-hidden` or `role` yourself, Swarm Icons won't touch them:
+
+```php
+echo swarm_icon('tabler:home', ['role' => 'presentation']);
+echo swarm_icon('tabler:home', ['aria-hidden' => 'true', 'aria-label' => 'Home']);
+```
+
+The automatic behavior only kicks in when those attributes aren't already present.
+
+## Practical guidelines
+
+**Let most icons be decorative.** If there's text next to it, the icon doesn't need a label. This is the default. You don't need to do anything.
+
+**Label icon-only controls.** Any button, link, or input that has no visible text needs `aria-label`:
+
+```php
+echo '<button>' . swarm_icon('tabler:x', ['aria-label' => 'Close']) . '</button>';
+```
+
+**Don't double up.** If the text already says "Delete", don't also label the icon "Delete": a screen reader would announce it twice:
+
+```php
+// Good: icon is decorative, text carries the meaning
+echo swarm_icon('tabler:trash') . ' Delete';
+
+// Avoid: screen reader says "Delete Delete"
+echo swarm_icon('tabler:trash', ['aria-label' => 'Delete']) . ' Delete';
+```
+
+## In Twig
+
+The same rules apply: the rendering pipeline is identical:
 
 ```twig
-{# Decorative . aria-hidden applied automatically #}
-{{ icon('heroicons:home') }}
+{# Decorative #}
+{{ icon('tabler:home') }} Home
 
-{# Semantic . aria-label triggers role="img" #}
-{{ icon('heroicons:home', {'aria-label': 'Go home'}) }}
+{# Meaningful #}
+{{ icon('tabler:home', {'aria-label': 'Go to homepage'}) }}
 ```
 
-## Best Practices
+## See also
 
-**Icons alongside visible text** . mark as decorative:
-
-```php
-// The text already conveys the meaning
-echo '<button>' . swarm_icon('home') . ' Home</button>';
-// <svg aria-hidden="true">...</svg>
-```
-
-**Icon-only buttons** . add a label:
-
-```php
-echo '<button aria-label="Close">' . swarm_icon('x-mark') . '</button>';
-// or pass aria-label to the icon itself
-echo '<button>' . swarm_icon('x-mark', ['aria-label' => 'Close']) . '</button>';
-```
-
-**Icon-only links** . label the link, not the icon:
-
-```html
-<a href="/" aria-label="Go home">
-  <?= swarm_icon('home') ?>
-</a>
-```
-
-## ARIA Attribute Summary
-
-| Situation | `aria-label` set? | Output |
-|---|---|---|
-| Decorative icon (default) | No | `aria-hidden="true"` |
-| Meaningful icon | Yes | `role="img" aria-label="..."` |
-| `aria-hidden` set in `defaultAttributes` | Depends | Respects the global default |
+- [Fluent API](/swarm-icons/reference/fluent-api/): setting `aria-label` and other attributes via the `attr()` method
+- [Twig Integration](/swarm-icons/guides/twig/): using icons in Twig templates

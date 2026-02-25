@@ -1,17 +1,19 @@
 ---
-title: CommonMark Integration
-description: Render inline SVG icons in Markdown content using the Swarm Icons CommonMark extension.
+title: CommonMark
+description: "Render SVG icons inline in Markdown content using the :icon[] syntax."
 ---
 
-The [Swarm Icons CommonMark extension](https://github.com/swarm-icons/swarm-icons-commonmark) adds an `:icon[]` inline syntax to League CommonMark, allowing you to embed SVG icons directly in Markdown content.
+If your app renders Markdown (a blog, a wiki, a CMS), this extension lets content authors embed icons directly in their writing. No PHP, no template tags, just a short inline syntax.
 
-## Installation
+This is a separate package:
 
 ```bash
 composer require frostybee/swarm-icons-commonmark
 ```
 
-## Setup
+## Wire it up
+
+Register the extension with your League CommonMark environment. Pass the same `IconManager` you use everywhere else:
 
 ```php
 use Frostybee\SwarmIcons\CommonMark\IconExtension;
@@ -26,49 +28,50 @@ $environment->addExtension(new IconExtension($manager));
 $converter = new MarkdownConverter($environment);
 ```
 
-## Syntax
+## The syntax
 
-Use the `:icon[]` inline syntax in your Markdown:
+Embed an icon inline with `:icon[prefix:name]`:
 
 ```markdown
 Click :icon[heroicons:home] to go home.
-
-:icon[heroicons:user class="w-6 h-6"] Profile
 ```
 
-## Attributes
+That renders the `heroicons:home` icon right inside the paragraph text.
 
-Pass HTML attributes inside the brackets after the icon name:
+### Adding attributes
+
+Pass attributes as space-separated `key="value"` pairs after the icon name:
 
 ```markdown
-:icon[heroicons:home]
-:icon[heroicons:home class="w-5 h-5"]
-:icon[heroicons:home class="w-5 h-5" aria-label="Go home"]
-:icon[tabler:star class="text-yellow-400" width="20" height="20"]
+:icon[heroicons:user class="w-6 h-6"] Profile
+:icon[tabler:star fill="currentColor"] Favorite
 ```
 
-## Full Example
+### Accessible icons
 
-```php
-$manager = SwarmIconsConfig::create()
-    ->addIconifySet('heroicons')
-    ->addIconifySet('tabler')
-    ->cachePath('/var/cache/icons')
-    ->build();
+Add `aria-label` to make an icon meaningful to screen readers:
 
-$environment = new Environment();
-$environment->addExtension(new CommonMarkCoreExtension());
-$environment->addExtension(new IconExtension($manager));
-
-$converter = new MarkdownConverter($environment);
-
-$markdown = <<<MD
-# Welcome
-
-Click :icon[heroicons:home class="w-5 h-5"] to return to the home page.
-
-:icon[tabler:star class="text-yellow-400"] Favorite this page.
-MD;
-
-echo $converter->convert($markdown);
+```markdown
+:icon[heroicons:home aria-label="Home"] Home
 ```
+
+Icons go through the same rendering pipeline as `swarm_icon()`: global defaults, prefix defaults, suffix attributes, and ARIA rules all apply.
+
+## A real-world example
+
+This is where the syntax really shines for documentation or help content where authors write Markdown and shouldn't need to touch PHP:
+
+```markdown
+## Getting Started
+
+1. Click :icon[heroicons:plus-circle] **New Project** to create a project
+2. Use :icon[heroicons:cog-6-tooth] **Settings** to configure options
+3. Click :icon[heroicons:check-circle] **Save** when done
+```
+
+The icons render inline, right alongside the text. Authors can reference any icon set you've configured: they just need to know the `prefix:name`.
+
+## See also
+
+- [Fluent API](/swarm-icons/reference/fluent-api/): the `Icon` value object and its methods
+- [Accessibility](/swarm-icons/guides/accessibility/): decorative vs meaningful icons and ARIA attributes

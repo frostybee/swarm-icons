@@ -1,0 +1,41 @@
+---
+title: Why Swarm Icons?
+description: When Swarm Icons makes sense, and when plain SVG is fine.
+---
+
+If you have 3 icons, just paste the SVG. Seriously.
+
+Swarm Icons exists for when that approach stops scaling: when you're managing dozens of icons across a PHP application and want them to stay consistent, accessible, and easy to change.
+
+## Swarm Icons vs. plain SVG
+
+| Scenario | Plain SVG | Swarm Icons |
+|----------|-----------|-------------|
+| 5 icons in a static site | Better, no overhead | Overkill |
+| 50+ icons across a PHP app | Gets messy fast | Clean `swarm_icon('tabler:home')` |
+| Consistent sizing and stroke | Manual on every `<svg>` tag | `defaultAttributes()` once |
+| Switching icon sets | Find & replace everything | Change one prefix |
+| Iconify API fallback | Not possible | Built-in |
+| Twig templates | Inline SVG blobs | `{{ icon('tabler:home') }}` |
+| Accessibility | Manual `aria-hidden` on every icon | Automatic |
+| Caching | Not applicable | PSR-16 file cache |
+
+## When it makes sense
+
+You'll get the most value from Swarm Icons when your project has some combination of these:
+
+- **Many icons** spread across multiple templates, not just a few in one place
+- **Consistency requirements**: every icon should be the same size, same stroke width, same base class, without repeating yourself
+- **Multiple icon sets**: mixing Tabler, Heroicons, and custom SVGs under one API
+- **Template engines**: Twig's `{{ icon() }}` or Blade's `{!! swarm_icon() !!}` beat pasting raw SVG
+- **Accessibility needs**: `aria-hidden` and `role="img"` applied automatically based on context
+- **Offline + API flexibility**: pre-download JSON sets for production, fall back to the Iconify API during development
+
+## When plain SVG is fine
+
+- A small static site with a handful of icons
+- No PHP templating involved
+- Icons are baked in and never change
+- You don't need consistency across multiple templates
+
+There's nothing wrong with copy-pasting SVGs. Swarm Icons doesn't try to replace that for simple use cases: it picks up where that approach starts to hurt.

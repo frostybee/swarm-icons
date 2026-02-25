@@ -1,0 +1,122 @@
+---
+title: Icon Set Commands
+description: Browse, download, and search icon sets using the Swarm Icons CLI.
+---
+
+These three commands form a discovery workflow: browse what's available, download what you need, and search within your sets. All from the command line, no Node.js required.
+
+## Browse available sets
+
+`json:browse` shows every Iconify icon set: prefix, name, icon count, category, and license. Sets you've already downloaded are marked with an asterisk.
+
+```bash
+vendor/bin/swarm-icons json:browse
+```
+
+Filter with `--search` to narrow things down (case-insensitive, matches name, prefix, and category):
+
+```bash
+vendor/bin/swarm-icons json:browse --search=emoji
+vendor/bin/swarm-icons json:browse --search=Material
+```
+
+## Download sets
+
+`json:download` fetches Iconify JSON collections from the npm registry and saves them to `resources/json/`.
+
+```bash
+# Grab specific sets
+vendor/bin/swarm-icons json:download mdi tabler heroicons
+
+# Or download all 22 popular sets at once
+vendor/bin/swarm-icons json:download --all
+
+# See which popular sets are available and their download status
+vendor/bin/swarm-icons json:download --list
+```
+
+You can specify a different destination with `--dest`:
+
+```bash
+vendor/bin/swarm-icons json:download mdi --dest=resources/json
+```
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--all` | | Download all popular sets | `false` |
+| `--list` | `-l` | Show popular sets with download status | `false` |
+| `--dest` | `-d` | Destination directory | `resources/json/` |
+
+### The manifest
+
+Every download is recorded in a `swarm-icons.json` manifest at your project root. Running `json:download` with no arguments re-downloads everything in the manifest (useful for CI/CD or restoring after a fresh clone).
+
+To make this automatic after `composer install`:
+
+```json
+"scripts": {
+    "post-install-cmd": ["swarm-icons json:download"],
+    "post-update-cmd":  ["swarm-icons json:download"]
+}
+```
+
+### The typical workflow
+
+1. **Browse**: `json:browse --search=arrow` to find what you want
+2. **Download**: `json:download tabler heroicons` to grab the sets
+3. **Discover**: `->discoverJsonSets()` in your config to register them
+4. **Render**: `swarm_icon('tabler:home')` in your templates
+
+## Search icons by name
+
+`icon:search` finds icons whose name contains a substring. It works against three sources: the Iconify API (default), a local SVG directory, or a downloaded JSON file.
+
+```bash
+# Search the Iconify API
+vendor/bin/swarm-icons icon:search tabler arrow
+
+# Search a local SVG directory
+vendor/bin/swarm-icons icon:search custom home --path=/path/to/svgs
+
+# Search a downloaded JSON collection
+vendor/bin/swarm-icons icon:search mdi account --json=resources/json/mdi.json
+```
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `prefix` | Yes | The icon set to search (e.g., `tabler`, `mdi`) |
+| `term` | Yes | Substring to match against icon names |
+
+| Option | Description |
+|--------|-------------|
+| `--path` | Search a local SVG directory instead of the API |
+| `--json` | Search a JSON collection file instead of the API |
+
+Results show up in a paginated two-column table with prefixed names:
+
+```bash title="Searching Tabler Icons (tabler) icons 'arrow'..."
+$ vendor/bin/swarm-icons icon:search tabler arrow
+
+ Searching Tabler Icons (tabler) icons "arrow"...
+ Found 268 icons.
+
+ ------------------------------------- ---------------------------------
+  tabler:archery-arrow                  tabler:arrow-back
+  tabler:arrow-autofit-content          tabler:arrow-back-up
+  tabler:arrow-autofit-content-filled   tabler:arrow-back-up-double
+  tabler:arrow-autofit-down             tabler:arrow-badge-down
+  tabler:arrow-autofit-down-filled      tabler:arrow-badge-down-filled
+  tabler:arrow-autofit-height           tabler:arrow-badge-left
+  tabler:arrow-autofit-height-filled    tabler:arrow-badge-left-filled
+  tabler:arrow-autofit-left             tabler:arrow-badge-right
+  tabler:arrow-autofit-left-filled      tabler:arrow-badge-right-filled
+  tabler:arrow-autofit-right            tabler:arrow-badge-up
+  tabler:arrow-autofit-right-filled     tabler:arrow-badge-up-filled
+  tabler:arrow-autofit-up               tabler:arrow-bar-both
+  tabler:arrow-autofit-up-filled        tabler:arrow-bar-down
+  tabler:arrow-autofit-width            tabler:arrow-bar-left
+  tabler:arrow-autofit-width-filled     tabler:arrow-bar-right
+ ------------------------------------- ---------------------------------
+
+  Page 1/9. Continue? (yes/no) [yes]:
+```

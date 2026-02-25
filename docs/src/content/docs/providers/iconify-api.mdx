@@ -1,93 +1,107 @@
 ---
-title: Iconify API (IconifyProvider)
-description: Fetch icons on demand from the live Iconify HTTP API with multi-host fallback and PSR-16 caching.
+title: Using the Iconify API
+description: Fetch icons on demand from the Iconify HTTP API with automatic caching and multi-host fallback.
 ---
 
-`IconifyProvider` fetches icons **on demand at runtime** from the Iconify HTTP API. When you call `swarm_icon('heroicons:home')`, if the icon isn't cached yet, it makes an HTTP request right then and there, caches the result, and returns the SVG. All subsequent calls resolve from cache.
+Don't want to download anything? The Iconify API provider gives you access to 200,000+ icons across 200+ sets: just register a prefix and start rendering. Icons are fetched over HTTP on first use and cached locally from that point on.
 
-## Request Flow
-
-```
-swarm_icon('heroicons:home')
-  → cache miss?
-    → GET https://api.iconify.design/heroicons.json?icons=home
-      → parse JSON response
-        → build Icon object
-          → store in PSR-16 cache
-            → return SVG
-```
-
-After the first request, the icon is cached forever (TTL = 0 by default) and no further HTTP traffic occurs.
-
-## Multi-Host Fallback
-
-If the primary Iconify host is unreachable, the provider automatically tries the next host in sequence:
-
-1. `https://api.iconify.design` (primary)
-2. `https://api.simplesvg.com`
-3. `https://api.unisvg.com`
-
-## Basic Setup
-
-```php
-use Frostybee\SwarmIcons\Provider\IconifyProvider;
-use Frostybee\SwarmIcons\Cache\FileCache;
-
-$provider = new IconifyProvider(
-    prefix: 'heroicons',
-    cache: new FileCache('/var/cache/icons'),
-    timeout: 10,
-    cacheTtl: 0  // 0 = cache forever
-);
-
-$manager->register('heroicons', $provider);
-```
-
-## Via the Config Builder
+## Getting started
 
 ```php
 $manager = SwarmIconsConfig::create()
     ->addIconifySet('heroicons')
     ->addIconifySet('tabler')
-    ->addIconifySet('lucide', timeout: 15)   // custom timeout
-    ->cachePath('/var/cache/icons')
+    ->cachePath(__DIR__ . '/cache/icons')
     ->build();
+
+echo $manager->get('heroicons:home');
+echo $manager->get('tabler:star');
 ```
 
-## Batch Fetching
+No downloads, no JSON files, no manifest. The tradeoff is that your app needs internet access the first time it encounters each icon.
 
-More efficient than multiple individual `get()` calls when you need several icons at once. Makes a single HTTP request for all icons in the set:
+## What happens on a request
 
-```php
-$icons = $provider->fetchMany(['home', 'user', 'star', 'settings']);
+The first time you render an icon, the provider checks the cache. On a miss, it makes a single HTTP request to the Iconify API, builds the `Icon` object, stores it in cache, and returns it. Every request after that resolves from disk:
+
+```
+swarm_icon('heroicons:home')
+  → cache hit?  → return immediately
+  → cache miss? → GET api.iconify.design/heroicons.json?icons=home
+                 → cache the result
+                 → return SVG
 ```
 
-## Pre-Warming the Cache
+The default TTL is `0`: cache forever. That means each icon is fetched exactly once, ever.
 
-For production deployments where you want zero API calls at runtime, use the `cache:warm` CLI command during your deployment pipeline:
+## Multi-host fallback
+
+If the primary API host is down, the provider automatically tries two mirrors in sequence:
+
+1. `https://api.iconify.design` (primary)
+2. `https://api.simplesvg.com`
+3. `https://api.unisvg.com`
+
+You don't need to configure this: it happens transparently.
+
+## Pre-warming the cache
+
+If you'd rather avoid runtime HTTP entirely, you can pre-fetch icons during deployment. The `cache:warm` command batches everything into a single request:
 
 ```bash
-php bin/swarm-icons cache:warm --prefix=heroicons --icons=home,user,settings,chevron-down
-php bin/swarm-icons cache:warm --prefix=tabler --icons=star,search,menu --cache-path=/var/cache/icons
+vendor/bin/swarm-icons cache:warm --prefix=heroicons --icons=home,user,star,settings
 ```
 
-## Popular Icon Sets
+You can also batch-fetch programmatically:
 
-Some popular sets available via the Iconify API:
+```php
+$provider->fetchMany(['home', 'user', 'star', 'settings']);
+```
 
-| Prefix | Name | Count |
-|---|---|---|
-| `heroicons` | Heroicons | 292 |
-| `tabler` | Tabler Icons | 5000+ |
-| `lucide` | Lucide | 1400+ |
-| `mdi` | Material Design Icons | 7000+ |
-| `ph` | Phosphor Icons | 7000+ |
-| `ri` | Remix Icons | 2800+ |
-| `bi` | Bootstrap Icons | 2000+ |
-| `simple-icons` | Simple Icons (brands) | 3000+ |
+After warming, those icons resolve from cache with zero latency.
 
-Browse all 200+ sets: `php bin/swarm-icons json:browse`
+## Tradeoffs
 
-:::tip
-For production environments, prefer pre-downloading sets with `json:download` + `JsonCollectionProvider` to avoid any runtime HTTP dependency.
-:::
+This provider is ideal for **prototyping and development**: you get instant access to any Iconify set with no setup. But there are limits to be aware of:
+
+- The first request for each icon has HTTP latency
+- Your app needs internet access (at least on first use, unless you pre-warm)
+- `all()` returns an empty array: the API has no list endpoint
+
+For production, [JSON Collections](/swarm-icons/providers/json-collections/) are usually the better fit. You can also combine both with a [Hybrid Provider](/swarm-icons/providers/hybrid/) (local files first, API as a safety net).
+
+## Popular sets
+
+A few commonly used sets to get you started:
+
+| Prefix | Set | Icons |
+|--------|-----|-------|
+| `bi` | [Bootstrap Icons](https://icon-sets.iconify.design/bi/) | 2,000+ |
+| `bx` | [Boxicons](https://icon-sets.iconify.design/bx/) | 1,600+ |
+| `carbon` | [Carbon Icons](https://icon-sets.iconify.design/carbon/) | 2,000+ |
+| `fa7-brands` | [Font Awesome 7 Brands](https://icon-sets.iconify.design/fa7-brands/) | 586+ |
+| `fa7-regular` | [Font Awesome 7 Regular](https://icon-sets.iconify.design/fa7-regular/) | 272+ |
+| `fa7-solid` | [Font Awesome 7 Solid](https://icon-sets.iconify.design/fa7-solid/) | 1,999+ |
+| `flowbite` | [Flowbite Icons](https://icon-sets.iconify.design/flowbite/) | 500+ |
+| `fluent` | [Fluent UI Icons](https://icon-sets.iconify.design/fluent/) | 14,000+ |
+| `heroicons` | [Heroicons](https://icon-sets.iconify.design/heroicons/) | 300+ |
+| `icon-park-outline` | [IconPark Outline](https://icon-sets.iconify.design/icon-park-outline/) | 2,600+ |
+| `iconoir` | [Iconoir](https://icon-sets.iconify.design/iconoir/) | 1,600+ |
+| `ion` | [Ionicons](https://icon-sets.iconify.design/ion/) | 1,300+ |
+| `line-md` | [Material Line Icons](https://icon-sets.iconify.design/line-md/) | 300+ |
+| `lucide` | [Lucide](https://icon-sets.iconify.design/lucide/) | 1,500+ |
+| `mdi` | [Material Design Icons](https://icon-sets.iconify.design/mdi/) | 7,000+ |
+| `mingcute` | [MingCute Icons](https://icon-sets.iconify.design/mingcute/) | 2,800+ |
+| `octicon` | [GitHub Octicons](https://icon-sets.iconify.design/octicon/) | 600+ |
+| `ph` | [Phosphor Icons](https://icon-sets.iconify.design/ph/) | 7,000+ |
+| `ri` | [Remix Icons](https://icon-sets.iconify.design/ri/) | 2,800+ |
+| `simple-icons` | [Simple Icons](https://icon-sets.iconify.design/simple-icons/) | 3,000+ |
+| `solar` | [Solar Icons](https://icon-sets.iconify.design/solar/) | 7,500+ |
+| `tabler` | [Tabler Icons](https://icon-sets.iconify.design/tabler/) | 5,000+ |
+| `uil` | [Unicons Line](https://icon-sets.iconify.design/uil/) | 1,200+ |
+
+Browse all 200+ sets from the CLI:
+
+```bash
+vendor/bin/swarm-icons json:browse
+```

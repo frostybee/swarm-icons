@@ -1,138 +1,167 @@
 ---
 title: Fluent API
-description: Reference for the Icon value object's fluent method chain . size, class, fill, stroke, attr, and more.
+description: "Complete reference for the Icon value object: fluent methods, accessors, output, and serialization."
 ---
 
-`Icon` is an immutable `Stringable` value object. Every fluent method returns a **new instance** . the original is never modified. This makes it safe to pass icons around and apply different attributes in different contexts.
-
-## Getting an Icon
+When you call `swarm_icon()` or `$manager->get()`, you get back an `Icon` object. It's immutable: every method returns a new instance, so you can chain calls without worrying about side effects.
 
 ```php
-// From the manager
-$icon = $manager->get('heroicons:home');
-
-// With initial attributes
-$icon = $manager->get('heroicons:home', ['class' => 'w-6 h-6']);
-
-// Via the global helper
-$icon = swarm_icon('heroicons:home');  // renders immediately (returns string)
-// For the fluent API, use $manager->get() instead
-```
-
-## Fluent Methods
-
-### `size(int|string $size)`
-
-Sets both `width` and `height` attributes:
-
-```php
-$icon->size(24);     // width="24" height="24"
-$icon->size('1rem'); // width="1rem" height="1rem"
-```
-
-### `class(string $class)`
-
-Appends CSS classes (never replaces):
-
-```php
-$icon->class('text-blue-500');
-$icon->class('w-6 h-6')->class('active');  // "w-6 h-6 active"
-```
-
-### `fill(string $fill)`
-
-Sets the `fill` attribute:
-
-```php
-$icon->fill('currentColor');
-$icon->fill('none');
-$icon->fill('#FFB300');
-```
-
-### `stroke(string $stroke)`
-
-Sets the `stroke` attribute:
-
-```php
-$icon->stroke('currentColor');
-$icon->stroke('none');
-```
-
-### `strokeWidth(int|float|string $width)`
-
-Sets the `stroke-width` attribute:
-
-```php
-$icon->strokeWidth(1.5);
-$icon->strokeWidth(2);
-$icon->strokeWidth('0.5rem');
-```
-
-### `attr(array $attributes)`
-
-Set one or more arbitrary attributes. Pass `null` as a value to remove an attribute:
-
-```php
-$icon->attr(['data-icon' => 'home']);
-$icon->attr(['aria-label' => 'Home']);
-$icon->attr(['aria-hidden' => null]);  // removes aria-hidden
-```
-
-## Chaining
-
-All methods return a new instance, so you can chain freely:
-
-```php
-$icon = $manager->get('heroicons:home')
-    ->size(32)
+echo swarm_icon('tabler:home')
+    ->size(24)
     ->class('text-blue-500')
-    ->strokeWidth(1.5)
-    ->fill('none')
-    ->attr(['aria-label' => 'Home']);
-
-echo $icon;
-// <svg width="32" height="32" class="text-blue-500" stroke-width="1.5"
-//      fill="none" role="img" aria-label="Home">...</svg>
+    ->strokeWidth(1.5);
 ```
 
-## Immutability in Practice
+## Styling methods
 
-Because every method returns a new instance, you can safely reuse a base icon:
+### `size()`
+
+Sets both `width` and `height` at once. Accepts numbers or CSS units:
 
 ```php
-$base = $manager->get('heroicons:star');
-
-$small  = $base->size(16)->class('text-gray-400');
-$large  = $base->size(32)->class('text-yellow-500');
-$active = $base->size(24)->class('text-yellow-400')->attr(['aria-label' => 'Favorite']);
-
-// $base is unchanged throughout
-echo $base;    // no size or class
-echo $small;   // size=16, class=text-gray-400
-echo $large;   // size=32, class=text-yellow-500
+echo swarm_icon('tabler:home')->size(32);      // width="32" height="32"
+echo swarm_icon('tabler:home')->size('2rem');   // width="2rem" height="2rem"
 ```
 
-## Rendering
+### `class()`
 
-`Icon` implements `Stringable` . cast to string or use in a string context to get the rendered SVG:
+Appends CSS classes. Never replaces existing ones (they accumulate):
 
 ```php
-echo $icon;                     // direct echo
-$svg = (string) $icon;          // explicit cast
-$html = '<div>' . $icon . '</div>'; // string concatenation
+echo swarm_icon('tabler:home')->class('text-blue-500');
+echo swarm_icon('tabler:home')->class(['w-6', 'h-6', 'text-blue-500']);
+
+// Multiple calls stack:
+echo swarm_icon('tabler:home')->class('w-6')->class('text-blue');
+// → class="w-6 text-blue"
+```
+
+### `fill()` and `stroke()`
+
+Set the `fill` and `stroke` attributes:
+
+```php
+echo swarm_icon('mdi:account')->fill('currentColor');
+echo swarm_icon('tabler:home')->stroke('#3b82f6');
+```
+
+### `strokeWidth()`
+
+Sets `stroke-width`:
+
+```php
+echo swarm_icon('tabler:home')->strokeWidth(1.5);
+```
+
+### `attr()`
+
+For anything else, `attr()` sets arbitrary attributes. By default it merges with existing ones:
+
+```php
+echo swarm_icon('tabler:home')->attr(['data-icon' => 'home', 'id' => 'main-icon']);
+```
+
+Pass `merge: false` to replace all attributes instead of merging:
+
+```php
+echo swarm_icon('tabler:home')->attr(['class' => 'only-this'], merge: false);
+```
+
+Setting a value to `null` removes that attribute:
+
+```php
+echo swarm_icon('tabler:home')->attr(['aria-hidden' => null]);
+```
+
+## Immutability
+
+This is worth emphasizing: the original icon is never modified. Every method returns a new copy:
+
+```php
+$home = swarm_icon('tabler:home');
+$large = $home->size(48);
+$blue  = $home->class('text-blue');
+
+echo $home;   // original: no size, no class
+echo $large;  // width="48" height="48"
+echo $blue;   // class="text-blue"
+```
+
+This makes icons safe to pass around, store in variables, and reuse without surprises.
+
+## Reading attributes back
+
+Sometimes you need to inspect an icon rather than render it:
+
+```php
+$icon = swarm_icon('tabler:home')->size(24)->class('icon');
+
+$icon->getContent();                    // inner SVG (without the <svg> wrapper)
+$icon->getAttributes();                 // ['viewBox' => '...', 'width' => '24', ...]
+$icon->getAttribute('class');           // 'icon'
+$icon->getAttribute('data-x', 'none');  // 'none' (not set, returns default)
+$icon->hasAttribute('class');           // true
+```
+
+## Output
+
+Echo an icon directly: it implements `Stringable`:
+
+```php
+echo swarm_icon('tabler:home');
+```
+
+Or call `toHtml()` explicitly when you need the string without echoing:
+
+```php
+$html = swarm_icon('tabler:home')->size(24)->toHtml();
+```
+
+Both produce the same full `<svg>` tag with all attributes and content.
+
+## Creating icons directly
+
+Most of the time you'll use `swarm_icon()` or `$manager->get()`. But you can also create icons from raw SVG data:
+
+```php
+use Frostybee\SwarmIcons\Icon;
+
+// From a file on disk
+$icon = Icon::fromFile('/path/to/icon.svg');
+
+// From a raw SVG string
+$icon = Icon::fromString('<svg viewBox="0 0 24 24"><path d="..."/></svg>');
+
+// From Iconify API JSON data (handles hFlip, vFlip, rotate)
+$icon = Icon::fromIconifyData([
+    'body' => '<path d="..."/>',
+    'width' => 24,
+    'height' => 24,
+]);
 ```
 
 ## Serialization
 
-`Icon` supports `__serialize`/`__unserialize` for PSR-16 cache compatibility. You can store and restore icon objects through any cache layer.
+Icons support PHP's native `serialize()` / `unserialize()`, which is how the file cache stores them on disk:
+
+```php
+$serialized = serialize($icon);
+$restored = unserialize($serialized);
+echo $restored; // works exactly like the original
+```
 
 ## In Twig
 
-The fluent API is fully accessible via `get_icon()` in Twig templates:
+Use `get_icon()` to get the `Icon` object and chain methods in your template:
 
 ```twig
 {% set star = get_icon('tabler:star') %}
-{{ star.size(24).class('text-yellow-400') }}
+{{ star.size(32).class('text-yellow-500') }}
 
-{{ get_icon('heroicons:home').size(20).class('nav-icon') }}
+{{ get_icon('tabler:arrow-right').fill('currentColor').strokeWidth(1.5) }}
 ```
+
+## See also
+
+- [Core Concepts](/swarm-icons/getting-started/core-concepts/): how providers, prefixes, and attributes work together
+- [Defaults & Rendering](/swarm-icons/configuration/defaults-and-rendering/): global and prefix-level attribute defaults

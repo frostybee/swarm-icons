@@ -9,8 +9,8 @@
       <stop offset="100%" style="stop-color:#b45309"/>
     </linearGradient>
     <radialGradient id="bggrad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" style="stop-color:#3a5080"/>
-      <stop offset="100%" style="stop-color:#1a1a2e"/>
+      <stop offset="0%" style="stop-color:#475569"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
     </radialGradient>
   </defs>
 
@@ -41,47 +41,47 @@
   <polygon points="101,106 113,113 113,126 101,134 89,126 89,113" fill="#f59e0b" opacity="0.35"/>
 
   <!-- Icon symbol inside center hexagon -->
-  <text x="100" y="93" text-anchor="middle" font-family="monospace" font-size="18" font-weight="bold" fill="#1a1a2e">&lt;/&gt;</text>
+  <text x="100" y="93" text-anchor="middle" font-family="monospace" font-size="18" font-weight="bold" fill="#1e293b">&lt;/&gt;</text>
 
   <!-- Orbiting bees -->
   <!-- Bee 1 - upper right -->
-  <g transform="translate(160,50) rotate(20) scale(0.55)">
+  <g transform="translate(160,50) rotate(20) scale(0.75)">
     <ellipse cx="0" cy="0" rx="13" ry="8" fill="#f59e0b"/>
-    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
-    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
+    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
     <ellipse cx="-6" cy="-7" rx="7" ry="4.5" fill="white" opacity="0.6" transform="rotate(-25)"/>
     <ellipse cx="4" cy="-9" rx="7" ry="4.5" fill="white" opacity="0.6" transform="rotate(15)"/>
-    <circle cx="12" cy="-1" r="1.8" fill="#1a1a2e"/>
+    <circle cx="12" cy="-1" r="1.8" fill="#1e293b"/>
   </g>
 
   <!-- Bee 2 - lower right -->
-  <g transform="translate(155,138) rotate(45) scale(0.52)">
+  <g transform="translate(155,138) rotate(45) scale(0.72)">
     <ellipse cx="0" cy="0" rx="13" ry="8" fill="#f59e0b"/>
-    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
-    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
+    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
     <ellipse cx="-6" cy="-7" rx="7" ry="4.5" fill="white" opacity="0.55" transform="rotate(-25)"/>
     <ellipse cx="4" cy="-9" rx="7" ry="4.5" fill="white" opacity="0.55" transform="rotate(15)"/>
-    <circle cx="12" cy="-1" r="1.8" fill="#1a1a2e"/>
+    <circle cx="12" cy="-1" r="1.8" fill="#1e293b"/>
   </g>
 
   <!-- Bee 3 - lower left -->
-  <g transform="translate(42,138) rotate(140) scale(0.52)">
+  <g transform="translate(42,138) rotate(140) scale(0.72)">
     <ellipse cx="0" cy="0" rx="13" ry="8" fill="#f59e0b"/>
-    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
-    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
+    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
     <ellipse cx="-6" cy="-7" rx="7" ry="4.5" fill="white" opacity="0.55" transform="rotate(-25)"/>
     <ellipse cx="4" cy="-9" rx="7" ry="4.5" fill="white" opacity="0.55" transform="rotate(15)"/>
-    <circle cx="12" cy="-1" r="1.8" fill="#1a1a2e"/>
+    <circle cx="12" cy="-1" r="1.8" fill="#1e293b"/>
   </g>
 
   <!-- Bee 4 - upper left -->
-  <g transform="translate(38,50) rotate(-155) scale(0.55)">
+  <g transform="translate(38,50) rotate(-155) scale(0.75)">
     <ellipse cx="0" cy="0" rx="13" ry="8" fill="#f59e0b"/>
-    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
-    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1a1a2e" opacity="0.7"/>
+    <rect x="-5" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
+    <rect x="2" y="-8" width="3.5" height="16" rx="1" fill="#1e293b" opacity="0.7"/>
     <ellipse cx="-6" cy="-7" rx="7" ry="4.5" fill="white" opacity="0.6" transform="rotate(-25)"/>
     <ellipse cx="4" cy="-9" rx="7" ry="4.5" fill="white" opacity="0.6" transform="rotate(15)"/>
-    <circle cx="12" cy="-1" r="1.8" fill="#1a1a2e"/>
+    <circle cx="12" cy="-1" r="1.8" fill="#1e293b"/>
   </g>
 
   <!-- Flight trails - Bee 1 (upper right) -->

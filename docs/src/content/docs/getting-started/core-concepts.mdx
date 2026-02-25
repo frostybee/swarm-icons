@@ -1,124 +1,112 @@
 ---
 title: Core Concepts
-description: Understand the provider architecture, Icon value objects, attribute merge order, and SVG sanitization in Swarm Icons.
+description: Understand how Swarm Icons resolves icons through providers, names them with prefixes, and controls their appearance with layered attributes.
 ---
 
-## Provider Pattern
+Before you go deep into configuration, it helps to understand a few ideas that shape how Swarm Icons works.
 
-The provider pattern is the core abstraction. All providers implement `IconProviderInterface`:
+## Providers load your icons
 
-```php
-interface IconProviderInterface
-{
-    public function get(string $name): ?Icon;
-    public function has(string $name): bool;
-    public function all(): iterable;
-}
-```
+A **provider** is a backend that knows how to fetch SVG data. You pick the right one depending on where your icons live:
 
-Four implementations ship out of the box:
+- **`DirectoryProvider`** reads `.svg` files from a folder on disk.
+- **`JsonCollectionProvider`** reads pre-downloaded Iconify JSON files: fast, offline, recommended for production.
+- **`IconifyProvider`** fetches icons on demand from the Iconify HTTP API.
+- **`ChainProvider`** tries multiple providers in order until one finds the icon: great for local overrides with an API fallback.
 
-| Provider | Source | Offline |
-|---|---|---|
-| `DirectoryProvider` | Local `.svg` files | Yes |
-| `JsonCollectionProvider` | Pre-downloaded Iconify JSON | Yes |
-| `IconifyProvider` | Live Iconify HTTP API | No |
-| `ChainProvider` | Composite . tries providers in sequence | Depends |
+You can mix and match. A typical setup might use JSON collections for your main sets, a directory for custom brand icons, and the API as a safety net.
 
-## Icon Value Objects
+## Prefixes keep things organized
 
-`Icon` is an immutable `Stringable` value object. Every fluent method returns a **new instance** . the original is never modified:
+Every provider is registered under a **prefix**: a short string you choose. When you request an icon, you write `prefix:name`:
 
 ```php
-$home = $manager->get('heroicons:home');
-
-$large = $home->size(32);           // new instance
-$blue  = $home->class('text-blue'); // another new instance
-$both  = $home->size(32)->class('text-blue'); // chained
-
-echo $home;  // original . unchanged
-echo $both;  // size=32, class=text-blue
+echo swarm_icon('tabler:home');
+echo swarm_icon('mdi:account');
+echo swarm_icon('custom:logo');
 ```
 
-Fluent methods: `attr()`, `class()`, `size()`, `fill()`, `stroke()`, `strokeWidth()`.
+The prefix tells Swarm Icons *which provider* to ask. The name tells that provider *which icon* to return.
 
-`Icon` implements `__serialize`/`__unserialize` for PSR-16 cache compatibility.
-
-## Setup Flow
+If you set a default prefix, you can skip it for your most-used set:
 
 ```php
-$manager = SwarmIconsConfig::create()   // create builder
-    ->addDirectory('custom', '/svgs')   // register providers
-    ->addIconifySet('heroicons')
-    ->cachePath('/var/cache/icons')     // configure cache
-    ->defaultPrefix('custom')           // set defaults
-    ->build();                          // returns IconManager
+->defaultPrefix('tabler')
 
-SwarmIcons::setManager($manager);       // enable global helper
+echo swarm_icon('home');         // resolves to tabler:home
+echo swarm_icon('mdi:account');  // other sets still need the prefix
 ```
 
-`SwarmIconsConfig::create()` returns a fluent builder. `build()` validates the configuration and returns a ready-to-use `IconManager`.
+## Icons are value objects
 
-## Attribute Merge Order
-
-When rendering an icon, attributes are merged in this order (later stages win, except classes which are always appended):
-
-```
-icon defaults → global defaults → prefix defaults → suffix defaults → caller attributes
-```
+When you call `swarm_icon()`, you get back an `Icon` object. It's immutable and `Stringable`: you can echo it directly and get a full `<svg>` tag:
 
 ```php
-SwarmIconsConfig::create()
-    ->addIconifySet('heroicons')
-    ->defaultAttributes(['class' => 'icon'])                         // global default
-    ->prefixAttributes('heroicons', ['class' => 'w-6 h-6'])         // prefix default
-    ->prefixSuffix('heroicons', 'solid', ['fill' => 'currentColor']) // suffix default
-    ->build();
-
-// get() call passes caller attributes
-echo $manager->get('heroicons:home-solid', ['class' => 'active']);
-// final class="icon w-6 h-6 active" fill="currentColor"
+echo swarm_icon('tabler:home');
+// <svg aria-hidden="true" viewBox="0 0 24 24" ...>...</svg>
 ```
 
-CSS classes are **always appended**, not replaced. All other attributes follow last-wins semantics.
-
-## SVG Sanitization
-
-Every SVG is sanitized before caching or rendering. The `SvgParser` strips:
-
-- `<script>` elements
-- `<foreignObject>` elements
-- `on*` event handler attributes (`onclick`, `onload`, etc.)
-- `javascript:` URIs in `href` and `src` attributes
-- External resource references in `image` and `use` elements
-
-This prevents XSS when rendering user-supplied or third-party SVG content.
-
-## Automatic ARIA Attributes
-
-Swarm Icons applies ARIA attributes automatically based on context:
+Every fluent method returns a **new instance**, so the original stays unchanged:
 
 ```php
-// Decorative icon (no aria-label) → aria-hidden="true"
+$home = swarm_icon('tabler:home');
+
+echo $home->size(32);                // width="32" height="32"
+echo $home->class('text-blue-500');  // adds the class
+echo $home;                          // still the original, untouched
+```
+
+## Attributes flow through layers
+
+Instead of passing the same `class`, `stroke-width`, or `fill` to every icon call, you set defaults once. Swarm Icons merges attributes in layers: each one can add or override what came before:
+
+1. **Icon defaults**: whatever the SVG file already has (`viewBox`, `xmlns`, etc.)
+2. **Global defaults**: applied to every icon you render
+3. **Prefix defaults**: applied to icons from a specific set
+4. **Suffix defaults**: applied based on the icon name's ending (e.g., `-solid`, `-outline`)
+5. **Caller attributes**: what you pass in the `swarm_icon()` call
+
+The last layer always wins. But CSS classes are special: they **accumulate** instead of replacing:
+
+```php
+// You configured: defaultAttributes(['class' => 'icon'])
+// You configured: prefixAttributes('tabler', ['class' => 'w-6 h-6'])
+
+echo swarm_icon('tabler:home', ['class' => 'text-blue']);
+// class="icon w-6 h-6 text-blue": all three are present
+```
+
+This means you can set a base size for all Tabler icons, a shared `.icon` class globally, and still add per-instance classes without losing anything.
+
+## SVG content is sanitized
+
+Every SVG that passes through Swarm Icons is cleaned automatically. The parser strips `<script>` tags, `on*` event handlers, `javascript:` URIs, and external resource references. You don't need to worry about XSS from untrusted SVG files.
+
+## Icons are cached
+
+Providers that do expensive work (parsing JSON files, making HTTP requests) cache individual icons via PSR-16. The built-in file cache stores icons on disk with no expiration by default, so the heavy lifting only happens once.
+
+```php
+->cachePath(__DIR__ . '/cache/icons')
+```
+
+If you don't configure a cache, Swarm Icons uses the system temp directory automatically.
+
+## Accessibility is automatic
+
+Decorative icons (most of them) get `aria-hidden="true"` added automatically. When you pass `aria-label`, the icon becomes meaningful and gets `role="img"` instead:
+
+```php
 echo swarm_icon('home');
-// <svg aria-hidden="true">...</svg>
+// → aria-hidden="true" (decorative: hidden from screen readers)
 
-// Meaningful icon (has aria-label) → role="img"
-echo swarm_icon('home', ['aria-label' => 'Go home']);
-// <svg role="img" aria-label="Go home">...</svg>
+echo swarm_icon('home', ['aria-label' => 'Home']);
+// → role="img" aria-label="Home" (meaningful: announced to screen readers)
 ```
 
-See the [Accessibility guide](/swarm-icons/guides/accessibility/) for full details.
+You don't have to think about this unless you want to. The defaults do the right thing.
 
-## PSR-16 Caching
+## See also
 
-All cache-aware providers (Iconify API, JSON collections) use a shared PSR-16 cache instance. The built-in `FileCache` stores icons as files on disk. Icons are cached with TTL `0` (forever) by default:
-
-```php
-->cachePath('/var/cache/icons')          // FileCache at this path
-->cachePath('/var/cache/icons', ttl: 3600) // 1 hour TTL
-->cache($myPsr16Cache)                   // custom PSR-16 implementation
-->noCache()                              // disable caching (dev only)
-```
-
-Once an icon is cached, all subsequent renders resolve from cache . zero HTTP requests, zero JSON parsing.
+- [Configuration Builder](/swarm-icons/configuration/builder/): set up providers, caching, and defaults
+- [Fluent API](/swarm-icons/reference/fluent-api/): full reference for the `Icon` value object

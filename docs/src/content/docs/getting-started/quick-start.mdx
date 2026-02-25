@@ -1,100 +1,109 @@
 ---
 title: Quick Start
-description: Set up Swarm Icons and render your first SVG icon in minutes.
+description: Set up Swarm Icons and render your first icon in under a minute.
 ---
 
 import { Steps } from '@astrojs/starlight/components';
 
+You've installed the package. Now let's get an icon on screen.
+
 <Steps>
 
-1. **Install the package**
+1. **Download your first icon set**
+
+   Swarm Icons ships with a CLI that pulls icon sets straight from npm: no Node.js needed. Grab [Tabler Icons](https://tabler.io/icons) to start:
 
    ```bash
-   composer require frostybee/swarm-icons
+   vendor/bin/swarm-icons json:download tabler
    ```
 
-2. **Download icon sets**
+   This saves the full Tabler set as a JSON file in `resources/json/`. You can download as many sets as you want: Material Design Icons, Heroicons, Lucide, and [200+ others](/swarm-icons/cli/icon-sets/) are all available.
 
-   ```bash
-   php bin/swarm-icons json:download mdi tabler heroicons
-   ```
+2. **Wire it up**
 
-3. **Create the icon manager**
+   Create a small bootstrap file (or add this to your existing one):
 
    ```php
    use Frostybee\SwarmIcons\SwarmIcons;
    use Frostybee\SwarmIcons\SwarmIconsConfig;
 
    $manager = SwarmIconsConfig::create()
-       ->discoverJsonSets()           // auto-register all downloaded sets
-       ->cachePath('/var/cache/icons')
+       ->discoverJsonSets()
+       ->cachePath(__DIR__ . '/cache/icons')
+       ->defaultPrefix('tabler')
        ->build();
 
-   // Register globally to enable the swarm_icon() helper
    SwarmIcons::setManager($manager);
    ```
 
-4. **Render icons**
+   That's the entire setup. `discoverJsonSets()` finds every JSON file you've downloaded and makes it available. `defaultPrefix('tabler')` means you can write `'home'` instead of `'tabler:home'` for your most-used set.
+
+   :::note
+   `discoverJsonSets()` scans `resources/json/` by default. Pass a path to change it: `discoverJsonSets('/custom/path')`.
+   :::
+
+3. **Render an icon**
+
+   Now, anywhere in your app:
 
    ```php
-   // Global helper (after SwarmIcons::setManager())
-   echo swarm_icon('mdi:home', ['class' => 'w-6 h-6']);
-   // <svg class="w-6 h-6" aria-hidden="true">...</svg>
+   echo swarm_icon('home');
+   ```
 
-   echo swarm_icon('tabler:star', ['aria-label' => 'Favorite']);
-   // <svg role="img" aria-label="Favorite">...</svg>
+   That's it. You'll get a clean `<svg>` tag with `aria-hidden="true"` applied automatically.
 
-   // Or directly via the manager
-   echo $manager->get('heroicons:user');
-   echo $manager->get('mdi:home', ['class' => 'icon icon-lg']);
+   Want to customize it? Chain fluent methods: each one returns a new immutable icon:
+
+   ```php
+   echo swarm_icon('home')->size(32)->class('text-blue-500');
    ```
 
 </Steps>
 
-## Using Local SVG Files
+## Add more sets
 
-If you have your own `.svg` files, register a directory:
+Need icons from different sets? Download them and reference by prefix:
 
-```php
-$manager = SwarmIconsConfig::create()
-    ->addDirectory('ui', __DIR__ . '/resources/icons')
-    ->defaultPrefix('ui')
-    ->build();
-
-SwarmIcons::setManager($manager);
-
-echo swarm_icon('home');         // → ui/home.svg
-echo swarm_icon('ui:settings'); // explicit prefix
+```bash
+vendor/bin/swarm-icons json:download mdi heroicons
 ```
 
-## Using the Iconify API
-
-Fetch icons on demand at runtime . cached after first request:
-
 ```php
-$manager = SwarmIconsConfig::create()
-    ->addIconifySet('heroicons')
-    ->addIconifySet('lucide')
-    ->cachePath('/var/cache/icons')
-    ->build();
-
-echo swarm_icon('heroicons:home');
-echo swarm_icon('lucide:settings');
+echo swarm_icon('home');                  // tabler (your default)
+echo swarm_icon('mdi:account');           // Material Design
+echo swarm_icon('heroicons:check-circle'); // Heroicons
 ```
 
-## Fluent Icon API
+Every set gets its own prefix. No conflicts, no ambiguity.
 
-Every icon is an immutable value object with a fluent API:
+## Other ways to load icons
+
+JSON collections are the recommended path, but you have options.
+
+**Your own SVG files**: point at a directory and go:
 
 ```php
-echo $manager->get('heroicons:home')
-    ->size(32)
-    ->class('text-blue-500')
-    ->strokeWidth(1.5);
+->addDirectory('custom', __DIR__ . '/resources/icons')
 ```
 
-## Next Steps
+**Live Iconify API**: zero setup, fetches icons over HTTP on first use:
 
-- [Core Concepts](/swarm-icons/getting-started/core-concepts/) . Understand providers, caching, and the attribute merge order
-- [Configuration Reference](/swarm-icons/reference/configuration/) . All builder options
-- [Twig Guide](/swarm-icons/guides/twig/) . Use icons in Twig templates
+```php
+->addIconifySet('heroicons')
+```
+
+**Both at once**: local files first, API as fallback:
+
+```php
+->addHybridSet('icons', __DIR__ . '/my-icons')
+```
+
+Each approach is covered in detail in the [Providers](/swarm-icons/providers/local-svg/) section.
+
+## Next steps
+
+Now that you have icons rendering, you might want to:
+
+- **Understand the architecture**: [Core Concepts](/swarm-icons/getting-started/core-concepts/) explains providers, prefixes, and how attributes flow through the system.
+- **Fine-tune your setup**: The [Configuration Builder](/swarm-icons/configuration/builder/) covers caching, default attributes, aliases, and more.
+- **Explore the CLI**: [Browse and search](/swarm-icons/cli/icon-sets/) across 200+ icon sets to find exactly what you need.

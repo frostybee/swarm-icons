@@ -1,0 +1,129 @@
+---
+title: Advanced Options
+description: Aliases, fallback icons, ignoreNotFound, and package discovery for power users.
+---
+
+These features aren't needed for every project, but they're useful as your icon usage grows, especially when working with dynamic icon names, large teams, or third-party packages.
+
+## Aliases
+
+If you find yourself typing `heroicons:check-circle` over and over, give it a shorter name:
+
+```php
+->alias('check', 'heroicons:check-circle')
+->alias('dots',  'clarity:ellipsis-horizontal-line')
+->alias('close', 'heroicons:x-mark')
+```
+
+Now you can use the alias anywhere you'd use the full name:
+
+```php
+echo swarm_icon('check');
+echo swarm_icon('close', ['class' => 'w-4 h-4']);
+$manager->has('dots'); // true
+```
+
+Aliases are resolved before prefix parsing, so they work transparently with `get()`, `has()`, and the `swarm_icon()` helper.
+
+A few things to keep in mind:
+- The target must be a full `prefix:name` string
+- Only one level of indirection: you can't alias to another alias
+- Calling `->alias()` twice with the same key overwrites the first mapping
+
+You can inspect what's registered at runtime with `$manager->getAliases()`.
+
+## Fallback icon
+
+When a requested icon doesn't exist, Swarm Icons throws `IconNotFoundException` by default. If you'd rather show a placeholder, set a fallback:
+
+```php
+->fallbackIcon('heroicons:question-mark-circle')
+```
+
+Pick something from a set you know is always available (a downloaded JSON set or a local directory that ships with your project).
+
+## Suppressing exceptions with `ignoreNotFound`
+
+For cases where you'd rather render nothing than throw, enable `ignoreNotFound`:
+
+```php
+->ignoreNotFound()
+```
+
+Missing icons will return an empty `Icon` that renders as an empty string. No exception, no visible output.
+
+:::note
+`InvalidIconNameException` (bad format like an empty string) is always thrown regardless of this setting. Only `IconNotFoundException` is suppressed.
+:::
+
+## The two-layer safety net
+
+`fallbackIcon` and `ignoreNotFound` work well together. The fallback is tried first: if it also fails, `ignoreNotFound` catches it silently:
+
+```php
+->fallbackIcon('tabler:question-mark')
+->ignoreNotFound()
+```
+
+```php
+echo swarm_icon('tabler:nonexistent');
+// 1. Icon not found → tries fallback 'tabler:question-mark'
+// 2. Fallback found → renders the question mark icon
+```
+
+If the fallback itself were also missing (unlikely, but possible), the icon would render as an empty string instead of throwing. This gives you a visible placeholder in normal cases and a silent fallback for edge cases.
+
+In templates, this means you never need try/catch:
+
+```php
+echo swarm_icon('might-not-exist');
+// Either the fallback icon, or '': never an exception
+```
+
+## Package discovery
+
+If you're building a Composer package that provides icons, you can make it auto-discoverable. Declare your provider in `composer.json`:
+
+```json
+{
+    "extra": {
+        "swarm-icons": {
+            "prefix": "myset",
+            "provider-class": "Vendor\\MyIconSet"
+        }
+    }
+}
+```
+
+The provider class implements `IconSetInterface`:
+
+```php
+use Frostybee\SwarmIcons\IconSetInterface;
+use Frostybee\SwarmIcons\IconManager;
+
+class MyIconSet implements IconSetInterface
+{
+    public static function prefix(): string
+    {
+        return 'myset';
+    }
+
+    public static function register(IconManager $manager): void
+    {
+        $manager->register('myset', new DirectoryProvider(__DIR__ . '/icons'));
+    }
+}
+```
+
+Consumers of your package just add one line to their config:
+
+```php
+->discoverPackages()
+```
+
+Both single-set (object) and multi-set (array) formats are supported in the `extra.swarm-icons` field.
+
+## See also
+
+- [Configuration Builder](/swarm-icons/configuration/builder/): the full builder API reference
+- [Defaults & Rendering](/swarm-icons/configuration/defaults-and-rendering/): attribute merge pipeline and prefix defaults
