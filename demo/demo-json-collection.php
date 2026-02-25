@@ -36,7 +36,7 @@ echo "   Total: " . count($allIcons) . " (loaded in {$loadTime}ms)\n\n";
 // ===============================================
 echo "2️⃣  Retrieve icons by name:\n";
 foreach (['home', 'user', 'star'] as $name) {
-    $icon = icon($name);
+    $icon = swarm_icon($name);
     echo "   {$name}: " . substr($icon->toHtml(), 0, 80) . "...\n";
 }
 echo "\n";
@@ -45,12 +45,12 @@ echo "\n";
 // Example 3: Alias resolution
 // ===============================================
 echo "3️⃣  Alias resolution:\n";
-$home = icon('home');
-$house = icon('house');
+$home = swarm_icon('home');
+$house = swarm_icon('house');
 echo "   'house' is an alias for 'home'\n";
 echo "   Same content: " . ($home->getContent() === $house->getContent() ? '✓ Yes' : '✗ No') . "\n";
 
-$person = icon('person');
+$person = swarm_icon('person');
 echo "   'person' is an alias for 'user' (with hFlip)\n";
 echo "   " . substr($person->toHtml(), 0, 80) . "...\n\n";
 
@@ -58,7 +58,7 @@ echo "   " . substr($person->toHtml(), 0, 80) . "...\n\n";
 // Example 4: Chained alias resolution
 // ===============================================
 echo "4️⃣  Chained alias (chained-alias → house → home):\n";
-$chained = icon('chained-alias');
+$chained = swarm_icon('chained-alias');
 echo "   Same content as 'home': " . ($home->getContent() === $chained->getContent() ? '✓ Yes' : '✗ No') . "\n\n";
 
 // ===============================================

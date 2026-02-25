@@ -152,4 +152,79 @@ class IconRendererTest extends TestCase
         $this->assertEquals('24', $rendered->getAttribute('width')); // Original preserved
         $this->assertEquals('32', $rendered->getAttribute('height'));
     }
+
+    // =========================================================================
+    // Suffix attribute tests
+    // =========================================================================
+
+    public function test_render_with_suffix_attributes_matching(): void
+    {
+        $renderer = new IconRenderer();
+        $renderer->setSuffixAttributes('heroicons', 'solid', ['fill' => 'currentColor']);
+
+        $icon = new Icon('<path d="M10 10"/>');
+        $rendered = $renderer->render($icon, 'heroicons', [], 'home-solid');
+
+        $this->assertEquals('currentColor', $rendered->getAttribute('fill'));
+    }
+
+    public function test_render_with_suffix_attributes_default_fallback(): void
+    {
+        $renderer = new IconRenderer();
+        $renderer->setSuffixAttributes('heroicons', '', ['stroke' => 'currentColor']);
+
+        $icon = new Icon('<path d="M10 10"/>');
+        $rendered = $renderer->render($icon, 'heroicons', [], 'home');
+
+        $this->assertEquals('currentColor', $rendered->getAttribute('stroke'));
+    }
+
+    public function test_suffix_attributes_do_not_apply_to_different_prefix(): void
+    {
+        $renderer = new IconRenderer();
+        $renderer->setSuffixAttributes('heroicons', 'solid', ['fill' => 'currentColor']);
+
+        $icon = new Icon('<path d="M10 10"/>');
+        $rendered = $renderer->render($icon, 'tabler', [], 'home-solid');
+
+        $this->assertNull($rendered->getAttribute('fill'));
+    }
+
+    public function test_suffix_attributes_merge_order(): void
+    {
+        // Caller attributes should override suffix attributes
+        $renderer = new IconRenderer();
+        $renderer->setSuffixAttributes('heroicons', 'solid', ['fill' => 'currentColor']);
+
+        $icon = new Icon('<path d="M10 10"/>');
+        $rendered = $renderer->render($icon, 'heroicons', ['fill' => 'red'], 'home-solid');
+
+        $this->assertEquals('red', $rendered->getAttribute('fill'));
+    }
+
+    public function test_render_backward_compatible_without_icon_name(): void
+    {
+        $renderer = new IconRenderer(['class' => 'icon']);
+        $icon = new Icon('<path d="M10 10"/>');
+
+        // Calling without the 4th argument should still work
+        $rendered = $renderer->render($icon, 'test', ['width' => '32']);
+
+        $this->assertEquals('32', $rendered->getAttribute('width'));
+        $this->assertEquals('icon', $rendered->getAttribute('class'));
+    }
+
+    public function test_set_and_get_suffix_attributes(): void
+    {
+        $renderer = new IconRenderer();
+        $renderer->setSuffixAttributes('heroicons', 'solid', ['fill' => 'currentColor']);
+        $renderer->setSuffixAttributes('heroicons', '', ['stroke' => 'currentColor']);
+
+        $suffixAttrs = $renderer->getSuffixAttributes('heroicons');
+
+        $this->assertCount(2, $suffixAttrs);
+        $this->assertSame('currentColor', $suffixAttrs['solid']['fill']);
+        $this->assertSame('currentColor', $suffixAttrs['']['stroke']);
+        $this->assertSame([], $renderer->getSuffixAttributes('nonexistent'));
+    }
 }

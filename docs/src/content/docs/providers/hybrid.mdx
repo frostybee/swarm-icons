@@ -1,0 +1,73 @@
+---
+title: Hybrid (ChainProvider)
+description: Combine multiple providers with ChainProvider . try local files first, fall back to the Iconify API.
+---
+
+`ChainProvider` tries providers in sequence . it stops at the first one that returns a result. The classic use case is: try local files first, fall back to the live Iconify API if the icon isn't found locally.
+
+## How It Works
+
+```
+swarm_icon('icons:home')
+  → DirectoryProvider: look for home.svg on disk → not found
+  → IconifyProvider: fetch from api.iconify.design → found ✓
+```
+
+```
+swarm_icon('icons:custom-logo')
+  → DirectoryProvider: look for custom-logo.svg → found ✓ (stops here)
+```
+
+## Basic Usage
+
+```php
+use Frostybee\SwarmIcons\Provider\ChainProvider;
+use Frostybee\SwarmIcons\Provider\DirectoryProvider;
+use Frostybee\SwarmIcons\Provider\IconifyProvider;
+use Frostybee\SwarmIcons\Cache\FileCache;
+
+$manager->register('icons', new ChainProvider([
+    new DirectoryProvider('/path/to/custom/icons'),
+    new IconifyProvider('heroicons', new FileCache('/var/cache/icons')),
+]));
+```
+
+## Via the Config Builder
+
+`addHybridSet()` creates a `ChainProvider` that tries a local directory first and falls back to the Iconify API:
+
+```php
+SwarmIconsConfig::create()
+    ->addHybridSet('icons', '/path/to/custom/icons')
+    ->addHybridSet('icons', '/path/to/custom/icons', recursive: true, timeout: 10)
+    ->build();
+```
+
+## Use Cases
+
+**Custom icons with Iconify fallback**: Ship your brand icons locally, but fall back to a large icon set for everything else:
+
+```php
+SwarmIconsConfig::create()
+    ->addHybridSet('ui', __DIR__ . '/resources/brand-icons')
+    ->build();
+
+echo swarm_icon('ui:brand-logo');   // served from local file
+echo swarm_icon('ui:arrow-right');  // fetched from Iconify API
+```
+
+**Gradual migration**: You're migrating from local SVGs to an Iconify set. During the migration, ChainProvider serves existing local icons while falling back to Iconify for anything not yet in your local collection.
+
+**Overrides**: Bundle a few modified versions of icons locally and let Iconify serve everything else.
+
+## Combining Multiple Hybrid Sets
+
+Multiple providers can be chained under different prefixes:
+
+```php
+SwarmIconsConfig::create()
+    ->addHybridSet('ui', __DIR__ . '/resources/ui-icons')
+    ->addHybridSet('brand', __DIR__ . '/resources/brand-icons')
+    ->addIconifySet('mdi')     // pure API (no local fallback)
+    ->build();
+```

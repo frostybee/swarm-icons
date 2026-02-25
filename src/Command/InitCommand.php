@@ -170,7 +170,7 @@ class InitCommand extends Command
 
                 ->build();
 
-            // Register globally for the icon() helper function:
+            // Register globally for the swarm_icon() helper function:
             SwarmIcons::setManager($manager);
 
             return $manager;

@@ -1,0 +1,49 @@
+---
+title: Contributing
+description: Guidelines for contributing to Swarm Icons.
+---
+
+Contributions are welcome! Here's how to get started.
+
+## Getting Started
+
+```bash
+git clone https://github.com/frostybee/swarm-icons.git
+cd swarm-icons
+composer install
+```
+
+## Before Submitting a PR
+
+Run the full check suite and make sure everything passes:
+
+```bash
+composer test-all
+```
+
+This runs PHPStan (level 8), CS check (PER-CS2.0), and PHPUnit in sequence.
+
+## Code Conventions
+
+- `declare(strict_types=1)` in every PHP file
+- Strict typing throughout . no `mixed` return types unless unavoidable
+- Alpha-sorted `use` imports
+- Test methods named `test_snake_case_description()` in classes extending `PHPUnit\Framework\TestCase`
+- Test fixtures (SVG files) in `tests/Fixtures/icons/`
+
+## Architecture Notes
+
+- **Provider pattern** is the core abstraction . implement `IconProviderInterface` to add a new source
+- **Icon** is an immutable value object . all fluent methods must return a new instance
+- **SwarmIconsConfig** is a fluent builder . every new option needs a corresponding builder method
+- **SvgParser** handles sanitization . XSS-related changes go here
+- **Single production dependency**: `psr/simple-cache: ^3.0` only. Framework integrations are `require-dev`
+
+## Reporting Issues
+
+- Bug reports and feature requests: [GitHub Issues](https://github.com/frostybee/swarm-icons/issues)
+- Security vulnerabilities: use GitHub's private security advisory feature
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [MIT License](https://github.com/frostybee/swarm-icons/blob/main/LICENSE).

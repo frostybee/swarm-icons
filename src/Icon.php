@@ -53,6 +53,9 @@ class Icon implements Stringable
     /**
      * Create an Icon from Iconify API data.
      *
+     * Applies hFlip, vFlip, and rotate transform properties from the data
+     * by wrapping the body in SVG <g transform="..."> elements.
+     *
      * @param array<string, mixed> $data Iconify icon data
      *
      * @throws ProviderException
@@ -63,24 +66,90 @@ class Icon implements Stringable
             throw new ProviderException('Invalid Iconify data: missing "body" field');
         }
 
+        $width = isset($data['width']) ? (int) $data['width'] : 0;
+        $height = isset($data['height']) ? (int) $data['height'] : 0;
+
+        $body = SvgParser::sanitizeContent((string) $data['body']);
+
+        $hasTransforms = false;
+
+        if ($width > 0 && $height > 0) {
+            [$body, $width, $height, $hasTransforms] = self::applyIconifyTransforms($body, $data, $width, $height);
+        }
+
         $attributes = [];
 
-        // Extract viewBox
-        if (isset($data['width']) && isset($data['height'])) {
-            $left = $data['left'] ?? 0;
-            $top = $data['top'] ?? 0;
-            $attributes['viewBox'] = "{$left} {$top} {$data['width']} {$data['height']}";
+        if ($width > 0 && $height > 0) {
+            // Reset viewBox origin to 0 0 when transforms have repositioned the content
+            $left = $hasTransforms ? 0 : (int) ($data['left'] ?? 0);
+            $top  = $hasTransforms ? 0 : (int) ($data['top'] ?? 0);
+
+            $attributes['viewBox'] = "{$left} {$top} {$width} {$height}";
+            $attributes['width']   = (string) $width;
+            $attributes['height']  = (string) $height;
         }
 
-        // Add width and height if present
-        if (isset($data['width'])) {
-            $attributes['width'] = (string) $data['width'];
-        }
-        if (isset($data['height'])) {
-            $attributes['height'] = (string) $data['height'];
+        return new self($body, $attributes);
+    }
+
+    /**
+     * Apply Iconify transform properties (hFlip, vFlip, rotate) to SVG body content.
+     *
+     * Rotation is applied first (inner <g>), then flips (outer <g>), so flips operate
+     * in the post-rotation coordinate space. Dimensions are swapped for 90°/270° rotations.
+     *
+     * @param string $body SVG inner content
+     * @param array<string, mixed> $data Iconify icon data
+     * @param int $width Icon width
+     * @param int $height Icon height
+     *
+     * @return array{0: string, 1: int, 2: int, 3: bool} [body, width, height, transformed]
+     */
+    private static function applyIconifyTransforms(string $body, array $data, int $width, int $height): array
+    {
+        $rotate = (int) ($data['rotate'] ?? 0) % 4;
+        $hFlip  = (bool) ($data['hFlip'] ?? false);
+        $vFlip  = (bool) ($data['vFlip'] ?? false);
+
+        if ($rotate === 0 && !$hFlip && !$vFlip) {
+            return [$body, $width, $height, false];
         }
 
-        return new self(SvgParser::sanitizeContent((string) $data['body']), $attributes);
+        // Apply rotation (inner <g> — rendered first against the body)
+        // Transform math: rotate(deg) in SVG rotates CW; translate repositions into positive space.
+        //   rotate=1 (90° CW):  (x,y) → (H−y, x)  via translate(H,0) rotate(90)
+        //   rotate=2 (180°):    (x,y) → (W−x, H−y) via translate(W,H) rotate(180)
+        //   rotate=3 (270° CW): (x,y) → (y, W−x)   via translate(0,W) rotate(270)
+        if ($rotate !== 0) {
+            $rotTransform = match ($rotate) {
+                1       => "translate({$height}, 0) rotate(90)",
+                2       => "translate({$width}, {$height}) rotate(180)",
+                3       => "translate(0, {$width}) rotate(270)",
+                default => '',
+            };
+
+            if ($rotTransform !== '') {
+                $body = "<g transform=\"{$rotTransform}\">{$body}</g>";
+            }
+
+            // 90° and 270° rotations swap width ↔ height
+            if ($rotate === 1 || $rotate === 3) {
+                [$width, $height] = [$height, $width];
+            }
+        }
+
+        // Apply flip (outer <g> — operates in post-rotation coordinate space)
+        if ($hFlip || $vFlip) {
+            $flipTransform = match (true) {
+                $hFlip && $vFlip => "translate({$width}, {$height}) scale(-1, -1)",
+                $hFlip           => "translate({$width}, 0) scale(-1, 1)",
+                default          => "translate(0, {$height}) scale(1, -1)",
+            };
+
+            $body = "<g transform=\"{$flipTransform}\">{$body}</g>";
+        }
+
+        return [$body, $width, $height, true];
     }
 
     /**

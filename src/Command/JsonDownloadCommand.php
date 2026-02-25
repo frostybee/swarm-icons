@@ -15,38 +15,45 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * Downloads Iconify JSON collection files from npm for use with JsonCollectionProvider.
  *
- * Each JSON set is downloaded from the @iconify-json/{prefix} npm package
- * and placed into the swarm-icons-json package's resources/json/ directory.
+ * Any valid Iconify prefix can be downloaded — the npm package is resolved
+ * as @iconify-json/{prefix}. Popular sets are listed for convenience.
  */
 class JsonDownloadCommand extends Command
 {
     /**
-     * Available JSON icon sets: key => npm package name.
+     * Popular/recommended icon sets shown in the listing.
      *
-     * @var array<string, string>
+     * Any Iconify prefix works for download — this list is only for display and --all.
+     *
+     * @var list<string>
      */
-    private const SETS = [
-        'mdi' => '@iconify-json/mdi',
-        'fa-solid' => '@iconify-json/fa-solid',
-        'fa-regular' => '@iconify-json/fa-regular',
-        'fa-brands' => '@iconify-json/fa-brands',
-        'carbon' => '@iconify-json/carbon',
-        'octicon' => '@iconify-json/octicon',
-        'fluent' => '@iconify-json/fluent',
-        'ion' => '@iconify-json/ion',
-        'ri' => '@iconify-json/ri',
-        'iconoir' => '@iconify-json/iconoir',
-        'mingcute' => '@iconify-json/mingcute',
-        'solar' => '@iconify-json/solar',
-        'uil' => '@iconify-json/uil',
-        'bx' => '@iconify-json/bx',
-        'line-md' => '@iconify-json/line-md',
-        'tabler' => '@iconify-json/tabler',
-        'heroicons' => '@iconify-json/heroicons',
-        'lucide' => '@iconify-json/lucide',
-        'bi' => '@iconify-json/bi',
-        'ph' => '@iconify-json/ph',
-        'simple-icons' => '@iconify-json/simple-icons',
+    private const POPULAR_SETS = [
+        'bi',
+        'bx',
+        'carbon',
+        'fa-brands',
+        'fa-regular',
+        'fa-solid',
+        'fa6-brands',
+        'fa6-regular',
+        'fa6-solid',
+        'flowbite',
+        'fluent',
+        'heroicons',
+        'icon-park-outline',
+        'iconoir',
+        'ion',
+        'line-md',
+        'lucide',
+        'mdi',
+        'mingcute',
+        'octicon',
+        'ph',
+        'ri',
+        'simple-icons',
+        'solar',
+        'tabler',
+        'uil',
     ];
 
     protected function configure(): void
@@ -57,13 +64,19 @@ class JsonDownloadCommand extends Command
             ->addArgument(
                 'sets',
                 InputArgument::IS_ARRAY,
-                'Icon set prefixes to download (e.g., mdi fa-solid fa-brands)',
+                'Icon set prefixes to download (any valid Iconify prefix, e.g., mdi fluent-emoji noto)',
             )
             ->addOption(
                 'all',
                 null,
                 InputOption::VALUE_NONE,
-                'Download all available JSON icon sets',
+                'Download all popular JSON icon sets',
+            )
+            ->addOption(
+                'list',
+                'l',
+                InputOption::VALUE_NONE,
+                'List popular sets with download status without downloading',
             )
             ->addOption(
                 'dest',
@@ -75,21 +88,26 @@ class JsonDownloadCommand extends Command
                 <<<'HELP'
                     The <info>json:download</info> command downloads Iconify JSON collection files from npm.
 
-                    List available sets (when no manifest exists):
+                    List popular sets with download status:
 
-                        <info>php bin/swarm-icons json:download</info>
+                        <info>php bin/swarm-icons json:download --list</info>
 
-                    Download specific sets:
+                    Download specific sets (any valid Iconify prefix):
 
-                        <info>php bin/swarm-icons json:download mdi fa-solid fa-brands</info>
+                        <info>php bin/swarm-icons json:download mdi fa-solid fluent-emoji</info>
 
-                    Download all sets:
+                    Download all popular sets:
 
                         <info>php bin/swarm-icons json:download --all</info>
 
                     Custom destination:
 
                         <info>php bin/swarm-icons json:download mdi --dest=/path/to/json</info>
+
+                    Browse all 200+ available Iconify icon sets:
+
+                        <info>php bin/swarm-icons json:browse</info>
+                        <info>php bin/swarm-icons json:browse --search=arrow</info>
 
                     Re-download previously downloaded sets (reads from <comment>swarm-icons.json</comment> manifest):
 
@@ -106,6 +124,11 @@ class JsonDownloadCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+
+        // Handle --list before anything else
+        if ($input->getOption('list')) {
+            return $this->listSets($io);
+        }
 
         /** @var list<string> $sets */
         $sets = $input->getArgument('sets');
@@ -125,16 +148,8 @@ class JsonDownloadCommand extends Command
 
         // Determine which sets to download
         if ($downloadAll) {
-            $selected = array_keys(self::SETS);
+            $selected = self::POPULAR_SETS;
         } else {
-            // Validate set names
-            foreach ($sets as $set) {
-                if (!isset(self::SETS[$set])) {
-                    $io->error("Unknown icon set: '{$set}'. Run without arguments to see available sets.");
-
-                    return Command::FAILURE;
-                }
-            }
             $selected = $sets;
         }
 
@@ -163,18 +178,22 @@ class JsonDownloadCommand extends Command
         $failed = 0;
 
         foreach ($selected as $prefix) {
-            $package = self::SETS[$prefix];
+            $package = '@iconify-json/' . $prefix;
             $io->section("{$prefix} ({$package})");
 
-            // Fetch latest version
+            // Fetch latest version and package size
             $io->text('Fetching latest version...');
-            $version = $downloader->fetchLatestVersion($package);
-            if ($version === null) {
-                $io->warning("Could not determine latest version. Skipping.");
+            $meta = $downloader->fetchVersionMetadata($package);
+            if ($meta === null) {
+                $io->warning("Could not fetch '{$package}' from npm. Check the prefix and try again.");
                 $failed++;
                 continue;
             }
-            $io->text("  Version: {$version}");
+            $version = $meta['version'];
+            $sizeInfo = $meta['unpackedSize'] !== null
+                ? ' (' . $this->formatBytes($meta['unpackedSize']) . ')'
+                : '';
+            $io->text("  Version: {$version}{$sizeInfo}");
 
             // Download tarball
             $io->text('Downloading tarball...');
@@ -221,24 +240,26 @@ class JsonDownloadCommand extends Command
     }
 
     /**
-     * List all available sets with their download status.
+     * List popular sets with their download status.
      */
     private function listSets(SymfonyStyle $io): int
     {
-        $io->title('Available JSON Icon Sets');
+        $io->title('Popular JSON Icon Sets');
 
         $destDir = $this->resolveDestination();
 
         $rows = [];
-        foreach (self::SETS as $prefix => $package) {
+        foreach (self::POPULAR_SETS as $prefix) {
+            $package = '@iconify-json/' . $prefix;
             $installed = $destDir !== null && file_exists($destDir . '/' . $prefix . '.json');
             $status = $installed ? '<info>downloaded</info>' : '<comment>not downloaded</comment>';
             $rows[] = [$prefix, $package, $status];
         }
 
         $io->table(['Prefix', 'npm Package', 'Status'], $rows);
-        $io->text('Download sets with: <info>php bin/swarm-icons json:download mdi fa-solid</info>');
-        $io->text('Download all with:  <info>php bin/swarm-icons json:download --all</info>');
+        $io->text('Download sets with:  <info>php bin/swarm-icons json:download mdi fa-solid</info>');
+        $io->text('Download all with:   <info>php bin/swarm-icons json:download --all</info>');
+        $io->text('Browse all 200+ sets: <info>php bin/swarm-icons json:browse</info>');
 
         return Command::SUCCESS;
     }
@@ -323,12 +344,18 @@ class JsonDownloadCommand extends Command
         /** @var list<string> $sets */
         $sets = $data['json-sets'];
 
-        // Filter out any prefixes that are no longer valid
-        $valid = array_filter(
-            $sets,
-            static fn(string $prefix): bool => isset(self::SETS[$prefix]),
-        );
+        return $sets !== [] ? array_values($sets) : null;
+    }
 
-        return $valid !== [] ? array_values($valid) : null;
+    /**
+     * Format a byte count into a human-readable string.
+     */
+    private function formatBytes(int $bytes): string
+    {
+        if ($bytes >= 1_048_576) {
+            return number_format($bytes / 1_048_576, 1) . ' MB';
+        }
+
+        return number_format($bytes / 1024, 1) . ' KB';
     }
 }

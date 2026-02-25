@@ -291,7 +291,7 @@ class IconifyProvider implements IconProviderInterface
         }
 
         // Check HTTP status code
-        $responseHeaders = http_get_last_response_headers();
+        $responseHeaders = $http_response_header ?? [];
         if (!isset($responseHeaders[0]) || !preg_match('/^HTTP\/[\d.]+ 200\b/', $responseHeaders[0])) {
             return null;
         }

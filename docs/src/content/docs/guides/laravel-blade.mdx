@@ -1,0 +1,100 @@
+---
+title: Using with Laravel
+description: Integrate Swarm Icons into a Laravel application using the global swarm_icon() helper in Blade templates.
+---
+
+No extra package is needed for Laravel. Register the icon manager once in a service provider, then use the global `swarm_icon()` helper in your Blade templates.
+
+## Setup
+
+**1. Register the manager in `AppServiceProvider`:**
+
+```php
+use Frostybee\SwarmIcons\SwarmIcons;
+use Frostybee\SwarmIcons\SwarmIconsConfig;
+
+public function register(): void
+{
+    $manager = SwarmIconsConfig::create()
+        ->addIconifySet('heroicons')
+        ->cachePath(storage_path('icons'))
+        ->build();
+
+    SwarmIcons::setManager($manager);
+}
+```
+
+Or use `discoverJsonSets()` if you've pre-downloaded sets:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets(resource_path('json'))
+    ->cachePath(storage_path('icons'))
+    ->build();
+
+SwarmIcons::setManager($manager);
+```
+
+**2. Use `swarm_icon()` in your Blade templates:**
+
+```blade
+{!! swarm_icon('heroicons:home') !!}
+{!! swarm_icon('heroicons:user', ['class' => 'w-6 h-6']) !!}
+{!! swarm_icon('heroicons:home', ['aria-label' => 'Home']) !!}
+```
+
+:::caution
+Always use `{!! !!}` (unescaped output) since `swarm_icon()` returns raw SVG markup. The standard `{{ }}` syntax escapes HTML and will render the SVG as visible text.
+:::
+
+## Fluent API in Blade
+
+The fluent Icon API also works in Blade:
+
+```blade
+{!! swarm_icon('heroicons:home')->size(24)->class('text-blue-500') !!}
+{!! $manager->get('tabler:star')->size(20)->class('text-yellow-400') !!}
+```
+
+## Blade Component (Optional)
+
+For cleaner templates, you can wrap `swarm_icon()` in a Blade component. Create `resources/views/components/icon.blade.php`:
+
+```blade
+@props(['name', 'class' => '', 'label' => null])
+
+@php
+    $attrs = ['class' => $class];
+    if ($label) {
+        $attrs['aria-label'] = $label;
+    }
+@endphp
+
+{!! swarm_icon($name, $attrs) !!}
+```
+
+Then use it in templates:
+
+```blade
+<x-icon name="heroicons:home" class="w-5 h-5" />
+<x-icon name="heroicons:user" class="w-6 h-6" label="User profile" />
+```
+
+## Recommended Directory Structure
+
+```
+resources/
+├── json/         ← downloaded JSON sets (via json:download)
+│   ├── mdi.json
+│   ├── tabler.json
+│   └── heroicons.json
+storage/
+└── icons/        ← PSR-16 file cache
+```
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets(resource_path('json'))
+    ->cachePath(storage_path('icons'))
+    ->build();
+```

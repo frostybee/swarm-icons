@@ -29,7 +29,7 @@ echo "🌐 Fetching icons from Iconify API...\n\n";
 // ===============================================
 echo "1️⃣  Heroicons - Home (first call hits API, gets cached):\n";
 $start = microtime(true);
-$heroicon = icon('heroicons:home');
+$heroicon = swarm_icon('heroicons:home');
 $time1 = round((microtime(true) - $start) * 1000, 2);
 echo "   Fetched in {$time1}ms\n";
 echo "   " . substr($heroicon->toHtml(), 0, 100) . "...\n\n";
@@ -39,7 +39,7 @@ echo "   " . substr($heroicon->toHtml(), 0, 100) . "...\n\n";
 // ===============================================
 echo "2️⃣  Heroicons - Home (second call uses cache):\n";
 $start = microtime(true);
-$heroiconCached = icon('heroicons:home');
+$heroiconCached = swarm_icon('heroicons:home');
 $time2 = round((microtime(true) - $start) * 1000, 2);
 echo "   Fetched in {$time2}ms (from cache)\n";
 echo "   Speed improvement: " . round($time1 / max($time2, 0.01), 1) . "x faster\n\n";
@@ -48,14 +48,14 @@ echo "   Speed improvement: " . round($time1 / max($time2, 0.01), 1) . "x faster
 // Example 3: Lucide icons
 // ===============================================
 echo "3️⃣  Lucide - User icon:\n";
-$lucide = icon('lucide:user', ['class' => 'w-6 h-6']);
+$lucide = swarm_icon('lucide:user', ['class' => 'w-6 h-6']);
 echo "   " . substr($lucide->toHtml(), 0, 100) . "...\n\n";
 
 // ===============================================
 // Example 4: Tabler icons
 // ===============================================
 echo "4️⃣  Tabler - Settings icon:\n";
-$tabler = icon('tabler:settings', ['class' => 'w-6 h-6']);
+$tabler = swarm_icon('tabler:settings', ['class' => 'w-6 h-6']);
 echo "   " . substr($tabler->toHtml(), 0, 100) . "...\n\n";
 
 // ===============================================

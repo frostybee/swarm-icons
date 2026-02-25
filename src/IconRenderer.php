@@ -11,6 +11,9 @@ namespace Frostybee\SwarmIcons;
  */
 class IconRenderer
 {
+    /** @var array<string, array<string, array<string, string>>> Suffix-based attributes (prefix → suffix → attributes) */
+    private array $suffixAttributes = [];
+
     /**
      * @param array<string, string> $defaultAttributes Global default attributes
      * @param array<string, array<string, string>> $prefixAttributes Prefix-specific default attributes
@@ -30,10 +33,11 @@ class IconRenderer
      * @param Icon $icon Base icon instance
      * @param string|null $prefix Icon prefix (for prefix-specific attributes)
      * @param array<string, bool|float|int|string|null> $attributes Caller-provided attributes
+     * @param string $iconName Icon name without prefix (for suffix matching)
      *
      * @return Icon Rendered icon with merged attributes
      */
-    public function render(Icon $icon, ?string $prefix = null, array $attributes = []): Icon
+    public function render(Icon $icon, ?string $prefix = null, array $attributes = [], string $iconName = ''): Icon
     {
         // Start with icon's existing attributes
         $merged = $icon->getAttributes();
@@ -44,6 +48,15 @@ class IconRenderer
         // Merge prefix-specific defaults
         if ($prefix !== null && isset($this->prefixAttributes[$prefix])) {
             $merged = $this->mergeAttributes($merged, $this->prefixAttributes[$prefix]);
+        }
+
+        // Merge suffix-specific defaults
+        if ($prefix !== null && $iconName !== '') {
+            $suffixAttrs = $this->resolveSuffixAttributes($prefix, $iconName);
+
+            if ($suffixAttrs !== []) {
+                $merged = $this->mergeAttributes($merged, $suffixAttrs);
+            }
         }
 
         // Merge caller attributes
@@ -176,5 +189,62 @@ class IconRenderer
     public function getAllPrefixAttributes(): array
     {
         return $this->prefixAttributes;
+    }
+
+    /**
+     * Set suffix-specific default attributes for a prefix.
+     *
+     * @param string $prefix Icon set prefix
+     * @param string $suffix Suffix to match (e.g., 'solid') or '' for fallback
+     * @param array<string, string> $attributes
+     */
+    public function setSuffixAttributes(string $prefix, string $suffix, array $attributes): void
+    {
+        if (!isset($this->suffixAttributes[$prefix])) {
+            $this->suffixAttributes[$prefix] = [];
+        }
+
+        $this->suffixAttributes[$prefix][$suffix] = $attributes;
+    }
+
+    /**
+     * Get suffix attributes for a prefix.
+     *
+     * @return array<string, array<string, string>>
+     */
+    public function getSuffixAttributes(string $prefix): array
+    {
+        return $this->suffixAttributes[$prefix] ?? [];
+    }
+
+    /**
+     * Resolve suffix-based attributes for an icon name.
+     *
+     * Checks non-empty suffixes first (longest match wins), then falls
+     * back to the empty-string suffix rule if no match is found.
+     *
+     * @return array<string, string>
+     */
+    private function resolveSuffixAttributes(string $prefix, string $iconName): array
+    {
+        if (!isset($this->suffixAttributes[$prefix])) {
+            return [];
+        }
+
+        $rules = $this->suffixAttributes[$prefix];
+
+        // Check non-empty suffixes first
+        foreach ($rules as $suffix => $attributes) {
+            if ($suffix !== '' && str_ends_with($iconName, '-' . $suffix)) {
+                return $attributes;
+            }
+        }
+
+        // Fall back to empty-string suffix (default rule)
+        if (isset($rules[''])) {
+            return $rules[''];
+        }
+
+        return [];
     }
 }

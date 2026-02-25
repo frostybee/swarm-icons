@@ -1,5 +1,7 @@
 icons-lib/
 
+swarm-icons.json
+
 # Downloaded JSON icon collections (populated by json:download or build-icon-sets.php)
 resources/json/*.json
 profile/
@@ -75,9 +77,3 @@ ehthumbs_vista.db
 $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
-
-app/Controllers/TestController.php
-app/Domain/Models/TestModel.php
-app/Views/testView.php
-docs/FileUploadHelper.php
-

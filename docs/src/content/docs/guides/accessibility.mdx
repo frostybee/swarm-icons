@@ -1,0 +1,82 @@
+---
+title: Accessibility
+description: How Swarm Icons handles ARIA attributes for decorative and semantic icons.
+---
+
+Swarm Icons applies ARIA attributes automatically based on how you use each icon. The pattern follows the [W3C recommendations for SVG icons](https://www.w3.org/TR/svg-aam-1.0/).
+
+## Decorative Icons
+
+Icons without an `aria-label` are treated as **decorative** and receive `aria-hidden="true"` automatically. Screen readers will skip them entirely:
+
+```php
+echo swarm_icon('home');
+// <svg aria-hidden="true" ...>...</svg>
+```
+
+## Semantic Icons
+
+Add an `aria-label` to mark an icon as **meaningful**. Swarm Icons automatically adds `role="img"` to make the label accessible:
+
+```php
+echo swarm_icon('home', ['aria-label' => 'Go home']);
+// <svg role="img" aria-label="Go home" ...>...</svg>
+```
+
+## Setting Default ARIA Attributes
+
+You can set `aria-hidden` globally via `defaultAttributes()` and then override it on specific icons:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->defaultAttributes(['aria-hidden' => 'true'])  // all icons decorative by default
+    ->build();
+
+// Override for a specific meaningful icon
+echo $manager->get('heroicons:home', ['aria-label' => 'Home', 'aria-hidden' => null]);
+```
+
+## In Twig Templates
+
+```twig
+{# Decorative . aria-hidden applied automatically #}
+{{ icon('heroicons:home') }}
+
+{# Semantic . aria-label triggers role="img" #}
+{{ icon('heroicons:home', {'aria-label': 'Go home'}) }}
+```
+
+## Best Practices
+
+**Icons alongside visible text** . mark as decorative:
+
+```php
+// The text already conveys the meaning
+echo '<button>' . swarm_icon('home') . ' Home</button>';
+// <svg aria-hidden="true">...</svg>
+```
+
+**Icon-only buttons** . add a label:
+
+```php
+echo '<button aria-label="Close">' . swarm_icon('x-mark') . '</button>';
+// or pass aria-label to the icon itself
+echo '<button>' . swarm_icon('x-mark', ['aria-label' => 'Close']) . '</button>';
+```
+
+**Icon-only links** . label the link, not the icon:
+
+```html
+<a href="/" aria-label="Go home">
+  <?= swarm_icon('home') ?>
+</a>
+```
+
+## ARIA Attribute Summary
+
+| Situation | `aria-label` set? | Output |
+|---|---|---|
+| Decorative icon (default) | No | `aria-hidden="true"` |
+| Meaningful icon | Yes | `role="img" aria-label="..."` |
+| `aria-hidden` set in `defaultAttributes` | Depends | Respects the global default |

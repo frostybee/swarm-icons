@@ -10,7 +10,7 @@ use Frostybee\SwarmIcons\SwarmIcons;
 
 // Setup
 $manager = new IconManager();
-$provider = new DirectoryProvider(__DIR__ . '/tests/Fixtures/icons');
+$provider = new DirectoryProvider(__DIR__ . '/../tests/Fixtures/icons');
 $manager->register('test', $provider);
 $manager->setDefaultPrefix('test');
 
@@ -186,15 +186,15 @@ SwarmIcons::setManager($manager);
             <p class="example-description">Simple icon output with default styling</p>
             <div class="icon-display">
                 <div class="icon-item">
-                    <?= icon('home') ?>
+                    <?= swarm_icon('home') ?>
                     <span class="icon-label">Home</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('user') ?>
+                    <?= swarm_icon('user') ?>
                     <span class="icon-label">User</span>
                 </div>
             </div>
-            <code>&lt;?= icon('home') ?&gt;</code>
+            <code>&lt;?= swarm_icon('home') ?&gt;</code>
         </div>
 
         <!-- Example 2: Size Variations -->
@@ -207,23 +207,23 @@ SwarmIcons::setManager($manager);
                     <span class="icon-label">16px</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-6 h-6']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-6 h-6']) ?>
                     <span class="icon-label">24px</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-8 h-8']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-8 h-8']) ?>
                     <span class="icon-label">32px</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-12 h-12']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-12 h-12']) ?>
                     <span class="icon-label">48px</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-16 h-16']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-16 h-16']) ?>
                     <span class="icon-label">64px</span>
                 </div>
             </div>
-            <code>&lt;?= icon('home', ['class' => 'w-8 h-8']) ?&gt;</code>
+            <code>&lt;?= swarm_icon('home', ['class' => 'w-8 h-8']) ?&gt;</code>
         </div>
 
         <!-- Example 3: Color Variations -->
@@ -232,23 +232,23 @@ SwarmIcons::setManager($manager);
             <p class="example-description">Custom colors using stroke attribute</p>
             <div class="icon-display">
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-12 h-12 text-blue-500']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-12 h-12 text-blue-500']) ?>
                     <span class="icon-label">Blue</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-12 h-12 text-red-500']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-12 h-12 text-red-500']) ?>
                     <span class="icon-label">Red</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-12 h-12 text-green-500']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-12 h-12 text-green-500']) ?>
                     <span class="icon-label">Green</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-12 h-12 text-purple-500']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-12 h-12 text-purple-500']) ?>
                     <span class="icon-label">Purple</span>
                 </div>
             </div>
-            <code>&lt;?= icon('home', ['class' => 'w-12 h-12 text-blue-500']) ?&gt;</code>
+            <code>&lt;?= swarm_icon('home', ['class' => 'w-12 h-12 text-blue-500']) ?&gt;</code>
         </div>
 
         <!-- Example 4: Fluent API -->
@@ -278,11 +278,11 @@ SwarmIcons::setManager($manager);
             <p class="example-description">Automatic aria-hidden for decorative icons, role="img" for labeled icons</p>
             <div class="icon-display">
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-12 h-12']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-12 h-12']) ?>
                     <span class="icon-label">Decorative<br>(aria-hidden)</span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('home', ['class' => 'w-12 h-12', 'aria-label' => 'Home']) ?>
+                    <?= swarm_icon('home', ['class' => 'w-12 h-12', 'aria-label' => 'Home']) ?>
                     <span class="icon-label">Labeled<br>(role="img")</span>
                 </div>
             </div>
@@ -319,7 +319,7 @@ SwarmIcons::setManager($manager);
         <div class="example">
             <h2>7. Generated HTML</h2>
             <p class="example-description">The actual SVG markup produced</p>
-            <code><?= htmlspecialchars(icon('home', ['class' => 'w-6 h-6'])->toHtml()) ?></code>
+            <code><?= htmlspecialchars(swarm_icon('home', ['class' => 'w-6 h-6'])->toHtml()) ?></code>
         </div>
     </div>
 </body>

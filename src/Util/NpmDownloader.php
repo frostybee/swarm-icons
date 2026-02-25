@@ -16,6 +16,7 @@ class NpmDownloader
 {
     private const USER_AGENT = 'swarm-icons-build/1.0';
     private const REGISTRY_URL = 'https://registry.npmjs.org';
+    private const ICONIFY_API_URL = 'https://api.iconify.design';
 
     private string $cacheDir;
 
@@ -29,6 +30,18 @@ class NpmDownloader
      */
     public function fetchLatestVersion(string $package): ?string
     {
+        $meta = $this->fetchVersionMetadata($package);
+
+        return $meta['version'] ?? null;
+    }
+
+    /**
+     * Fetch version metadata for the latest release of an npm package.
+     *
+     * @return array{version: string, unpackedSize: int|null}|null
+     */
+    public function fetchVersionMetadata(string $package): ?array
+    {
         $encodedPackage = str_replace('/', '%2F', $package);
         $url = self::REGISTRY_URL . "/{$encodedPackage}/latest";
 
@@ -38,8 +51,53 @@ class NpmDownloader
         }
 
         $data = json_decode($json, true);
+        if (!\is_array($data) || !isset($data['version'])) {
+            return null;
+        }
 
-        return \is_array($data) ? ($data['version'] ?? null) : null;
+        $unpackedSize = $data['dist']['unpackedSize'] ?? null;
+
+        return [
+            'version' => $data['version'],
+            'unpackedSize' => \is_int($unpackedSize) ? $unpackedSize : null,
+        ];
+    }
+
+    /**
+     * Fetch all available Iconify icon set collections.
+     *
+     * Calls the Iconify /collections API and returns metadata for every set.
+     *
+     * @return array<string, array{name: string, total: int, author: string, license: string, category: string}>|null
+     */
+    public function fetchCollections(): ?array
+    {
+        $json = $this->httpGet(self::ICONIFY_API_URL . '/collections', 30);
+        if ($json === null) {
+            return null;
+        }
+
+        $data = json_decode($json, true);
+        if (!\is_array($data)) {
+            return null;
+        }
+
+        $collections = [];
+        foreach ($data as $prefix => $meta) {
+            if (!\is_string($prefix) || !\is_array($meta)) {
+                continue;
+            }
+
+            $collections[$prefix] = [
+                'name' => (string) ($meta['name'] ?? $prefix),
+                'total' => (int) ($meta['total'] ?? 0),
+                'author' => (string) ($meta['author']['name'] ?? 'Unknown'),
+                'license' => (string) ($meta['license']['title'] ?? 'Unknown'),
+                'category' => (string) ($meta['category'] ?? ''),
+            ];
+        }
+
+        return $collections;
     }
 
     /**

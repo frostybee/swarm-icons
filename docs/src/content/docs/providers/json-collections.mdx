@@ -1,0 +1,83 @@
+---
+title: JSON Collections (JsonCollectionProvider)
+description: Use pre-downloaded Iconify JSON collections for offline, zero-HTTP icon rendering.
+---
+
+`JsonCollectionProvider` loads icons from a pre-downloaded Iconify JSON collection file. Icons are **lazy-loaded** (the JSON file is parsed only on first access) and individually cached via PSR-16, so subsequent renders never touch the file again.
+
+## Downloading Sets
+
+Use the CLI to download any of the 200+ Iconify icon sets. No Node.js required . the downloader is pure PHP:
+
+```bash
+# Download specific sets
+php bin/swarm-icons json:download mdi tabler heroicons
+
+# Download all 23 popular/recommended sets
+php bin/swarm-icons json:download --all
+
+# See download status of popular sets
+php bin/swarm-icons json:download --list
+
+# Browse all 200+ available sets
+php bin/swarm-icons json:browse
+php bin/swarm-icons json:browse --search=emoji
+```
+
+Downloaded JSON files are placed in `resources/json/` by default and recorded in a `swarm-icons.json` manifest.
+
+## Auto-Discover Downloaded Sets
+
+`discoverJsonSets()` scans a directory for `*.json` files and registers each one automatically, using the filename (without extension) as the prefix:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets()                      // default: resources/json/
+    ->discoverJsonSets('/custom/json/path')   // custom directory
+    ->cachePath('/var/cache/icons')
+    ->build();
+
+echo swarm_icon('mdi:home');
+echo swarm_icon('tabler:star');
+echo swarm_icon('heroicons:user');
+```
+
+## Register Individual Sets
+
+For explicit control, register sets one by one:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addJsonCollection('mdi', __DIR__ . '/resources/json/mdi.json')
+    ->addJsonCollection('tabler', __DIR__ . '/resources/json/tabler.json')
+    ->build();
+```
+
+## Auto-Restore After Composer Install
+
+Downloaded sets are recorded in `swarm-icons.json`. Add composer scripts to re-download automatically:
+
+```json
+"scripts": {
+    "post-install-cmd": ["swarm-icons json:download"],
+    "post-update-cmd":  ["swarm-icons json:download"]
+}
+```
+
+Running `json:download` with no arguments re-downloads everything in the manifest.
+
+## Alias Resolution
+
+Iconify JSON files include an `aliases` map. `JsonCollectionProvider` resolves aliases transparently . `get('mdi:home-outline')` works even if `home-outline` is an alias for `home` with a modifier applied.
+
+## Compared to Iconify API Provider
+
+| | `IconifyProvider` | `json:download` + `JsonCollectionProvider` |
+|---|---|---|
+| When fetched | At runtime, on first icon use | At deploy/setup time |
+| Requires internet at runtime | Yes | No |
+| Works offline | No | Yes |
+| Granularity | Per icon | Whole set at once |
+| Similar to | Astro Icon runtime | `npm install @iconify-json/*` |
+
+`json:download` does what `npm install @iconify-json/*` does, but implemented in pure PHP . no Node.js toolchain required.

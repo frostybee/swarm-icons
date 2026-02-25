@@ -223,39 +223,39 @@ $defaultHeight = $jsonData['height'] ?? '—';
             <p class="example-description">Aliases reference parent icons — the provider resolves them transparently</p>
             <div class="icon-display">
                 <div class="icon-item">
-                    <?= icon('home')->size(32) ?>
+                    <?= swarm_icon('home')->size(32) ?>
                     <span class="icon-label">home (original)</span>
                 </div>
                 <span class="alias-arrow">&rarr;</span>
                 <div class="icon-item">
-                    <?= icon('house')->size(32) ?>
+                    <?= swarm_icon('house')->size(32) ?>
                     <span class="icon-label">house (alias)</span>
                 </div>
             </div>
             <div class="icon-display">
                 <div class="icon-item">
-                    <?= icon('user')->size(32) ?>
+                    <?= swarm_icon('user')->size(32) ?>
                     <span class="icon-label">user (original)</span>
                 </div>
                 <span class="alias-arrow">&rarr;</span>
                 <div class="icon-item">
-                    <?= icon('person')->size(32) ?>
+                    <?= swarm_icon('person')->size(32) ?>
                     <span class="icon-label">person (alias + hFlip)</span>
                 </div>
             </div>
             <div class="icon-display">
                 <div class="icon-item">
-                    <?= icon('home')->size(32) ?>
+                    <?= swarm_icon('home')->size(32) ?>
                     <span class="icon-label">home</span>
                 </div>
                 <span class="alias-arrow">&rarr;</span>
                 <div class="icon-item">
-                    <?= icon('house')->size(32) ?>
+                    <?= swarm_icon('house')->size(32) ?>
                     <span class="icon-label">house</span>
                 </div>
                 <span class="alias-arrow">&rarr;</span>
                 <div class="icon-item">
-                    <?= icon('chained-alias')->size(32) ?>
+                    <?= swarm_icon('chained-alias')->size(32) ?>
                     <span class="icon-label">chained-alias</span>
                 </div>
             </div>
@@ -270,12 +270,12 @@ $defaultHeight = $jsonData['height'] ?? '—';
             <div class="icon-display">
                 <?php foreach ([16, 24, 32, 48, 64] as $size): ?>
                 <div class="icon-item">
-                    <?= icon('star')->size($size) ?>
+                    <?= swarm_icon('star')->size($size) ?>
                     <span class="icon-label"><?= $size ?>px</span>
                 </div>
                 <?php endforeach; ?>
             </div>
-            <code>&lt;?= icon('star')->size(48) ?&gt;</code>
+            <code>&lt;?= swarm_icon('star')->size(48) ?&gt;</code>
         </div>
 
         <!-- Example 4: Color Variations -->
@@ -293,12 +293,12 @@ $defaultHeight = $jsonData['height'] ?? '—';
                 ];
                 foreach ($colors as $label => $class): ?>
                 <div class="icon-item">
-                    <?= icon('home')->size(32)->class($class) ?>
+                    <?= swarm_icon('home')->size(32)->class($class) ?>
                     <span class="icon-label"><?= $label ?></span>
                 </div>
                 <?php endforeach; ?>
             </div>
-            <code>&lt;?= icon('home')->size(32)->class('text-blue-500') ?&gt;</code>
+            <code>&lt;?= swarm_icon('home')->size(32)->class('text-blue-500') ?&gt;</code>
         </div>
 
         <!-- Example 5: Fluent API -->
@@ -335,11 +335,11 @@ $defaultHeight = $jsonData['height'] ?? '—';
             <p class="example-description">Root-level defaults (24x24) are applied unless the icon specifies its own</p>
             <div class="icon-display">
                 <div class="icon-item">
-                    <?= icon('home')->size(48) ?>
+                    <?= swarm_icon('home')->size(48) ?>
                     <span class="icon-label">home<br>viewBox: <?= $manager->get('home')->getAttribute('viewBox') ?></span>
                 </div>
                 <div class="icon-item">
-                    <?= icon('user')->size(48) ?>
+                    <?= swarm_icon('user')->size(48) ?>
                     <span class="icon-label">user<br>viewBox: <?= $manager->get('user')->getAttribute('viewBox') ?></span>
                 </div>
             </div>
@@ -351,7 +351,7 @@ $defaultHeight = $jsonData['height'] ?? '—';
         <div class="example">
             <h2>7. Generated HTML</h2>
             <p class="example-description">The actual SVG markup produced by the provider</p>
-            <code><?= htmlspecialchars(icon('home')->size(24)->toHtml()) ?></code>
+            <code><?= htmlspecialchars(swarm_icon('home')->size(24)->toHtml()) ?></code>
         </div>
     </div>
 </body>

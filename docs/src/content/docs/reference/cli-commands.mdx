@@ -1,0 +1,176 @@
+---
+title: CLI Commands
+description: Reference for all seven Swarm Icons CLI commands . json:download, json:browse, icon:search, cache:clear, cache:warm, icon:list, and init.
+---
+
+The Swarm Icons CLI is accessed via `bin/swarm-icons` and provides 7 commands for managing icons, caching, and project setup.
+
+```bash
+php bin/swarm-icons list
+```
+
+---
+
+## `json:download`
+
+Downloads Iconify JSON collection files from npm. Any valid Iconify prefix can be downloaded.
+
+```bash
+php bin/swarm-icons json:download mdi tabler heroicons
+php bin/swarm-icons json:download --all
+php bin/swarm-icons json:download --list
+php bin/swarm-icons json:download           # re-download from swarm-icons.json manifest
+php bin/swarm-icons json:download mdi --dest=/path/to/json
+```
+
+| Argument/Option | Short | Description | Default |
+|---|---|---|---|
+| `sets` | . | Icon set prefixes to download | . |
+| `--all` | . | Download all popular sets | `false` |
+| `--list` | `-l` | List popular sets with status (no download) | `false` |
+| `--dest` | `-d` | Destination directory for JSON files | auto-detected |
+
+See the [json:download guide](/swarm-icons/guides/json-download/) for full details including manifest auto-restore.
+
+---
+
+## `json:browse`
+
+Lists all available Iconify icon sets with icon counts, categories, and license info.
+
+```bash
+php bin/swarm-icons json:browse
+php bin/swarm-icons json:browse --search=emoji
+php bin/swarm-icons json:browse --search=Material
+```
+
+| Option | Short | Description |
+|---|---|---|
+| `--search` | `-s` | Filter by name, prefix, or category (case-insensitive) |
+
+---
+
+## `icon:search`
+
+Searches for icon names containing a substring. Supports the Iconify API, local SVG directories, and JSON collection files.
+
+```bash
+# Search the Iconify API (default)
+php bin/swarm-icons icon:search <prefix> <term>
+
+# Search a local SVG directory
+php bin/swarm-icons icon:search custom home --path=./resources/icons
+
+# Search a downloaded JSON collection
+php bin/swarm-icons icon:search mdi account --json=./resources/json/mdi.json
+```
+
+| Argument | Required | Description |
+|---|---|---|
+| `prefix` | Yes | Icon set prefix (e.g., `tabler`, `mdi`) |
+| `term` | Yes | Substring to search for in icon names |
+
+| Option | Description |
+|---|---|
+| `--path` | Path to a local SVG directory. Disables API lookup. |
+| `--json` | Path to an Iconify JSON collection file. Disables API lookup. |
+
+---
+
+## `cache:clear`
+
+Deletes all cached icon files from disk.
+
+```bash
+php bin/swarm-icons cache:clear
+php bin/swarm-icons cache:clear --path=/var/cache/icons
+```
+
+| Option | Short | Default |
+|---|---|---|
+| `--path` | `-p` | `sys_get_temp_dir()/swarm-icons` |
+
+**Example output:**
+```
+ [OK] Cache cleared successfully!
+      Removed 142 cached files (856.3 KB)
+      Location: /tmp/swarm-icons
+```
+
+---
+
+## `cache:warm`
+
+Fetches icons from the Iconify API and stores them in the local file cache. Use during deployment to eliminate all runtime HTTP calls.
+
+```bash
+php bin/swarm-icons cache:warm --prefix=tabler --icons=home,user,settings
+php bin/swarm-icons cache:warm --prefix=heroicons --icons=home,chevron-down --cache-path=/var/cache/icons
+php bin/swarm-icons cache:warm --prefix=lucide --icons=search,menu --timeout=30
+```
+
+| Option | Short | Description | Default |
+|---|---|---|---|
+| `--prefix` | `-p` | Icon set prefix (required) | . |
+| `--icons` | `-i` | Comma-separated icon names (required) | . |
+| `--cache-path` | . | Cache directory path | `sys_get_temp_dir()/swarm-icons` |
+| `--timeout` | `-t` | HTTP timeout in seconds | `10` |
+
+**Example output:**
+```
+ [OK] Warmed 4 icon(s) for prefix 'tabler'
+      All icons fetched successfully
+      Cache now contains 146 files (862.1 KB)
+```
+
+---
+
+## `icon:list`
+
+Lists available icon names from a local directory or from the Iconify API.
+
+```bash
+php bin/swarm-icons icon:list --path=/path/to/svgs
+php bin/swarm-icons icon:list --prefix=tabler --iconify
+php bin/swarm-icons icon:list --path=/path/to/svgs --search=arrow
+php bin/swarm-icons icon:list --prefix=heroicons --iconify --search=chevron
+```
+
+| Option | Short | Description | Default |
+|---|---|---|---|
+| `--prefix` | `-p` | Icon set prefix (Iconify mode) | . |
+| `--path` | . | Path to local SVG directory | . |
+| `--iconify` | . | Fetch icon list from Iconify API | `false` |
+| `--search` | `-s` | Filter icons by substring | . |
+
+---
+
+## `init`
+
+Generates a starter `swarm-icons.php` configuration file with commented examples.
+
+```bash
+php bin/swarm-icons init
+php bin/swarm-icons init --output=config/swarm-icons.php
+php bin/swarm-icons init --force   # overwrite existing file
+```
+
+| Option | Short | Description | Default |
+|---|---|---|---|
+| `--output` | `-o` | Output file path | `swarm-icons.php` |
+| `--force` | `-f` | Overwrite existing file | `false` |
+
+---
+
+## Source Files
+
+| File | Class |
+|---|---|
+| `src/Command/CacheClearCommand.php` | `CacheClearCommand` |
+| `src/Command/CacheWarmCommand.php` | `CacheWarmCommand` |
+| `src/Command/IconListCommand.php` | `IconListCommand` |
+| `src/Command/InitCommand.php` | `InitCommand` |
+| `src/Command/IconSearchCommand.php` | `IconSearchCommand` |
+| `src/Command/JsonBrowseCommand.php` | `JsonBrowseCommand` |
+| `src/Command/JsonDownloadCommand.php` | `JsonDownloadCommand` |
+| `bin/swarm-icons` | CLI entry point |

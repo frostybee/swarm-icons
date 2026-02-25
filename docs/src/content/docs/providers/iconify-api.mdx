@@ -1,0 +1,93 @@
+---
+title: Iconify API (IconifyProvider)
+description: Fetch icons on demand from the live Iconify HTTP API with multi-host fallback and PSR-16 caching.
+---
+
+`IconifyProvider` fetches icons **on demand at runtime** from the Iconify HTTP API. When you call `swarm_icon('heroicons:home')`, if the icon isn't cached yet, it makes an HTTP request right then and there, caches the result, and returns the SVG. All subsequent calls resolve from cache.
+
+## Request Flow
+
+```
+swarm_icon('heroicons:home')
+  → cache miss?
+    → GET https://api.iconify.design/heroicons.json?icons=home
+      → parse JSON response
+        → build Icon object
+          → store in PSR-16 cache
+            → return SVG
+```
+
+After the first request, the icon is cached forever (TTL = 0 by default) and no further HTTP traffic occurs.
+
+## Multi-Host Fallback
+
+If the primary Iconify host is unreachable, the provider automatically tries the next host in sequence:
+
+1. `https://api.iconify.design` (primary)
+2. `https://api.simplesvg.com`
+3. `https://api.unisvg.com`
+
+## Basic Setup
+
+```php
+use Frostybee\SwarmIcons\Provider\IconifyProvider;
+use Frostybee\SwarmIcons\Cache\FileCache;
+
+$provider = new IconifyProvider(
+    prefix: 'heroicons',
+    cache: new FileCache('/var/cache/icons'),
+    timeout: 10,
+    cacheTtl: 0  // 0 = cache forever
+);
+
+$manager->register('heroicons', $provider);
+```
+
+## Via the Config Builder
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->addIconifySet('tabler')
+    ->addIconifySet('lucide', timeout: 15)   // custom timeout
+    ->cachePath('/var/cache/icons')
+    ->build();
+```
+
+## Batch Fetching
+
+More efficient than multiple individual `get()` calls when you need several icons at once. Makes a single HTTP request for all icons in the set:
+
+```php
+$icons = $provider->fetchMany(['home', 'user', 'star', 'settings']);
+```
+
+## Pre-Warming the Cache
+
+For production deployments where you want zero API calls at runtime, use the `cache:warm` CLI command during your deployment pipeline:
+
+```bash
+php bin/swarm-icons cache:warm --prefix=heroicons --icons=home,user,settings,chevron-down
+php bin/swarm-icons cache:warm --prefix=tabler --icons=star,search,menu --cache-path=/var/cache/icons
+```
+
+## Popular Icon Sets
+
+Some popular sets available via the Iconify API:
+
+| Prefix | Name | Count |
+|---|---|---|
+| `heroicons` | Heroicons | 292 |
+| `tabler` | Tabler Icons | 5000+ |
+| `lucide` | Lucide | 1400+ |
+| `mdi` | Material Design Icons | 7000+ |
+| `ph` | Phosphor Icons | 7000+ |
+| `ri` | Remix Icons | 2800+ |
+| `bi` | Bootstrap Icons | 2000+ |
+| `simple-icons` | Simple Icons (brands) | 3000+ |
+
+Browse all 200+ sets: `php bin/swarm-icons json:browse`
+
+:::tip
+For production environments, prefer pre-downloading sets with `json:download` + `JsonCollectionProvider` to avoid any runtime HTTP dependency.
+:::

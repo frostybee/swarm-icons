@@ -1,0 +1,74 @@
+---
+title: CommonMark Integration
+description: Render inline SVG icons in Markdown content using the Swarm Icons CommonMark extension.
+---
+
+The [Swarm Icons CommonMark extension](https://github.com/swarm-icons/swarm-icons-commonmark) adds an `:icon[]` inline syntax to League CommonMark, allowing you to embed SVG icons directly in Markdown content.
+
+## Installation
+
+```bash
+composer require frostybee/swarm-icons-commonmark
+```
+
+## Setup
+
+```php
+use Frostybee\SwarmIcons\CommonMark\IconExtension;
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\MarkdownConverter;
+
+$environment = new Environment();
+$environment->addExtension(new CommonMarkCoreExtension());
+$environment->addExtension(new IconExtension($manager));
+
+$converter = new MarkdownConverter($environment);
+```
+
+## Syntax
+
+Use the `:icon[]` inline syntax in your Markdown:
+
+```markdown
+Click :icon[heroicons:home] to go home.
+
+:icon[heroicons:user class="w-6 h-6"] Profile
+```
+
+## Attributes
+
+Pass HTML attributes inside the brackets after the icon name:
+
+```markdown
+:icon[heroicons:home]
+:icon[heroicons:home class="w-5 h-5"]
+:icon[heroicons:home class="w-5 h-5" aria-label="Go home"]
+:icon[tabler:star class="text-yellow-400" width="20" height="20"]
+```
+
+## Full Example
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->addIconifySet('tabler')
+    ->cachePath('/var/cache/icons')
+    ->build();
+
+$environment = new Environment();
+$environment->addExtension(new CommonMarkCoreExtension());
+$environment->addExtension(new IconExtension($manager));
+
+$converter = new MarkdownConverter($environment);
+
+$markdown = <<<MD
+# Welcome
+
+Click :icon[heroicons:home class="w-5 h-5"] to return to the home page.
+
+:icon[tabler:star class="text-yellow-400"] Favorite this page.
+MD;
+
+echo $converter->convert($markdown);
+```

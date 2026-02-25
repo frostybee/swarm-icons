@@ -1,0 +1,124 @@
+---
+title: Core Concepts
+description: Understand the provider architecture, Icon value objects, attribute merge order, and SVG sanitization in Swarm Icons.
+---
+
+## Provider Pattern
+
+The provider pattern is the core abstraction. All providers implement `IconProviderInterface`:
+
+```php
+interface IconProviderInterface
+{
+    public function get(string $name): ?Icon;
+    public function has(string $name): bool;
+    public function all(): iterable;
+}
+```
+
+Four implementations ship out of the box:
+
+| Provider | Source | Offline |
+|---|---|---|
+| `DirectoryProvider` | Local `.svg` files | Yes |
+| `JsonCollectionProvider` | Pre-downloaded Iconify JSON | Yes |
+| `IconifyProvider` | Live Iconify HTTP API | No |
+| `ChainProvider` | Composite . tries providers in sequence | Depends |
+
+## Icon Value Objects
+
+`Icon` is an immutable `Stringable` value object. Every fluent method returns a **new instance** . the original is never modified:
+
+```php
+$home = $manager->get('heroicons:home');
+
+$large = $home->size(32);           // new instance
+$blue  = $home->class('text-blue'); // another new instance
+$both  = $home->size(32)->class('text-blue'); // chained
+
+echo $home;  // original . unchanged
+echo $both;  // size=32, class=text-blue
+```
+
+Fluent methods: `attr()`, `class()`, `size()`, `fill()`, `stroke()`, `strokeWidth()`.
+
+`Icon` implements `__serialize`/`__unserialize` for PSR-16 cache compatibility.
+
+## Setup Flow
+
+```php
+$manager = SwarmIconsConfig::create()   // create builder
+    ->addDirectory('custom', '/svgs')   // register providers
+    ->addIconifySet('heroicons')
+    ->cachePath('/var/cache/icons')     // configure cache
+    ->defaultPrefix('custom')           // set defaults
+    ->build();                          // returns IconManager
+
+SwarmIcons::setManager($manager);       // enable global helper
+```
+
+`SwarmIconsConfig::create()` returns a fluent builder. `build()` validates the configuration and returns a ready-to-use `IconManager`.
+
+## Attribute Merge Order
+
+When rendering an icon, attributes are merged in this order (later stages win, except classes which are always appended):
+
+```
+icon defaults → global defaults → prefix defaults → suffix defaults → caller attributes
+```
+
+```php
+SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->defaultAttributes(['class' => 'icon'])                         // global default
+    ->prefixAttributes('heroicons', ['class' => 'w-6 h-6'])         // prefix default
+    ->prefixSuffix('heroicons', 'solid', ['fill' => 'currentColor']) // suffix default
+    ->build();
+
+// get() call passes caller attributes
+echo $manager->get('heroicons:home-solid', ['class' => 'active']);
+// final class="icon w-6 h-6 active" fill="currentColor"
+```
+
+CSS classes are **always appended**, not replaced. All other attributes follow last-wins semantics.
+
+## SVG Sanitization
+
+Every SVG is sanitized before caching or rendering. The `SvgParser` strips:
+
+- `<script>` elements
+- `<foreignObject>` elements
+- `on*` event handler attributes (`onclick`, `onload`, etc.)
+- `javascript:` URIs in `href` and `src` attributes
+- External resource references in `image` and `use` elements
+
+This prevents XSS when rendering user-supplied or third-party SVG content.
+
+## Automatic ARIA Attributes
+
+Swarm Icons applies ARIA attributes automatically based on context:
+
+```php
+// Decorative icon (no aria-label) → aria-hidden="true"
+echo swarm_icon('home');
+// <svg aria-hidden="true">...</svg>
+
+// Meaningful icon (has aria-label) → role="img"
+echo swarm_icon('home', ['aria-label' => 'Go home']);
+// <svg role="img" aria-label="Go home">...</svg>
+```
+
+See the [Accessibility guide](/swarm-icons/guides/accessibility/) for full details.
+
+## PSR-16 Caching
+
+All cache-aware providers (Iconify API, JSON collections) use a shared PSR-16 cache instance. The built-in `FileCache` stores icons as files on disk. Icons are cached with TTL `0` (forever) by default:
+
+```php
+->cachePath('/var/cache/icons')          // FileCache at this path
+->cachePath('/var/cache/icons', ttl: 3600) // 1 hour TTL
+->cache($myPsr16Cache)                   // custom PSR-16 implementation
+->noCache()                              // disable caching (dev only)
+```
+
+Once an icon is cached, all subsequent renders resolve from cache . zero HTTP requests, zero JSON parsing.

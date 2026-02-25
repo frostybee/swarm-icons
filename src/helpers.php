@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Frostybee\SwarmIcons\Icon;
 use Frostybee\SwarmIcons\SwarmIcons;
 
-if (!function_exists('icon')) {
+if (!function_exists('swarm_icon')) {
     /**
      * Get an icon by name.
      *
@@ -20,7 +20,7 @@ if (!function_exists('icon')) {
      *
      * @return Icon Rendered icon
      */
-    function icon(string $name, array $attributes = []): Icon
+    function swarm_icon(string $name, array $attributes = []): Icon
     {
         return SwarmIcons::get($name, $attributes);
     }

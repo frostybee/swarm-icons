@@ -78,4 +78,88 @@ class SvgParserTest extends TestCase
         $this->assertFalse(SvgParser::isValidSvg($invalidSvg));
         $this->assertFalse(SvgParser::isValidSvg(''));
     }
+
+    public function test_sanitize_strips_xml_comments(): void
+    {
+        $content = '<!-- Created with Adobe Illustrator --><path d="M0 0"/><!-- end -->';
+
+        $result = SvgParser::sanitizeContent($content);
+
+        $this->assertStringNotContainsString('<!--', $result);
+        $this->assertStringNotContainsString('Adobe Illustrator', $result);
+        $this->assertStringContainsString('<path d="M0 0"/>', $result);
+    }
+
+    public function test_sanitize_strips_title_element(): void
+    {
+        $content = '<title>Home Icon</title><path d="M0 0"/>';
+
+        $result = SvgParser::sanitizeContent($content);
+
+        $this->assertStringNotContainsString('<title>', $result);
+        $this->assertStringNotContainsString('Home Icon', $result);
+        $this->assertStringContainsString('<path d="M0 0"/>', $result);
+    }
+
+    public function test_sanitize_strips_desc_element(): void
+    {
+        $content = '<desc>Created with Figma</desc><path d="M0 0"/>';
+
+        $result = SvgParser::sanitizeContent($content);
+
+        $this->assertStringNotContainsString('<desc>', $result);
+        $this->assertStringNotContainsString('Figma', $result);
+        $this->assertStringContainsString('<path d="M0 0"/>', $result);
+    }
+
+    public function test_sanitize_strips_title_and_desc_together(): void
+    {
+        $content = '<title>Icon</title><desc>A nice icon</desc><path d="M0 0"/>';
+
+        $result = SvgParser::sanitizeContent($content);
+
+        $this->assertStringNotContainsString('title', $result);
+        $this->assertStringNotContainsString('desc', $result);
+        $this->assertStringContainsString('<path', $result);
+    }
+
+    public function test_sanitize_normalizes_whitespace_between_tags(): void
+    {
+        $content = "<path d=\"M0 0\"/>\n    <circle cx=\"12\" cy=\"12\" r=\"4\"/>\n  ";
+
+        $result = SvgParser::sanitizeContent($content);
+
+        $this->assertStringNotContainsString("\n", $result);
+        $this->assertEquals('<path d="M0 0"/><circle cx="12" cy="12" r="4"/>', $result);
+    }
+
+    public function test_sanitize_preserves_text_content_inside_tags(): void
+    {
+        // Text content inside a <text> element must not be collapsed
+        $content = '<text x="0" y="12">Hello world</text>';
+
+        $result = SvgParser::sanitizeContent($content);
+
+        $this->assertStringContainsString('Hello world', $result);
+    }
+
+    public function test_parse_svg_strips_comments_and_metadata(): void
+    {
+        $svg = <<<'SVG'
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+              <!-- Created with Inkscape -->
+              <title>Home</title>
+              <desc>A home icon</desc>
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            SVG;
+
+        $result = SvgParser::parse($svg);
+
+        $this->assertStringNotContainsString('<!--', $result['content']);
+        $this->assertStringNotContainsString('<title>', $result['content']);
+        $this->assertStringNotContainsString('<desc>', $result['content']);
+        $this->assertStringNotContainsString('Inkscape', $result['content']);
+        $this->assertStringContainsString('<path', $result['content']);
+    }
 }

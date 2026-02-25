@@ -252,4 +252,138 @@ class IconManagerTest extends TestCase
 
         $manager->get('test:');
     }
+
+    // =========================================================================
+    // Alias tests
+    // =========================================================================
+
+    public function test_alias_resolves_to_target_icon(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+
+        $manager->setAlias('h', 'test:home');
+
+        $icon = $manager->get('h');
+
+        $this->assertInstanceOf(Icon::class, $icon);
+        $this->assertStringContainsString('path', $icon->getContent());
+    }
+
+    public function test_has_resolves_alias(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+
+        $manager->setAlias('h', 'test:home');
+
+        $this->assertTrue($manager->has('h'));
+    }
+
+    public function test_alias_does_not_interfere_with_prefixed_names(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+
+        $manager->setAlias('h', 'test:home');
+
+        // Direct prefixed name still works
+        $icon = $manager->get('test:home');
+        $this->assertInstanceOf(Icon::class, $icon);
+    }
+
+    public function test_alias_to_nonexistent_icon_throws_not_found(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+
+        $manager->setAlias('missing', 'test:nonexistent');
+
+        $this->expectException(IconNotFoundException::class);
+
+        $manager->get('missing');
+    }
+
+    public function test_get_aliases_returns_registered_aliases(): void
+    {
+        $manager = new IconManager();
+
+        $manager->setAlias('h', 'test:home');
+        $manager->setAlias('u', 'test:user');
+
+        $aliases = $manager->getAliases();
+
+        $this->assertCount(2, $aliases);
+        $this->assertSame('test:home', $aliases['h']);
+        $this->assertSame('test:user', $aliases['u']);
+    }
+
+    // =========================================================================
+    // ignoreNotFound tests
+    // =========================================================================
+
+    public function test_ignore_not_found_returns_empty_icon_for_missing_icon(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+        $manager->setIgnoreNotFound(true);
+
+        $icon = $manager->get('test:nonexistent');
+
+        $this->assertInstanceOf(Icon::class, $icon);
+        $this->assertSame('', $icon->getContent());
+    }
+
+    public function test_ignore_not_found_returns_empty_icon_for_missing_provider(): void
+    {
+        $manager = new IconManager();
+        $manager->setIgnoreNotFound(true);
+
+        $icon = $manager->get('unregistered:home');
+
+        $this->assertInstanceOf(Icon::class, $icon);
+        $this->assertSame('', $icon->getContent());
+    }
+
+    public function test_ignore_not_found_still_throws_on_invalid_name(): void
+    {
+        $manager = new IconManager();
+        $manager->setIgnoreNotFound(true);
+
+        $this->expectException(InvalidIconNameException::class);
+
+        $manager->get('');
+    }
+
+    public function test_ignore_not_found_disabled_by_default(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+
+        $this->assertFalse($manager->getIgnoreNotFound());
+
+        $this->expectException(IconNotFoundException::class);
+
+        $manager->get('test:nonexistent');
+    }
+
+    public function test_ignore_not_found_prefers_fallback(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+        $manager->setFallbackIcon('test:home');
+        $manager->setIgnoreNotFound(true);
+
+        $icon = $manager->get('test:nonexistent');
+
+        // Should return the fallback icon, not an empty one
+        $this->assertStringContainsString('path', $icon->getContent());
+    }
 }

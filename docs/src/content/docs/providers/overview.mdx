@@ -1,0 +1,61 @@
+---
+title: Provider Overview
+description: Compare the four icon providers available in Swarm Icons and choose the right one for your project.
+---
+
+Swarm Icons uses a **provider pattern** as its core abstraction. All providers implement `IconProviderInterface` with `get()`, `has()`, and `all()` methods. Multiple providers can be registered simultaneously under different prefixes.
+
+## Comparison Table
+
+| Provider | Source | Requires internet at runtime | Works offline |
+|---|---|---|---|
+| `DirectoryProvider` | Local `.svg` files | No | Yes |
+| `JsonCollectionProvider` | Pre-downloaded Iconify JSON | No | Yes |
+| `IconifyProvider` | Live Iconify HTTP API | Yes | No |
+| `ChainProvider` | Composite (tries providers in sequence) | Depends | Depends |
+
+## Choosing a Provider
+
+**Use `JsonCollectionProvider`** (via `json:download`) when:
+- You want 200,000+ Iconify icons with zero runtime HTTP
+- You're deploying to a server with no outbound internet access
+- You want the best performance (lazy-loaded, PSR-16 cached)
+
+**Use `DirectoryProvider`** when:
+- You have custom or branded `.svg` files
+- You want full control over your icon files
+- You're working offline or in a CI environment
+
+**Use `IconifyProvider`** when:
+- You want to start quickly without any setup
+- You only use a small number of icons and don't mind the first-use HTTP request
+- You're prototyping or in early development
+
+**Use `ChainProvider`** when:
+- You want custom icons first with Iconify as a fallback
+- You're migrating from local SVGs to an icon set
+
+## Registering Multiple Providers
+
+Providers can be mixed freely under different prefixes:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addJsonCollection('mdi', '/path/to/mdi.json')    // offline JSON
+    ->addIconifySet('heroicons')                         // runtime API
+    ->addDirectory('brand', '/path/to/brand-icons')     // local SVGs
+    ->addHybridSet('ui', '/path/to/ui-icons')           // local + API fallback
+    ->build();
+
+echo $manager->get('mdi:home');
+echo $manager->get('heroicons:user');
+echo $manager->get('brand:logo');
+echo $manager->get('ui:search');
+```
+
+## Detailed Guides
+
+- [Local SVG . DirectoryProvider](/swarm-icons/providers/local-svg/)
+- [JSON Collections . JsonCollectionProvider](/swarm-icons/providers/json-collections/)
+- [Iconify API . IconifyProvider](/swarm-icons/providers/iconify-api/)
+- [Hybrid . ChainProvider](/swarm-icons/providers/hybrid/)

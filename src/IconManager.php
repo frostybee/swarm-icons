@@ -19,9 +19,14 @@ class IconManager
     /** @var array<string, IconProviderInterface> Registered providers by prefix */
     private array $providers = [];
 
+    /** @var array<string, string> User-defined aliases mapping short names to full prefix:name */
+    private array $aliases = [];
+
     private ?string $defaultPrefix = null;
 
     private ?string $fallbackIcon = null;
+
+    private bool $ignoreNotFound = false;
 
     /**
      * @param IconRenderer $renderer Icon renderer instance
@@ -108,6 +113,48 @@ class IconManager
     }
 
     /**
+     * Register a user-defined alias.
+     *
+     * Aliases are resolved before prefix parsing, mapping a short name
+     * to a full "prefix:name" icon reference.
+     *
+     * @param string $alias Short alias name (e.g., 'check')
+     * @param string $target Full icon name (e.g., 'heroicons:check-circle')
+     */
+    public function setAlias(string $alias, string $target): void
+    {
+        $this->aliases[$alias] = $target;
+    }
+
+    /**
+     * Get all registered aliases.
+     *
+     * @return array<string, string>
+     */
+    public function getAliases(): array
+    {
+        return $this->aliases;
+    }
+
+    /**
+     * Set whether to ignore not-found errors.
+     *
+     * When enabled, returns an empty Icon instead of throwing IconNotFoundException.
+     */
+    public function setIgnoreNotFound(bool $ignore): void
+    {
+        $this->ignoreNotFound = $ignore;
+    }
+
+    /**
+     * Get the ignore-not-found setting.
+     */
+    public function getIgnoreNotFound(): bool
+    {
+        return $this->ignoreNotFound;
+    }
+
+    /**
      * Get an icon by name.
      *
      * Supports formats:
@@ -125,11 +172,18 @@ class IconManager
      */
     public function get(string $name, array $attributes = [], bool $resolvingFallback = false): Icon
     {
+        // Resolve user-defined aliases before prefix parsing
+        $name = $this->resolveAlias($name);
+
         [$prefix, $iconName] = $this->parseName($name);
 
         $provider = $this->getProvider($prefix);
 
         if ($provider === null) {
+            if ($this->ignoreNotFound) {
+                return new Icon('');
+            }
+
             throw new IconNotFoundException("No provider registered for prefix: {$prefix}");
         }
 
@@ -145,11 +199,15 @@ class IconManager
                 }
             }
 
+            if ($this->ignoreNotFound) {
+                return new Icon('');
+            }
+
             throw IconNotFoundException::forName($name);
         }
 
-        // Render with attributes
-        return $this->renderer->render($icon, $prefix, $attributes);
+        // Render with attributes (pass iconName for suffix matching)
+        return $this->renderer->render($icon, $prefix, $attributes, $iconName);
     }
 
     /**
@@ -159,6 +217,9 @@ class IconManager
      */
     public function has(string $name): bool
     {
+        // Resolve user-defined aliases before prefix parsing
+        $name = $this->resolveAlias($name);
+
         try {
             [$prefix, $iconName] = $this->parseName($name);
         } catch (InvalidIconNameException) {
@@ -172,6 +233,14 @@ class IconManager
         }
 
         return $provider->has($iconName);
+    }
+
+    /**
+     * Resolve a user-defined alias to its target icon name.
+     */
+    private function resolveAlias(string $name): string
+    {
+        return $this->aliases[trim($name)] ?? $name;
     }
 
     /**

@@ -40,6 +40,14 @@ class SwarmIconsConfig
     /** @var array<array{prefix: string, jsonFilePath: string}> Deferred JSON collection registrations */
     private array $deferredJsonCollections = [];
 
+    /** @var array<string, string> User-defined aliases */
+    private array $aliases = [];
+
+    /** @var array<string, array<string, array<string, string>>> Suffix-based attributes (prefix → suffix → attributes) */
+    private array $suffixAttributes = [];
+
+    private bool $ignoreNotFound = false;
+
     private function __construct()
     {
         $this->manager = new IconManager();
@@ -277,6 +285,57 @@ class SwarmIconsConfig
     }
 
     /**
+     * Register a user-defined alias.
+     *
+     * Maps a short name to a full "prefix:name" icon reference.
+     *
+     * @param string $alias Short alias name (e.g., 'check')
+     * @param string $target Full icon name (e.g., 'heroicons:check-circle')
+     */
+    public function alias(string $alias, string $target): self
+    {
+        $this->aliases[$alias] = $target;
+
+        return $this;
+    }
+
+    /**
+     * Suppress IconNotFoundException and return an empty Icon instead.
+     *
+     * When enabled, missing icons render as empty strings rather than
+     * throwing exceptions. InvalidIconNameException is still thrown.
+     *
+     * @param bool $ignore Whether to ignore not-found errors
+     */
+    public function ignoreNotFound(bool $ignore = true): self
+    {
+        $this->ignoreNotFound = $ignore;
+
+        return $this;
+    }
+
+    /**
+     * Set suffix-specific default attributes for an icon set.
+     *
+     * Applies attributes based on the icon name suffix (e.g., "-solid", "-outline").
+     * Use an empty string suffix as the fallback when no other suffix matches.
+     *
+     * @param string $prefix Icon set prefix (e.g., 'heroicons')
+     * @param string $suffix Suffix to match (e.g., 'solid') or '' for fallback
+     * @param array<string, string> $attributes Attributes to apply
+     */
+    public function prefixSuffix(string $prefix, string $suffix, array $attributes): self
+    {
+        if (!isset($this->suffixAttributes[$prefix])) {
+            $this->suffixAttributes[$prefix] = [];
+        }
+
+        $this->suffixAttributes[$prefix][$suffix] = $attributes;
+
+        return $this;
+    }
+
+    /**
      * Build and return the configured IconManager.
      */
     public function build(): IconManager
@@ -303,7 +362,23 @@ class SwarmIconsConfig
 
         // Apply default attributes
         $renderer = new IconRenderer($this->defaultAttributes, $this->prefixAttributes);
+
+        // Apply suffix-based attributes
+        foreach ($this->suffixAttributes as $prefix => $suffixes) {
+            foreach ($suffixes as $suffix => $attributes) {
+                $renderer->setSuffixAttributes($prefix, (string) $suffix, $attributes);
+            }
+        }
+
         $this->manager->setRenderer($renderer);
+
+        // Apply aliases
+        foreach ($this->aliases as $alias => $target) {
+            $this->manager->setAlias($alias, $target);
+        }
+
+        // Apply ignoreNotFound
+        $this->manager->setIgnoreNotFound($this->ignoreNotFound);
 
         return $this->manager;
     }

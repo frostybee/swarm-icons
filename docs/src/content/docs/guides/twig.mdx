@@ -1,0 +1,98 @@
+---
+title: Twig Integration
+description: Use Swarm Icons in Twig templates with the dedicated SwarmIconsExtension.
+---
+
+Swarm Icons ships a dedicated Twig extension that registers `icon()`, `icon_exists()`, and `get_icon()` functions for use in your Twig templates.
+
+## Setup
+
+Register the extension with your Twig environment:
+
+```php
+use Frostybee\SwarmIcons\Twig\SwarmIconsExtension;
+use Frostybee\SwarmIcons\Twig\SwarmIconsRuntime;
+
+$twig->addExtension(new SwarmIconsExtension(
+    new SwarmIconsRuntime($manager, silentOnMissing: true)
+));
+```
+
+`silentOnMissing: true` renders an empty string instead of throwing an exception when an icon is not found.
+
+## Available Functions
+
+### `icon(name, attributes?)`
+
+Renders an icon as an SVG string. Equivalent to `swarm_icon()` in PHP:
+
+```twig
+{{ icon('heroicons:home') }}
+{{ icon('heroicons:user', {class: 'w-6 h-6'}) }}
+{{ icon('heroicons:home', {'aria-label': 'Go home', class: 'icon-lg'}) }}
+```
+
+:::note
+Use `{{ }}` (not `{!! !!}`) in Twig . the Twig extension returns already-safe SVG markup, and Twig will not double-escape it.
+:::
+
+### `icon_exists(name)`
+
+Returns `true` if the icon exists in any registered provider:
+
+```twig
+{% if icon_exists('custom:brand-logo') %}
+    {{ icon('custom:brand-logo') }}
+{% else %}
+    {{ icon('heroicons:photo') }}
+{% endif %}
+```
+
+### `get_icon(name)`
+
+Returns the `Icon` value object so you can chain fluent methods:
+
+```twig
+{% set star = get_icon('tabler:star') %}
+{{ star.size(24).class('text-yellow-400') }}
+
+{% set logo = get_icon('custom:logo') %}
+{{ logo.size(48).attr({'aria-label': 'Company Logo'}) }}
+```
+
+## Attributes
+
+Pass attributes as a Twig object (hash):
+
+```twig
+{{ icon('heroicons:home', {class: 'w-5 h-5 text-blue-500'}) }}
+{{ icon('tabler:star',    {'aria-label': 'Rating', class: 'icon'}) }}
+{{ icon('mdi:account',   {width: '32', height: '32'}) }}
+```
+
+## Default Prefix in Twig
+
+If you configured a `defaultPrefix()` on the manager, you can omit the prefix:
+
+```php
+// PHP setup
+$manager = SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->defaultPrefix('heroicons')
+    ->build();
+```
+
+```twig
+{# Both are equivalent #}
+{{ icon('home') }}
+{{ icon('heroicons:home') }}
+```
+
+## Twig vs. PHP Syntax Comparison
+
+| Action | PHP | Twig |
+|---|---|---|
+| Basic render | `swarm_icon('heroicons:home')` | `{{ icon('heroicons:home') }}` |
+| With class | `swarm_icon('home', ['class' => 'w-5'])` | `{{ icon('home', {class: 'w-5'}) }}` |
+| Check exists | `$manager->has('custom:logo')` | `{% if icon_exists('custom:logo') %}` |
+| Fluent API | `$manager->get('home')->size(32)` | `{{ get_icon('home').size(32) }}` |

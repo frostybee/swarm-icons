@@ -15,7 +15,7 @@ echo "=== SwarmIcons Demo ===\n\n";
 $manager = new IconManager();
 
 // 2. Register a provider for our test fixtures
-$provider = new DirectoryProvider(__DIR__ . '/tests/Fixtures/icons');
+$provider = new DirectoryProvider(__DIR__ . '/../tests/Fixtures/icons');
 $manager->register('test', $provider);
 $manager->setDefaultPrefix('test');
 
@@ -81,15 +81,15 @@ echo $labeledIcon->toHtml() . "\n\n";
 // ===============================================
 // Example 6: Using global helper function
 // ===============================================
-echo "6️⃣  Using global icon() helper:\n";
-echo icon('home', ['class' => 'w-8 h-8']) . "\n\n";
+echo "6️⃣  Using global swarm_icon() helper:\n";
+echo swarm_icon('home', ['class' => 'w-8 h-8']) . "\n\n";
 
 // ===============================================
 // Example 7: Default prefix usage
 // ===============================================
 echo "7️⃣  Using default prefix:\n";
-echo "With prefix: " . icon('test:user') . "\n";
-echo "Without prefix (uses default): " . icon('user') . "\n\n";
+echo "With prefix: " . swarm_icon('test:user') . "\n";
+echo "Without prefix (uses default): " . swarm_icon('user') . "\n\n";
 
 // ===============================================
 // Example 8: Icon metadata

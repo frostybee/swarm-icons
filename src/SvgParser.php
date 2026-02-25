@@ -128,10 +128,19 @@ class SvgParser
     }
 
     /**
-     * Sanitize SVG inner content by removing dangerous elements and attributes.
+     * Sanitize SVG inner content by removing dangerous elements and attributes,
+     * stripping editor metadata, and normalizing whitespace.
      */
     public static function sanitizeContent(string $content): string
     {
+        // Strip XML comments — may contain editor metadata and can confuse parsers
+        $content = preg_replace('/<!--.*?-->/s', '', $content) ?? $content;
+
+        // Strip <title> and <desc> — editor-exported SVGs often include these; they can
+        // announce text to screen readers even when aria-hidden="true" is set on the <svg>
+        $content = preg_replace('/<title\b[^>]*>.*?<\/title>/is', '', $content) ?? $content;
+        $content = preg_replace('/<desc\b[^>]*>.*?<\/desc>/is', '', $content) ?? $content;
+
         // Remove <script> tags and their content
         $content = preg_replace('/<script\b[^>]*>.*?<\/script>/is', '', $content) ?? $content;
 
@@ -147,7 +156,10 @@ class SvgParser
         // Remove external resource references in <use> and <image> elements
         $content = preg_replace('/(<(?:use|image)\b[^>]*)\b(href|xlink:href)\s*=\s*["\']https?:\/\/[^"\']*["\']/', '$1', $content) ?? $content;
 
-        return $content;
+        // Collapse whitespace between tags (indentation, newlines from editor-exported SVGs)
+        $content = preg_replace('/>\s+</s', '><', $content) ?? $content;
+
+        return trim($content);
     }
 
     /**

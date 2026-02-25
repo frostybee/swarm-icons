@@ -1,0 +1,100 @@
+---
+title: Quick Start
+description: Set up Swarm Icons and render your first SVG icon in minutes.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+<Steps>
+
+1. **Install the package**
+
+   ```bash
+   composer require frostybee/swarm-icons
+   ```
+
+2. **Download icon sets**
+
+   ```bash
+   php bin/swarm-icons json:download mdi tabler heroicons
+   ```
+
+3. **Create the icon manager**
+
+   ```php
+   use Frostybee\SwarmIcons\SwarmIcons;
+   use Frostybee\SwarmIcons\SwarmIconsConfig;
+
+   $manager = SwarmIconsConfig::create()
+       ->discoverJsonSets()           // auto-register all downloaded sets
+       ->cachePath('/var/cache/icons')
+       ->build();
+
+   // Register globally to enable the swarm_icon() helper
+   SwarmIcons::setManager($manager);
+   ```
+
+4. **Render icons**
+
+   ```php
+   // Global helper (after SwarmIcons::setManager())
+   echo swarm_icon('mdi:home', ['class' => 'w-6 h-6']);
+   // <svg class="w-6 h-6" aria-hidden="true">...</svg>
+
+   echo swarm_icon('tabler:star', ['aria-label' => 'Favorite']);
+   // <svg role="img" aria-label="Favorite">...</svg>
+
+   // Or directly via the manager
+   echo $manager->get('heroicons:user');
+   echo $manager->get('mdi:home', ['class' => 'icon icon-lg']);
+   ```
+
+</Steps>
+
+## Using Local SVG Files
+
+If you have your own `.svg` files, register a directory:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addDirectory('ui', __DIR__ . '/resources/icons')
+    ->defaultPrefix('ui')
+    ->build();
+
+SwarmIcons::setManager($manager);
+
+echo swarm_icon('home');         // → ui/home.svg
+echo swarm_icon('ui:settings'); // explicit prefix
+```
+
+## Using the Iconify API
+
+Fetch icons on demand at runtime . cached after first request:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addIconifySet('heroicons')
+    ->addIconifySet('lucide')
+    ->cachePath('/var/cache/icons')
+    ->build();
+
+echo swarm_icon('heroicons:home');
+echo swarm_icon('lucide:settings');
+```
+
+## Fluent Icon API
+
+Every icon is an immutable value object with a fluent API:
+
+```php
+echo $manager->get('heroicons:home')
+    ->size(32)
+    ->class('text-blue-500')
+    ->strokeWidth(1.5);
+```
+
+## Next Steps
+
+- [Core Concepts](/swarm-icons/getting-started/core-concepts/) . Understand providers, caching, and the attribute merge order
+- [Configuration Reference](/swarm-icons/reference/configuration/) . All builder options
+- [Twig Guide](/swarm-icons/guides/twig/) . Use icons in Twig templates

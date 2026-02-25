@@ -39,7 +39,7 @@ $manager = SwarmIconsConfig::create()
 
 SwarmIcons::setManager($manager);
 
-echo icon('mdi:home', ['class' => 'w-6 h-6']);
+echo swarm_icon('mdi:home', ['class' => 'w-6 h-6']);
 // <svg class="w-6 h-6" aria-hidden="true">...</svg>
 ```
 
@@ -67,7 +67,12 @@ $manager = SwarmIconsConfig::create()
     ->defaultPrefix('custom')
     ->defaultAttributes(['class' => 'icon'])
     ->prefixAttributes('tabler', ['stroke-width' => '1.5'])
-    ->fallbackIcon('heroicons:question-mark')
+    ->prefixSuffix('heroicons', 'solid', ['fill' => 'currentColor'])
+    ->prefixSuffix('heroicons', 'outline', ['stroke' => 'currentColor', 'fill' => 'none'])
+    ->alias('check', 'heroicons:check-circle')
+    ->alias('close', 'heroicons:x-mark')
+    ->fallbackIcon('heroicons:question-mark-circle')
+    ->ignoreNotFound()
     ->build();
 ```
 
@@ -105,63 +110,54 @@ $manager->register('heroicons', $provider);
 
 Some popular sets: `heroicons`, `lucide`, `tabler`, `bootstrap`, `phosphor`, `simple-icons`.
 
-### JSON Collection Sets
+### Downloading Icon Sets
 
-The core library includes 21 additional icon sets available as downloadable JSON collections from the [Iconify](https://iconify.design) ecosystem. Each set is downloaded on demand from npm — no Node.js required.
+Any [Iconify](https://iconify.design) icon set can be downloaded as a JSON collection from npm — no Node.js required. Over 200 icon sets and 200,000+ icons are available.
 
 ```bash
-# List available sets and their download status
-php bin/swarm-icons json:download
+# Browse all 200+ available Iconify icon sets
+php bin/swarm-icons json:browse
 
-# Download specific sets
-php bin/swarm-icons json:download mdi fa-solid fa-brands
+# Search by name, prefix, or category
+php bin/swarm-icons json:browse --search=emoji
+php bin/swarm-icons json:browse --search=Material
 
-# Download all 21 sets
+# Download specific sets (any valid Iconify prefix)
+php bin/swarm-icons json:download mdi fa-solid heroicons
+
+# Download all 22 popular/recommended sets
 php bin/swarm-icons json:download --all
+
+# List popular sets with download status
+php bin/swarm-icons json:download --list
+
+# Search for icons by name (Iconify API, local directory, or JSON collection)
+php bin/swarm-icons icon:search tabler arrow
+php bin/swarm-icons icon:search mdi home --json=resources/json/mdi.json
+php bin/swarm-icons icon:search custom star --path=./icons
 ```
 
-Once downloaded, icons are available immediately:
+Once downloaded, auto-discover and render:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets()           // auto-registers all downloaded JSON sets
+    ->cachePath('/var/cache/icons')
+    ->build();
+
+echo swarm_icon('mdi:home');
+echo swarm_icon('fa-solid:star');
+```
+
+Or register individual sets manually:
 
 ```php
 $manager = SwarmIconsConfig::create()
     ->addJsonCollection('mdi', '/path/to/mdi.json')
-    ->cachePath('/var/cache/icons')
     ->build();
-
-echo icon('mdi:home');
-echo icon('fa-solid:star');
 ```
 
-<details>
-<summary><strong>Available JSON icon sets (21)</strong></summary>
-
-| Prefix | Name | Icons |
-|--------|------|------:|
-| `mdi` | Material Design Icons | ~7,400+ |
-| `fa-solid` | Font Awesome Solid | ~1,400+ |
-| `fa-regular` | Font Awesome Regular | ~150+ |
-| `fa-brands` | Font Awesome Brands | ~460+ |
-| `carbon` | Carbon Icons | ~2,100+ |
-| `octicon` | GitHub Octicons | ~500+ |
-| `fluent` | Fluent UI System Icons | ~11,000+ |
-| `ion` | Ionicons | ~1,300+ |
-| `ri` | Remix Icons | ~2,800+ |
-| `iconoir` | Iconoir | ~1,500+ |
-| `mingcute` | MingCute | ~2,800+ |
-| `solar` | Solar Icons | ~7,000+ |
-| `uil` | Unicons Line | ~1,200+ |
-| `bx` | BoxIcons | ~1,500+ |
-| `line-md` | Material Line Icons | ~300+ |
-| `tabler` | Tabler Icons | ~5,000+ |
-| `heroicons` | Heroicons | ~300+ |
-| `lucide` | Lucide Icons | ~1,900+ |
-| `bi` | Bootstrap Icons | ~2,000+ |
-| `ph` | Phosphor Icons | ~1,500+ |
-| `simple-icons` | Simple Icons | ~3,400+ |
-
-</details>
-
-Downloaded sets are recorded in a `swarm-icons.json` manifest in your project root. To automatically re-download them after `composer install` or `composer update`, add this to your `composer.json`:
+Downloaded sets are recorded in a `swarm-icons.json` manifest in your project root. Running `json:download` with no arguments re-downloads everything in the manifest. To automatically restore after `composer install` or `composer update`, add this to your `composer.json`:
 
 ```json
 "scripts": {
@@ -232,7 +228,7 @@ $twig->addExtension(new SwarmIconsExtension(
 
 ## Blade
 
-No extra package is needed. Register the icon manager once in a service provider, then use the global `icon()` helper in your Blade templates.
+No extra package is needed. Register the icon manager once in a service provider, then use the global `swarm_icon()` helper in your Blade templates.
 
 **1. Register the manager in `AppServiceProvider`:**
 
@@ -243,22 +239,22 @@ use Frostybee\SwarmIcons\SwarmIconsConfig;
 public function register(): void
 {
     $manager = SwarmIconsConfig::create()
-        ->addIconSet('heroicons')
+        ->addIconifySet('heroicons')
         ->build();
 
     SwarmIcons::setManager($manager);
 }
 ```
 
-**2. Use `icon()` in your Blade templates:**
+**2. Use `swarm_icon()` in your Blade templates:**
 
 ```blade
-{!! icon('heroicons:home') !!}
-{!! icon('heroicons:home', ['class' => 'w-6 h-6', 'aria-label' => 'Home']) !!}
-{!! icon('heroicons:home')->size(24)->class('text-blue-500') !!}
+{!! swarm_icon('heroicons:home') !!}
+{!! swarm_icon('heroicons:home', ['class' => 'w-6 h-6', 'aria-label' => 'Home']) !!}
+{!! swarm_icon('heroicons:home')->size(24)->class('text-blue-500') !!}
 ```
 
-Use `{!! !!}` (unescaped) since `icon()` returns raw SVG markup. The standard `{{ }}` syntax would escape the HTML.
+Use `{!! !!}` (unescaped) since `swarm_icon()` returns raw SVG markup. The standard `{{ }}` syntax would escape the HTML.
 
 ## CommonMark
 
@@ -293,10 +289,10 @@ Click :icon[heroicons:home] to go home.
 Decorative icons get `aria-hidden="true"` automatically. Add `aria-label` to mark an icon as meaningful:
 
 ```php
-echo icon('home');
+echo swarm_icon('home');
 // <svg aria-hidden="true">...</svg>
 
-echo icon('home', ['aria-label' => 'Home']);
+echo swarm_icon('home', ['aria-label' => 'Home']);
 // <svg role="img" aria-label="Home">...</svg>
 ```
 

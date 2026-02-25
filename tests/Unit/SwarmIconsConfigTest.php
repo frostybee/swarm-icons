@@ -198,5 +198,56 @@ class SwarmIconsConfigTest extends TestCase
         $this->assertSame($config, $config->prefixAttributes('custom', ['fill' => 'none']));
         $this->assertSame($config, $config->addIconifySet('test'));
         $this->assertSame($config, $config->addHybridSet('hybrid', $this->fixturesPath));
+        $this->assertSame($config, $config->alias('h', 'custom:home'));
+        $this->assertSame($config, $config->ignoreNotFound());
+        $this->assertSame($config, $config->prefixSuffix('custom', 'solid', ['fill' => 'currentColor']));
+    }
+
+    // =========================================================================
+    // Alias tests
+    // =========================================================================
+
+    public function test_alias_resolves_through_config(): void
+    {
+        $manager = SwarmIconsConfig::create()
+            ->addDirectory('custom', $this->fixturesPath)
+            ->alias('h', 'custom:home')
+            ->build();
+
+        $icon = $manager->get('h');
+        $this->assertStringContainsString('svg', $icon->toHtml());
+    }
+
+    // =========================================================================
+    // ignoreNotFound tests
+    // =========================================================================
+
+    public function test_ignore_not_found_through_config(): void
+    {
+        $manager = SwarmIconsConfig::create()
+            ->addDirectory('custom', $this->fixturesPath)
+            ->ignoreNotFound()
+            ->build();
+
+        $icon = $manager->get('custom:nonexistent');
+        $this->assertSame('', $icon->getContent());
+    }
+
+    // =========================================================================
+    // Suffix attribute tests
+    // =========================================================================
+
+    public function test_prefix_suffix_applies_attributes(): void
+    {
+        $manager = SwarmIconsConfig::create()
+            ->addDirectory('custom', $this->fixturesPath)
+            ->prefixSuffix('custom', 'solid', ['fill' => 'currentColor'])
+            ->build();
+
+        $renderer = $manager->getRenderer();
+        $suffixAttrs = $renderer->getSuffixAttributes('custom');
+
+        $this->assertArrayHasKey('solid', $suffixAttrs);
+        $this->assertSame('currentColor', $suffixAttrs['solid']['fill']);
     }
 }

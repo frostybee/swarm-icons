@@ -1,0 +1,98 @@
+---
+title: "CLI: json:download"
+description: Download Iconify JSON icon sets without Node.js using the json:download CLI command.
+---
+
+The `json:download` command downloads any Iconify icon set as a JSON file . no Node.js or npm required. It fetches packages directly from the npm registry in pure PHP.
+
+## Basic Usage
+
+```bash
+# Download specific sets by prefix
+php bin/swarm-icons json:download mdi tabler heroicons
+
+# Download all 23 popular/recommended sets at once
+php bin/swarm-icons json:download --all
+
+# Re-download everything recorded in swarm-icons.json
+php bin/swarm-icons json:download
+
+# Check download status of popular sets
+php bin/swarm-icons json:download --list
+```
+
+## Discovering Available Sets
+
+Before downloading, browse the full catalogue of 200+ Iconify sets:
+
+```bash
+# List all available sets
+php bin/swarm-icons json:browse
+
+# Filter by name, prefix, or category
+php bin/swarm-icons json:browse --search=emoji
+php bin/swarm-icons json:browse --search=Material
+php bin/swarm-icons json:browse --search=brands
+```
+
+## The swarm-icons.json Manifest
+
+Every downloaded set is recorded in `swarm-icons.json` at your project root:
+
+```json
+{
+    "json-sets": ["mdi", "tabler", "heroicons", "lucide"]
+}
+```
+
+Running `json:download` with no arguments re-downloads everything in this manifest. This is used with composer scripts for auto-restore after `composer install`.
+
+## Auto-Restore via Composer Scripts
+
+Add to `composer.json` to automatically restore icon sets after `composer install` or `composer update`:
+
+```json
+"scripts": {
+    "post-install-cmd": ["swarm-icons json:download"],
+    "post-update-cmd":  ["swarm-icons json:download"]
+}
+```
+
+## Using Downloaded Sets
+
+After downloading, use `discoverJsonSets()` to auto-register all downloaded sets:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets()            // scans resources/json/ by default
+    ->cachePath('/var/cache/icons')
+    ->build();
+
+SwarmIcons::setManager($manager);
+
+echo swarm_icon('mdi:home');
+echo swarm_icon('tabler:star');
+echo swarm_icon('heroicons:user');
+```
+
+Or register individual sets manually:
+
+```php
+$manager = SwarmIconsConfig::create()
+    ->addJsonCollection('mdi', __DIR__ . '/resources/json/mdi.json')
+    ->build();
+```
+
+## Where Files Are Stored
+
+By default, JSON files are saved to `resources/json/` relative to your project root. Each file is named `{prefix}.json` (e.g., `mdi.json`, `tabler.json`).
+
+## Equivalent to npm install
+
+`json:download` does what `npm install @iconify-json/mdi` does, but in pure PHP:
+
+| | Astro / npm ecosystem | Swarm Icons |
+|---|---|---|
+| Install a set | `npm install @iconify-json/mdi` | `php bin/swarm-icons json:download mdi` |
+| Restore all sets | `npm install` | `php bin/swarm-icons json:download` |
+| Requires Node.js | Yes | No |

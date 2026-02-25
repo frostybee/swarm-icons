@@ -1,0 +1,54 @@
+---
+title: Installation
+description: Install Swarm Icons, a framework-agnostic PHP library for rendering SVG icons.
+---
+
+**Swarm Icons** is a framework-agnostic PHP library for rendering SVG icons from local files, pre-downloaded JSON collections, or the live Iconify API . with a single, consistent interface.
+
+## Requirements
+
+- PHP 8.2 or higher
+- `psr/simple-cache: ^3.0`
+
+## Install via Composer
+
+```bash
+composer require frostybee/swarm-icons
+```
+
+## Download Icon Sets
+
+After installing, download the icon sets you want to use. No Node.js required . the CLI fetches directly from the npm registry in pure PHP:
+
+```bash
+# Download specific sets
+php bin/swarm-icons json:download mdi tabler heroicons
+
+# Download all 23 popular/recommended sets
+php bin/swarm-icons json:download --all
+
+# Browse all 200+ available Iconify sets
+php bin/swarm-icons json:browse
+
+# Search by name, prefix, or category
+php bin/swarm-icons json:browse --search=emoji
+```
+
+Downloaded sets are recorded in a `swarm-icons.json` manifest file at your project root.
+
+## Auto-Restore After Composer Install
+
+To automatically re-download icon sets after `composer install` or `composer update`, add this to your `composer.json`:
+
+```json
+"scripts": {
+    "post-install-cmd": ["swarm-icons json:download"],
+    "post-update-cmd": ["swarm-icons json:download"]
+}
+```
+
+## What's Next?
+
+- [Quick Start](/swarm-icons/getting-started/quick-start/) . Set up and render your first icon
+- [Core Concepts](/swarm-icons/getting-started/core-concepts/) . Understand the provider architecture
+- [Providers](/swarm-icons/providers/overview/) . Explore all four provider types

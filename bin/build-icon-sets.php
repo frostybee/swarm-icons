@@ -6,10 +6,13 @@
  * Downloads JSON collections from upstream @iconify-json npm packages
  * and places them into resources/json/.
  *
+ * Any valid Iconify prefix can be used. When run without arguments,
+ * builds the popular sets listed below.
+ *
  * Usage:
- *   php bin/build-icon-sets.php              # Build all JSON sets
- *   php bin/build-icon-sets.php mdi          # Build a single set
- *   php bin/build-icon-sets.php mdi tabler heroicons
+ *   php bin/build-icon-sets.php                    # Build all popular sets
+ *   php bin/build-icon-sets.php mdi                # Build a single set
+ *   php bin/build-icon-sets.php mdi fluent-emoji   # Build specific sets (any prefix)
  *
  * Requirements: PHP 8.2+, ext-zlib (for gzip decompression)
  */
@@ -43,34 +46,39 @@ use Frostybee\SwarmIcons\Util\NpmDownloader;
 // ---------------------------------------------------------------------------
 
 /**
- * JSON collection set definitions.
+ * Popular/recommended icon sets built when no arguments are given.
  *
- * Each entry maps a prefix to its @iconify-json npm package.
- * The JSON file (icons.json) is extracted and saved to:
- *   resources/json/{prefix}.json
+ * Any valid Iconify prefix works — this is just the default set.
+ *
+ * @var list<string>
  */
-$jsonSets = [
-    'mdi'        => ['package' => '@iconify-json/mdi'],
-    'fa-solid'   => ['package' => '@iconify-json/fa-solid'],
-    'fa-regular' => ['package' => '@iconify-json/fa-regular'],
-    'fa-brands'  => ['package' => '@iconify-json/fa-brands'],
-    'carbon'     => ['package' => '@iconify-json/carbon'],
-    'octicon'    => ['package' => '@iconify-json/octicon'],
-    'fluent'     => ['package' => '@iconify-json/fluent'],
-    'ion'        => ['package' => '@iconify-json/ion'],
-    'ri'         => ['package' => '@iconify-json/ri'],
-    'iconoir'    => ['package' => '@iconify-json/iconoir'],
-    'mingcute'   => ['package' => '@iconify-json/mingcute'],
-    'solar'      => ['package' => '@iconify-json/solar'],
-    'uil'        => ['package' => '@iconify-json/uil'],
-    'bx'         => ['package' => '@iconify-json/bx'],
-    'line-md'    => ['package' => '@iconify-json/line-md'],
-    'tabler'     => ['package' => '@iconify-json/tabler'],
-    'heroicons'  => ['package' => '@iconify-json/heroicons'],
-    'lucide'     => ['package' => '@iconify-json/lucide'],
-    'bi'         => ['package' => '@iconify-json/bi'],
-    'ph'         => ['package' => '@iconify-json/ph'],
-    'simple-icons' => ['package' => '@iconify-json/simple-icons'],
+$popularSets = [
+    'bi',
+    'bx',
+    'carbon',
+    'fa-brands',
+    'fa-regular',
+    'fa-solid',
+    'fa6-brands',
+    'fa6-regular',
+    'fa6-solid',
+    'flowbite',
+    'fluent',
+    'heroicons',
+    'icon-park-outline',
+    'iconoir',
+    'ion',
+    'line-md',
+    'lucide',
+    'mdi',
+    'mingcute',
+    'octicon',
+    'ph',
+    'ri',
+    'simple-icons',
+    'solar',
+    'tabler',
+    'uil',
 ];
 
 // ---------------------------------------------------------------------------
@@ -107,35 +115,23 @@ $downloader = new NpmDownloader();
 $argv = $_SERVER['argv'] ?? [];
 array_shift($argv); // remove script name
 
-if (empty($argv)) {
-    $selected = array_keys($jsonSets);
-} else {
-    $selected = [];
-    foreach ($argv as $key) {
-        if (!isset($jsonSets[$key])) {
-            error("Unknown icon set: '{$key}'. Available: " . implode(', ', array_keys($jsonSets)));
-            exit(1);
-        }
-        $selected[] = $key;
-    }
-}
+$selected = empty($argv) ? $popularSets : $argv;
 
 $totalJson = 0;
 
 // Build JSON collection sets
 $jsonDestDir = dirname(__DIR__) . '/resources/json';
 
-foreach ($selected as $key) {
-    $config  = $jsonSets[$key];
-    $package = $config['package'];
+foreach ($selected as $prefix) {
+    $package = '@iconify-json/' . $prefix;
 
-    heading("Building JSON set: {$key} ({$package})");
+    heading("Building JSON set: {$prefix} ({$package})");
 
     // Resolve version
     info("Fetching latest version of {$package}...");
     $version = $downloader->fetchLatestVersion($package);
     if ($version === null) {
-        error("Could not determine latest version. Skipping.");
+        error("Could not fetch '{$package}' from npm. Check the prefix and try again.");
         continue;
     }
     info("  Version: {$version}");
@@ -158,7 +154,7 @@ foreach ($selected as $key) {
 
     // Write to destination
     @mkdir($jsonDestDir, 0755, true);
-    $destFile = "{$jsonDestDir}/{$key}.json";
+    $destFile = "{$jsonDestDir}/{$prefix}.json";
     file_put_contents($destFile, $content);
     $sizeKb = number_format(strlen($content) / 1024, 1);
     info("  Wrote {$destFile} ({$sizeKb} KB)");

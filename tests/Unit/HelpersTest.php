@@ -19,7 +19,7 @@ class HelpersTest extends TestCase
 
     public function test_icon_function_exists(): void
     {
-        $this->assertTrue(\function_exists('icon'));
+        $this->assertTrue(\function_exists('swarm_icon'));
     }
 
     public function test_icon_returns_icon(): void
@@ -30,7 +30,7 @@ class HelpersTest extends TestCase
 
         SwarmIcons::setManager($manager);
 
-        $icon = icon('custom:home');
+        $icon = swarm_icon('custom:home');
         $this->assertInstanceOf(Icon::class, $icon);
         $this->assertStringContainsString('svg', $icon->toHtml());
     }
@@ -43,7 +43,7 @@ class HelpersTest extends TestCase
 
         SwarmIcons::setManager($manager);
 
-        $icon = icon('custom:home', ['class' => 'w-6 h-6']);
+        $icon = swarm_icon('custom:home', ['class' => 'w-6 h-6']);
         $this->assertStringContainsString('class=', $icon->toHtml());
     }
 
@@ -51,6 +51,6 @@ class HelpersTest extends TestCase
     {
         $this->expectException(\Frostybee\SwarmIcons\Exception\SwarmIconsException::class);
 
-        icon('custom:home');
+        swarm_icon('custom:home');
     }
 }

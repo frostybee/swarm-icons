@@ -26,8 +26,11 @@ if (!$autoloaded) {
 use Frostybee\SwarmIcons\Command\CacheClearCommand;
 use Frostybee\SwarmIcons\Command\CacheWarmCommand;
 use Frostybee\SwarmIcons\Command\IconListCommand;
+use Frostybee\SwarmIcons\Command\IconSearchCommand;
 use Frostybee\SwarmIcons\Command\InitCommand;
+use Frostybee\SwarmIcons\Command\JsonBrowseCommand;
 use Frostybee\SwarmIcons\Command\JsonDownloadCommand;
+use Frostybee\SwarmIcons\Command\ManifestGenerateCommand;
 use Symfony\Component\Console\Application;
 
 $application = new Application('SwarmIcons CLI', '1.0.0');
@@ -36,7 +39,10 @@ $application = new Application('SwarmIcons CLI', '1.0.0');
 $application->add(new CacheClearCommand());
 $application->add(new CacheWarmCommand());
 $application->add(new IconListCommand());
+$application->add(new IconSearchCommand());
 $application->add(new InitCommand());
+$application->add(new JsonBrowseCommand());
 $application->add(new JsonDownloadCommand());
+$application->add(new ManifestGenerateCommand());
 
 $application->run();
