@@ -59,10 +59,10 @@ class IconTest extends TestCase
     public function test_from_iconify_data_hflip(): void
     {
         $icon = Icon::fromIconifyData([
-            'body'   => '<path d="M0 0"/>',
-            'width'  => 24,
+            'body' => '<path d="M0 0"/>',
+            'width' => 24,
             'height' => 24,
-            'hFlip'  => true,
+            'hFlip' => true,
         ]);
 
         $this->assertStringContainsString('translate(24, 0) scale(-1, 1)', $icon->getContent());
@@ -75,10 +75,10 @@ class IconTest extends TestCase
     public function test_from_iconify_data_vflip(): void
     {
         $icon = Icon::fromIconifyData([
-            'body'   => '<path d="M0 0"/>',
-            'width'  => 24,
+            'body' => '<path d="M0 0"/>',
+            'width' => 24,
             'height' => 24,
-            'vFlip'  => true,
+            'vFlip' => true,
         ]);
 
         $this->assertStringContainsString('translate(0, 24) scale(1, -1)', $icon->getContent());
@@ -89,8 +89,8 @@ class IconTest extends TestCase
     public function test_from_iconify_data_rotate_90(): void
     {
         $icon = Icon::fromIconifyData([
-            'body'   => '<path d="M0 0"/>',
-            'width'  => 24,
+            'body' => '<path d="M0 0"/>',
+            'width' => 24,
             'height' => 16,
             'rotate' => 1,
         ]);
@@ -105,8 +105,8 @@ class IconTest extends TestCase
     public function test_from_iconify_data_rotate_180(): void
     {
         $icon = Icon::fromIconifyData([
-            'body'   => '<path d="M0 0"/>',
-            'width'  => 24,
+            'body' => '<path d="M0 0"/>',
+            'width' => 24,
             'height' => 24,
             'rotate' => 2,
         ]);
@@ -120,8 +120,8 @@ class IconTest extends TestCase
     public function test_from_iconify_data_rotate_270(): void
     {
         $icon = Icon::fromIconifyData([
-            'body'   => '<path d="M0 0"/>',
-            'width'  => 24,
+            'body' => '<path d="M0 0"/>',
+            'width' => 24,
             'height' => 16,
             'rotate' => 3,
         ]);
@@ -137,11 +137,11 @@ class IconTest extends TestCase
     {
         // rotate=1 (square): dimensions stay 24×24 after swap; hFlip uses post-rotation width=24
         $icon = Icon::fromIconifyData([
-            'body'   => '<path d="M0 0"/>',
-            'width'  => 24,
+            'body' => '<path d="M0 0"/>',
+            'width' => 24,
             'height' => 24,
             'rotate' => 1,
-            'hFlip'  => true,
+            'hFlip' => true,
         ]);
 
         $content = $icon->getContent();
@@ -154,11 +154,11 @@ class IconTest extends TestCase
     public function test_from_iconify_data_hflip_and_vflip(): void
     {
         $icon = Icon::fromIconifyData([
-            'body'   => '<path d="M0 0"/>',
-            'width'  => 24,
+            'body' => '<path d="M0 0"/>',
+            'width' => 24,
             'height' => 24,
-            'hFlip'  => true,
-            'vFlip'  => true,
+            'hFlip' => true,
+            'vFlip' => true,
         ]);
 
         $this->assertStringContainsString('translate(24, 24) scale(-1, -1)', $icon->getContent());
@@ -168,7 +168,7 @@ class IconTest extends TestCase
     {
         // No width/height — transforms cannot be computed; body is returned as-is
         $icon = Icon::fromIconifyData([
-            'body'  => '<path d="M0 0"/>',
+            'body' => '<path d="M0 0"/>',
             'hFlip' => true,
         ]);
 

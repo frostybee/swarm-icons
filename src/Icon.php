@@ -82,11 +82,11 @@ class Icon implements Stringable
         if ($width > 0 && $height > 0) {
             // Reset viewBox origin to 0 0 when transforms have repositioned the content
             $left = $hasTransforms ? 0 : (int) ($data['left'] ?? 0);
-            $top  = $hasTransforms ? 0 : (int) ($data['top'] ?? 0);
+            $top = $hasTransforms ? 0 : (int) ($data['top'] ?? 0);
 
             $attributes['viewBox'] = "{$left} {$top} {$width} {$height}";
-            $attributes['width']   = (string) $width;
-            $attributes['height']  = (string) $height;
+            $attributes['width'] = (string) $width;
+            $attributes['height'] = (string) $height;
         }
 
         return new self($body, $attributes);
@@ -108,8 +108,8 @@ class Icon implements Stringable
     private static function applyIconifyTransforms(string $body, array $data, int $width, int $height): array
     {
         $rotate = (int) ($data['rotate'] ?? 0) % 4;
-        $hFlip  = (bool) ($data['hFlip'] ?? false);
-        $vFlip  = (bool) ($data['vFlip'] ?? false);
+        $hFlip = (bool) ($data['hFlip'] ?? false);
+        $vFlip = (bool) ($data['vFlip'] ?? false);
 
         if ($rotate === 0 && !$hFlip && !$vFlip) {
             return [$body, $width, $height, false];
@@ -122,9 +122,9 @@ class Icon implements Stringable
         //   rotate=3 (270° CW): (x,y) → (y, W−x)   via translate(0,W) rotate(270)
         if ($rotate !== 0) {
             $rotTransform = match ($rotate) {
-                1       => "translate({$height}, 0) rotate(90)",
-                2       => "translate({$width}, {$height}) rotate(180)",
-                3       => "translate(0, {$width}) rotate(270)",
+                1 => "translate({$height}, 0) rotate(90)",
+                2 => "translate({$width}, {$height}) rotate(180)",
+                3 => "translate(0, {$width}) rotate(270)",
                 default => '',
             };
 
@@ -142,8 +142,8 @@ class Icon implements Stringable
         if ($hFlip || $vFlip) {
             $flipTransform = match (true) {
                 $hFlip && $vFlip => "translate({$width}, {$height}) scale(-1, -1)",
-                $hFlip           => "translate({$width}, 0) scale(-1, 1)",
-                default          => "translate(0, {$height}) scale(1, -1)",
+                $hFlip => "translate({$width}, 0) scale(-1, 1)",
+                default => "translate(0, {$height}) scale(1, -1)",
             };
 
             $body = "<g transform=\"{$flipTransform}\">{$body}</g>";
