@@ -85,14 +85,9 @@ export default defineConfig({
                     items: [
                         { label: 'Twig Integration', slug: 'guides/twig' },
                         { label: 'Laravel Blade',    slug: 'guides/laravel-blade' },
+                        { label: 'Slim Framework',   slug: 'guides/slim' },
                         { label: 'CommonMark',       slug: 'guides/commonmark' },
                         { label: 'Accessibility',    slug: 'guides/accessibility' },
-                    ],
-                },
-                {
-                    label: 'Reference',
-                    items: [
-                        { label: 'Fluent API', slug: 'reference/fluent-api' },
                     ],
                 },
                 {
@@ -100,6 +95,12 @@ export default defineConfig({
                     items: [
                         { label: 'Icon Set Commands', slug: 'cli/icon-sets' },
                         { label: 'Cache & Utilities', slug: 'cli/cache-and-utilities' },
+                    ],
+                },
+                {
+                    label: 'Reference',
+                    items: [
+                        { label: 'Fluent API', slug: 'reference/fluent-api' },
                     ],
                 },
             ],

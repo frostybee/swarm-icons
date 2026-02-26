@@ -727,8 +727,8 @@ const codeTwig = `{# Register once in your bootstrap #}
   /* Mobile */
   @media (max-width: 900px) {
     .hero { padding: 4rem 0; }
-    .tab-bar { gap: 0; }
-    .tab { padding: 0.625rem 0.75rem; font-size: 0.8125rem; }
+    .tab-bar { gap: 0; flex-wrap: wrap; }
+    .tab { flex: 0 0 50%; padding: 0.625rem 0.75rem; font-size: 0.8125rem; }
   }
 
   @media (max-width: 640px) {

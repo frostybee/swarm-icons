@@ -1,0 +1,141 @@
+---
+title: Slim Framework
+description: Use Swarm Icons in Slim Framework applications with PHP-View or Twig-View.
+---
+
+Swarm Icons works with Slim out of the box. Register the manager in your bootstrap or DI container, then use icons in PHP templates or Twig views.
+
+## Register the manager
+
+### Without a DI container
+
+If you're not using a DI container, drop the setup straight into your bootstrap file (`public/index.php`, `app/bootstrap.php`, etc.) before your routes:
+
+```php
+use Frostybee\SwarmIcons\SwarmIcons;
+use Frostybee\SwarmIcons\SwarmIconsConfig;
+
+$manager = SwarmIconsConfig::create()
+    ->discoverJsonSets('path/to/resources/json')
+    ->cachePath('path/to/var/cache/icons')
+    ->defaultPrefix('tabler')
+    ->defaultAttributes(['class' => 'icon'])
+    ->build();
+
+SwarmIcons::setManager($manager);
+```
+
+### With a DI container
+
+If your Slim app uses a DI container like [PHP-DI](https://php-di.org/), wire up the manager in your container definitions:
+
+```php
+use Frostybee\SwarmIcons\SwarmIcons;
+use Frostybee\SwarmIcons\SwarmIconsConfig;
+use Frostybee\SwarmIcons\IconManager;
+
+return [
+    IconManager::class => function () {
+        $manager = SwarmIconsConfig::create()
+            ->discoverJsonSets('path/to/resources/json')
+            ->cachePath('path/to/var/cache/icons')
+            ->defaultPrefix('tabler')
+            ->defaultAttributes(['class' => 'icon'])
+            ->build();
+
+        SwarmIcons::setManager($manager);
+
+        return $manager;
+    },
+];
+```
+
+## Use with PHP-View
+
+If you use [slim/php-view](https://github.com/slimphp/PHP-View), call the `swarm_icon()` helper directly in your `.php` templates:
+
+```php
+<nav>
+    <?= swarm_icon('home') ?>
+    <?= swarm_icon('heroicons:user', ['class' => 'w-6 h-6']) ?>
+    <?= swarm_icon('tabler:settings', ['aria-label' => 'Settings']) ?>
+</nav>
+```
+
+## Use with Twig-View
+
+If you use [slim/twig-view](https://github.com/slimphp/Twig-View), register the Swarm Icons extension on the Twig environment:
+
+```php
+use Slim\Views\Twig;
+use Frostybee\SwarmIcons\Twig\SwarmIconsExtension;
+
+$twig = Twig::create('path/to/templates');
+$twig->addExtension(new SwarmIconsExtension());
+```
+
+Then use `icon()` in your `.twig` templates:
+
+```twig
+<nav>
+    {{ icon('home') }}
+    {{ icon('heroicons:user', {class: 'w-6 h-6'}) }}
+    {{ icon('tabler:settings', {'aria-label': 'Settings'}) }}
+</nav>
+```
+
+:::note
+The Twig function is named `icon()`, while the PHP helper is `swarm_icon()`. See the [Twig Integration](/swarm-icons/guides/twig/) guide for the full set of Twig functions.
+:::
+
+## Fluent chaining
+
+Both the PHP helper and the Twig `get_icon()` function return an `Icon` object that supports fluent method chaining:
+
+```php
+<?= swarm_icon('home')->size(24)->class('text-blue-500') ?>
+<?= swarm_icon('tabler:star')->fill('currentColor')->strokeWidth(1.5) ?>
+```
+
+## Check for existence
+
+Use the static facade to conditionally render icons:
+
+```php
+<?php if (SwarmIcons::has('heroicons:user')): ?>
+    <?= swarm_icon('heroicons:user') ?>
+<?php endif; ?>
+```
+
+## Where to put your icons
+
+A typical Slim project might organize icon files like this:
+
+```
+project/
+├── resources/
+│   ├── json/               ← downloaded JSON collections
+│   │   ├── tabler.json
+│   │   ├── heroicons.json
+│   │   └── mdi.json
+│   └── icons/              ← custom SVG icons (if any)
+│       ├── logo.svg
+│       └── brand.svg
+├── templates/              ← Twig or PHP-View templates
+├── var/cache/icons/        ← icon cache directory
+└── public/
+```
+
+:::note
+You can download sets directly into that directory using the `--dest` flag:
+
+```bash
+vendor/bin/swarm-icons json:download tabler heroicons mdi --dest=resources/json
+```
+:::
+
+## See also
+
+- [Twig Integration](/swarm-icons/guides/twig/): full Twig function reference (`icon()`, `icon_exists()`, `get_icon()`)
+- [Fluent API](/swarm-icons/reference/fluent-api/): all available methods on the `Icon` value object
+- [Accessibility](/swarm-icons/guides/accessibility/): decorative vs meaningful icons and ARIA best practices
