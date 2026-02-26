@@ -11,6 +11,10 @@
   <a href="https://packagist.org/packages/frostybee/swarm-icons"><img src="https://img.shields.io/packagist/l/frostybee/swarm-icons.svg" alt="License"></a>
 </p>
 
+<p align="center">
+  <a href="https://frostybee.github.io/swarm-icons/">Documentation</a>
+</p>
+
 ## Installation
 
 ```bash
