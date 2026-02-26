@@ -20,3 +20,66 @@ code, pre, .expressive-code {
   --fb-code-block-bg-color: #24292e;
 }
 
+/* ── Sidebar ── */
+
+/* Group headings: muted uppercase labels */
+#starlight__sidebar .top-level > li > details > summary .large {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: var(--sl-text-xs);
+  opacity: 0.6;
+}
+
+/* Active item: left accent border */
+#starlight__sidebar a[aria-current="page"] {
+  border-inline-start: 2px solid var(--sl-color-accent);
+  padding-inline-start: 0.75rem;
+}
+
+/* Group dividers */
+#starlight__sidebar .top-level > li + li {
+  border-top: 1px solid var(--sl-color-gray-5);
+  padding-top: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+/* ── Table of Contents ── */
+
+/* "On this page" heading: muted uppercase label */
+#starlight__on-this-page {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: var(--sl-text-xs);
+  opacity: 0.6;
+}
+
+/* Tighter spacing between TOC items */
+starlight-toc ul {
+  gap: 0.125rem;
+}
+
+starlight-toc li a {
+  font-size: var(--sl-text-xs);
+  padding-block: 0.2rem;
+}
+
+/* Active TOC item: dot indicator */
+starlight-toc li a[aria-current="true"] {
+  color: var(--sl-color-white);
+  display: flex;
+  align-items: center;
+  background: var(--sl-color-gray-6);
+  border-radius: 0.25rem;
+  padding-inline: 0.5rem;
+}
+
+starlight-toc li a[aria-current="true"]::before {
+  content: '›';
+  flex-shrink: 0;
+  margin-inline-end: 0.4rem;
+  font-weight: 700;
+  font-size: 2.2em;
+  line-height: 1;
+  color: var(--sl-color-accent);
+}
+
