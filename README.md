@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://frostybee.github.io/swarm-icons/">Documentation</a>
+  <a href="https://frostybee.github.io/swarm-icons/"><img src="https://img.shields.io/badge/docs-swarm--icons-blue" alt="Documentation"></a>
 </p>
 
 ## Installation
@@ -22,6 +22,10 @@ composer require frostybee/swarm-icons
 ```
 
 Requires PHP 8.2+ and `psr/simple-cache` ^3.0.
+
+## Documentation
+
+For detailed guides on configuration, icon providers, CLI commands, and advanced options, visit the **[full documentation](https://frostybee.github.io/swarm-icons/)**.
 
 ## Quick Start
 
