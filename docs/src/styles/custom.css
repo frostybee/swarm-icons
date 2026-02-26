@@ -83,3 +83,68 @@ starlight-toc li a[aria-current="true"]::before {
   color: var(--sl-color-accent);
 }
 
+/* ── Asides (Galaxy theme) ── */
+
+/* Variant tokens */
+.starlight-aside--note {
+  --galaxy-aside-accent: #3b82f6;
+  --galaxy-aside-bg: rgba(59, 130, 246, 0.05);
+  --galaxy-aside-border: rgba(59, 130, 246, 0.2);
+  --galaxy-aside-code-bg: rgba(59, 130, 246, 0.08);
+}
+
+.starlight-aside--tip {
+  --galaxy-aside-accent: #22c55e;
+  --galaxy-aside-bg: rgba(34, 197, 94, 0.05);
+  --galaxy-aside-border: rgba(34, 197, 94, 0.2);
+  --galaxy-aside-code-bg: rgba(34, 197, 94, 0.08);
+}
+
+.starlight-aside--caution {
+  --galaxy-aside-accent: #f59e0b;
+  --galaxy-aside-bg: rgba(245, 158, 11, 0.05);
+  --galaxy-aside-border: rgba(245, 158, 11, 0.2);
+  --galaxy-aside-code-bg: rgba(245, 158, 11, 0.08);
+}
+
+.starlight-aside--danger {
+  --galaxy-aside-accent: #ef4444;
+  --galaxy-aside-bg: rgba(239, 68, 68, 0.05);
+  --galaxy-aside-border: rgba(239, 68, 68, 0.2);
+  --galaxy-aside-code-bg: rgba(239, 68, 68, 0.08);
+}
+
+/* Base aside */
+.starlight-aside {
+  background: var(--galaxy-aside-bg);
+  border: 1px solid var(--galaxy-aside-border);
+  border-inline-start: 3px solid var(--galaxy-aside-accent);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  color: var(--sl-color-text);
+}
+
+/* Inline code inside asides */
+.starlight-aside :not(pre) > code {
+  background: var(--galaxy-aside-code-bg);
+}
+
+/* Title row: uppercase label + horizontal rule */
+.starlight-aside__title {
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: var(--sl-text-xs);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--galaxy-aside-accent);
+}
+
+.starlight-aside__title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--galaxy-aside-accent);
+  opacity: 0.3;
+}
