@@ -386,4 +386,45 @@ class IconManagerTest extends TestCase
         // Should return the fallback icon, not an empty one
         $this->assertStringContainsString('path', $icon->getContent());
     }
+
+    public function test_set_and_get_fallback_icon_for_prefix(): void
+    {
+        $manager = new IconManager();
+
+        $manager->setFallbackIconForPrefix('tabler', 'tabler:help');
+
+        $this->assertEquals('tabler:help', $manager->getFallbackIconForPrefix('tabler'));
+        $this->assertNull($manager->getFallbackIconForPrefix('mdi'));
+    }
+
+    public function test_prefix_fallback_used_before_global_fallback(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+        $manager->setFallbackIcon('test:star');
+        $manager->setFallbackIconForPrefix('test', 'test:home');
+
+        $icon = $manager->get('test:nonexistent');
+
+        // Per-prefix fallback (home) should be used, not the global (star)
+        $html = $icon->toHtml();
+        $homeIcon = $manager->get('test:home');
+        $this->assertEquals($homeIcon->getContent(), $icon->getContent());
+    }
+
+    public function test_global_fallback_used_when_no_prefix_fallback(): void
+    {
+        $manager = new IconManager();
+        $provider = new DirectoryProvider($this->fixturesPath);
+        $manager->register('test', $provider);
+        $manager->setFallbackIcon('test:home');
+        // No per-prefix fallback set for 'test'
+
+        $icon = $manager->get('test:nonexistent');
+
+        // Global fallback should be used
+        $homeIcon = $manager->get('test:home');
+        $this->assertEquals($homeIcon->getContent(), $icon->getContent());
+    }
 }

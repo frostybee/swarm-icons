@@ -3,7 +3,7 @@ title: Fluent API
 description: "Complete reference for the Icon value object: fluent methods, accessors, output, and serialization."
 ---
 
-When you call `swarm_icon()` or `$manager->get()`, you get back an `Icon` object. It's immutable: every method returns a new instance, so you can chain calls without worrying about side effects.
+When you call `swarm_icon()` (or its shorthand alias `sicon()`) or `$manager->get()`, you get back an `Icon` object. It's immutable: every method returns a new instance, so you can chain calls without worrying about side effects.
 
 ```php
 echo swarm_icon('tabler:arrow-up')
@@ -64,6 +64,43 @@ echo swarm_icon('tabler:chevron-right')->rotate(45);  // arbitrary angle
 ```
 
 Merges with any existing `style` attribute on the icon.
+
+### `flip()`
+
+Flips the icon horizontally, vertically, or both. Uses an inline CSS `transform`:
+
+```php
+echo swarm_icon('tabler:arrow-right')->flip();         // horizontal (default)
+echo swarm_icon('tabler:arrow-up')->flip('v');          // vertical
+echo swarm_icon('tabler:arrow-up')->flip('both');       // both axes
+```
+
+Accepts `'horizontal'` (or `'h'`), `'vertical'` (or `'v'`), or `'both'`.
+
+### `opacity()`
+
+Sets the SVG `opacity` attribute:
+
+```php
+echo swarm_icon('tabler:home')->opacity(0.5);   // 50% transparent
+echo swarm_icon('tabler:home')->opacity(0.3);   // dimmed/disabled look
+```
+
+### `title()`
+
+Injects a `<title>` element inside the SVG for native browser tooltips:
+
+```php
+echo swarm_icon('tabler:home')->title('Go to homepage');
+```
+
+The title text is HTML-escaped automatically. For full accessibility, pair it with `aria-label`:
+
+```php
+echo swarm_icon('tabler:home')
+    ->title('Home')
+    ->attr(['aria-label' => 'Home']);
+```
 
 ### `attr()`
 

@@ -26,6 +26,9 @@ class IconManager
 
     private ?string $fallbackIcon = null;
 
+    /** @var array<string, string> Per-prefix fallback icons (prefix → full icon name) */
+    private array $prefixFallbackIcons = [];
+
     private bool $ignoreNotFound = false;
 
     /**
@@ -113,6 +116,27 @@ class IconManager
     }
 
     /**
+     * Set a per-prefix fallback icon.
+     *
+     * @param string $prefix Provider prefix
+     * @param string $iconName Full icon name with prefix (e.g., 'tabler:help')
+     */
+    public function setFallbackIconForPrefix(string $prefix, string $iconName): self
+    {
+        $this->prefixFallbackIcons[$prefix] = $iconName;
+
+        return $this;
+    }
+
+    /**
+     * Get the per-prefix fallback icon name.
+     */
+    public function getFallbackIconForPrefix(string $prefix): ?string
+    {
+        return $this->prefixFallbackIcons[$prefix] ?? null;
+    }
+
+    /**
      * Register a user-defined alias.
      *
      * Aliases are resolved before prefix parsing, mapping a short name
@@ -191,11 +215,16 @@ class IconManager
 
         if ($icon === null) {
             // Try fallback icon (only if not already resolving a fallback)
-            if (!$resolvingFallback && $this->fallbackIcon !== null) {
-                try {
-                    return $this->get($this->fallbackIcon, $attributes, true);
-                } catch (Throwable) {
-                    // Fallback failed, throw original error
+            // Resolution order: per-prefix fallback → global fallback
+            if (!$resolvingFallback) {
+                $effectiveFallback = $this->prefixFallbackIcons[$prefix] ?? $this->fallbackIcon;
+
+                if ($effectiveFallback !== null) {
+                    try {
+                        return $this->get($effectiveFallback, $attributes, true);
+                    } catch (Throwable) {
+                        // Fallback failed, throw original error
+                    }
                 }
             }
 
@@ -297,6 +326,22 @@ class IconManager
         $this->renderer = $renderer;
 
         return $this;
+    }
+
+    /**
+     * Create an icon stack for layering multiple icons.
+     *
+     * @param string ...$names Icon names to push as initial layers
+     */
+    public function stack(string ...$names): IconStack
+    {
+        $stack = new IconStack();
+
+        foreach ($names as $name) {
+            $stack = $stack->push($this->get($name));
+        }
+
+        return $stack;
     }
 
     /**

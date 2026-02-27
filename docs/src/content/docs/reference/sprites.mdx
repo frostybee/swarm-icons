@@ -1,0 +1,68 @@
+---
+title: SVG Sprites
+description: Reduce DOM size by collecting icons into a sprite sheet with symbol/use references.
+---
+
+When the same icons appear multiple times on a page, inlining each SVG adds redundant markup. The `SpriteSheet` class collects icons into a single hidden `<svg>` with `<symbol>` definitions, then renders lightweight `<use>` references.
+
+## Setup
+
+```php
+use Frostybee\SwarmIcons\SpriteSheet;
+
+$sprites = new SpriteSheet($manager);
+```
+
+## Usage
+
+Call `use()` wherever you need an icon. It returns an `<svg><use href="#id"/>` reference and registers the icon internally:
+
+```php
+echo $sprites->use('tabler:home', ['class' => 'w-6 h-6']);
+echo $sprites->use('tabler:star');
+echo $sprites->use('tabler:home');  // same icon — no duplication
+```
+
+Then render the sprite sheet once, typically at the top of `<body>`:
+
+```php
+echo $sprites->render();
+```
+
+This outputs a hidden `<svg>` containing `<symbol>` definitions for every icon you used:
+
+```html
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="tabler-home" viewBox="0 0 24 24">...</symbol>
+  <symbol id="tabler-star" viewBox="0 0 24 24">...</symbol>
+</svg>
+```
+
+Each `use()` call renders as:
+
+```html
+<svg class="w-6 h-6"><use href="#tabler-home"/></svg>
+```
+
+## Methods
+
+| Method | Description |
+| --- | --- |
+| `use(name, attributes)` | Register icon and return `<use>` reference |
+| `render()` | Output the hidden sprite sheet |
+| `has(name)` | Check if an icon is registered |
+| `count()` | Number of registered symbols |
+| `reset()` | Clear all registered symbols |
+
+## When to use sprites
+
+- Pages with many repeated icons (navigation, tables, lists)
+- When you want to reduce total SVG markup in the DOM
+- Server-rendered pages where you control the full HTML output
+
+For pages with only a few unique icons, inline SVGs (the default) are simpler and work fine.
+
+## See also
+
+- [Fluent API](/swarm-icons/reference/fluent-api/): styling individual icons
+- [Icon Stacking](/swarm-icons/reference/stacking/): layering multiple icons into one

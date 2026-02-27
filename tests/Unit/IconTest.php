@@ -349,6 +349,99 @@ class IconTest extends TestCase
         $this->assertEquals('transform: rotate(22.5deg)', $icon->getAttribute('style'));
     }
 
+    public function test_flip_horizontal(): void
+    {
+        $icon = (new Icon(''))->flip();
+
+        $this->assertEquals('transform: scaleX(-1)', $icon->getAttribute('style'));
+    }
+
+    public function test_flip_horizontal_shorthand(): void
+    {
+        $icon = (new Icon(''))->flip('h');
+
+        $this->assertEquals('transform: scaleX(-1)', $icon->getAttribute('style'));
+    }
+
+    public function test_flip_vertical(): void
+    {
+        $icon = (new Icon(''))->flip('v');
+
+        $this->assertEquals('transform: scaleY(-1)', $icon->getAttribute('style'));
+    }
+
+    public function test_flip_both(): void
+    {
+        $icon = (new Icon(''))->flip('both');
+
+        $this->assertEquals('transform: scale(-1, -1)', $icon->getAttribute('style'));
+    }
+
+    public function test_flip_returns_new_instance(): void
+    {
+        $icon1 = new Icon('');
+        $icon2 = $icon1->flip();
+
+        $this->assertNotSame($icon1, $icon2);
+        $this->assertNull($icon1->getAttribute('style'));
+    }
+
+    public function test_opacity_method(): void
+    {
+        $icon = (new Icon(''))->opacity(0.5);
+
+        $this->assertEquals('0.5', $icon->getAttribute('opacity'));
+    }
+
+    public function test_opacity_returns_new_instance(): void
+    {
+        $icon1 = new Icon('');
+        $icon2 = $icon1->opacity(0.3);
+
+        $this->assertNotSame($icon1, $icon2);
+        $this->assertNull($icon1->getAttribute('opacity'));
+    }
+
+    public function test_opacity_with_integer(): void
+    {
+        $icon = (new Icon(''))->opacity(1);
+
+        $this->assertEquals('1', $icon->getAttribute('opacity'));
+    }
+
+    public function test_title_method(): void
+    {
+        $icon = (new Icon('<path d="M0 0"/>'))->title('Home');
+
+        $this->assertStringStartsWith('<title>Home</title>', $icon->getContent());
+        $this->assertStringContainsString('<path d="M0 0"/>', $icon->getContent());
+    }
+
+    public function test_title_returns_new_instance(): void
+    {
+        $icon1 = new Icon('<path/>');
+        $icon2 = $icon1->title('Test');
+
+        $this->assertNotSame($icon1, $icon2);
+        $this->assertStringNotContainsString('<title>', $icon1->getContent());
+        $this->assertStringContainsString('<title>Test</title>', $icon2->getContent());
+    }
+
+    public function test_title_escapes_html(): void
+    {
+        $icon = (new Icon(''))->title('<script>alert("xss")</script>');
+
+        $this->assertStringNotContainsString('<script>', $icon->getContent());
+        $this->assertStringContainsString('&lt;script&gt;', $icon->getContent());
+    }
+
+    public function test_title_preserves_attributes(): void
+    {
+        $icon = (new Icon('', ['width' => '24']))->title('Home');
+
+        $this->assertEquals('24', $icon->getAttribute('width'));
+    }
+
     public function test_html_escaping_in_attributes(): void
     {
         $icon = new Icon('', ['data-value' => '<script>alert("xss")</script>']);

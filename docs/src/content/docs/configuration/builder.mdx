@@ -96,6 +96,13 @@ The full attribute merge pipeline (how globals, prefix defaults, suffix rules, a
 ->fallbackIcon('heroicons:question-mark-circle')
 ```
 
+**Per-prefix fallback**: use a different placeholder for specific icon sets:
+
+```php
+->fallbackIconForPrefix('tabler', 'tabler:help')
+->fallbackIconForPrefix('mdi', 'mdi:help-circle-outline')
+```
+
 **Ignore not found**: return an empty string instead of throwing:
 
 ```php

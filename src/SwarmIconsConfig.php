@@ -285,6 +285,22 @@ class SwarmIconsConfig
     }
 
     /**
+     * Set a per-prefix fallback icon.
+     *
+     * When an icon is not found in this prefix, this fallback is used
+     * instead of the global fallback.
+     *
+     * @param string $prefix Provider prefix
+     * @param string $iconName Full icon name with prefix (e.g., 'tabler:help')
+     */
+    public function fallbackIconForPrefix(string $prefix, string $iconName): self
+    {
+        $this->manager->setFallbackIconForPrefix($prefix, $iconName);
+
+        return $this;
+    }
+
+    /**
      * Register a user-defined alias.
      *
      * Maps a short name to a full "prefix:name" icon reference.

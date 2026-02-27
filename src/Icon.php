@@ -281,6 +281,52 @@ class Icon implements Stringable
     }
 
     /**
+     * Flip the icon via inline CSS transform (returns new instance).
+     *
+     * @param string $direction 'horizontal' (or 'h'), 'vertical' (or 'v'), or 'both'
+     */
+    public function flip(string $direction = 'horizontal'): self
+    {
+        $value = match ($direction) {
+            'horizontal', 'h' => 'scaleX(-1)',
+            'vertical', 'v' => 'scaleY(-1)',
+            'both' => 'scale(-1, -1)',
+            default => 'scaleX(-1)',
+        };
+
+        $existing = $this->getAttribute('style') ?? '';
+
+        $style = $existing !== ''
+            ? rtrim($existing, '; ') . '; transform: ' . $value
+            : 'transform: ' . $value;
+
+        return $this->attr(['style' => $style]);
+    }
+
+    /**
+     * Set opacity attribute (returns new instance).
+     *
+     * @param float|int $opacity Opacity value (0.0 = fully transparent, 1.0 = fully opaque)
+     */
+    public function opacity(float|int $opacity): self
+    {
+        return $this->attr(['opacity' => (string) $opacity]);
+    }
+
+    /**
+     * Inject a <title> element into the SVG content (returns new instance).
+     *
+     * Provides a native browser tooltip and improves accessibility.
+     * The title text is HTML-escaped for safety.
+     */
+    public function title(string $title): self
+    {
+        $safeTitle = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+
+        return new self("<title>{$safeTitle}</title>" . $this->content, $this->attributes);
+    }
+
+    /**
      * Render the icon as an SVG string.
      */
     public function toHtml(): string

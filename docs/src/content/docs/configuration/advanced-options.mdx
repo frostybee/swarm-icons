@@ -80,6 +80,24 @@ echo swarm_icon('might-not-exist');
 // Either the fallback icon, or '': never an exception
 ```
 
+## Per-prefix fallbacks
+
+The global `fallbackIcon()` applies to all prefixes. If you need different placeholders per icon set, use `fallbackIconForPrefix()`:
+
+```php
+SwarmIconsConfig::create()
+    ->fallbackIcon('heroicons:question-mark-circle')                  // global default
+    ->fallbackIconForPrefix('tabler', 'tabler:help')                  // tabler-specific
+    ->fallbackIconForPrefix('mdi', 'mdi:help-circle-outline')         // mdi-specific
+    ->build();
+```
+
+Resolution order when an icon is not found:
+
+1. Per-prefix fallback (if set for that prefix)
+2. Global fallback
+3. Throw `IconNotFoundException` (or empty string if `ignoreNotFound` is enabled)
+
 ## Package discovery
 
 If you're building a Composer package that provides icons, you can make it auto-discoverable. Declare your provider in `composer.json`:

@@ -25,3 +25,21 @@ if (!function_exists('swarm_icon')) {
         return SwarmIcons::get($name, $attributes);
     }
 }
+
+if (!function_exists('sicon')) {
+    /**
+     * Shorthand alias for swarm_icon().
+     *
+     * @param string $name Icon name (with or without prefix, e.g., 'tabler:home' or 'home')
+     * @param array<string, bool|float|int|string|null> $attributes Additional attributes
+     *
+     * @throws \Frostybee\SwarmIcons\Exception\IconNotFoundException
+     * @throws \Frostybee\SwarmIcons\Exception\InvalidIconNameException
+     *
+     * @return Icon Rendered icon
+     */
+    function sicon(string $name, array $attributes = []): Icon
+    {
+        return swarm_icon($name, $attributes);
+    }
+}

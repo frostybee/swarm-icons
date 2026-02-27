@@ -1,0 +1,75 @@
+---
+title: Icon Stacking
+description: Layer multiple icons into a single composite SVG.
+---
+
+Sometimes you need to combine icons — a checkmark on top of a circle for a badge, or an exclamation mark over a triangle for a warning. `IconStack` layers multiple icons into one `<svg>`.
+
+## Basic usage
+
+```php
+use Frostybee\SwarmIcons\IconStack;
+
+$stack = (new IconStack())
+    ->push(swarm_icon('tabler:circle'))
+    ->push(swarm_icon('tabler:check'));
+
+echo $stack;
+```
+
+This renders a single `<svg>` with each icon wrapped in a `<g>` layer.
+
+## Using the manager shortcut
+
+`IconManager::stack()` creates a stack and pushes icons in one call:
+
+```php
+$stack = $manager->stack('tabler:circle', 'tabler:check');
+echo $stack->size(48)->class('badge-icon');
+```
+
+## Layer attributes
+
+Pass attributes to individual layers to control their appearance:
+
+```php
+$stack = (new IconStack())
+    ->push(swarm_icon('tabler:circle'), ['fill' => '#3b82f6'])
+    ->push(swarm_icon('tabler:check'), [
+        'fill' => 'white',
+        'transform' => 'scale(0.6) translate(8,8)',
+    ]);
+```
+
+Layer attributes are applied to the `<g>` element wrapping that icon's content.
+
+## Container methods
+
+The stack supports fluent methods for the outer `<svg>` container:
+
+```php
+$stack = $manager->stack('tabler:circle', 'tabler:check')
+    ->size(48)
+    ->class('badge-icon')
+    ->attr(['data-stack' => 'composite']);
+```
+
+| Method | Description |
+| --- | --- |
+| `push(icon, attributes)` | Add an icon layer |
+| `size(value)` | Set width and height |
+| `class(classes)` | Add CSS classes |
+| `attr(attributes)` | Set arbitrary attributes |
+| `count()` | Number of layers |
+| `toHtml()` | Render as SVG string |
+
+All methods return new instances (immutable).
+
+## ViewBox behavior
+
+The `viewBox` is taken from the **first** icon pushed. For best results, use icons from the same set or with matching viewBoxes.
+
+## See also
+
+- [Fluent API](/swarm-icons/reference/fluent-api/): styling individual icons
+- [SVG Sprites](/swarm-icons/reference/sprites/): sprite sheets for repeated icons

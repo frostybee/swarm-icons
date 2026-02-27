@@ -53,4 +53,23 @@ class HelpersTest extends TestCase
 
         swarm_icon('custom:home');
     }
+
+    public function test_sicon_function_exists(): void
+    {
+        $this->assertTrue(\function_exists('sicon'));
+    }
+
+    public function test_sicon_returns_same_as_swarm_icon(): void
+    {
+        $manager = new IconManager();
+        $fixturesPath = \dirname(__DIR__) . '/Fixtures/icons';
+        $manager->register('custom', new DirectoryProvider($fixturesPath));
+
+        SwarmIcons::setManager($manager);
+
+        $icon1 = swarm_icon('custom:home');
+        $icon2 = sicon('custom:home');
+
+        $this->assertEquals($icon1->toHtml(), $icon2->toHtml());
+    }
 }
