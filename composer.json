@@ -24,21 +24,20 @@
     "homepage": "https://github.com/frostybee/swarm-icons",
     "require": {
         "php": "^8.2",
-        "psr/simple-cache": "^3.0"
+        "psr/simple-cache": "^3.0",
+        "symfony/console": "^6.4|^7.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^3.64",
         "phpstan/phpstan": "^1.10",
         "phpstan/phpstan-strict-rules": "^1.5",
         "phpunit/phpunit": "^10.5",
-        "symfony/console": "^7.0",
         "symfony/var-dumper": "^6.4|^7.0",
         "league/commonmark": "^2.0",
         "twig/twig": "^3.0"
     },
     "suggest": {
         "twig/twig": "For Twig template integration (^3.0)",
-        "symfony/console": "For CLI commands (^6.4|^7.0)",
         "iconify/json": "Install to use JsonCollectionProvider for offline access to 200,000+ icons"
     },
     "bin": [
