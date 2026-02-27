@@ -6,10 +6,10 @@ description: "Complete reference for the Icon value object: fluent methods, acce
 When you call `swarm_icon()` or `$manager->get()`, you get back an `Icon` object. It's immutable: every method returns a new instance, so you can chain calls without worrying about side effects.
 
 ```php
-echo swarm_icon('tabler:home')
+echo swarm_icon('tabler:arrow-up')
     ->size(24)
     ->class('text-blue-500')
-    ->strokeWidth(1.5);
+    ->rotate(90);
 ```
 
 ## Styling methods
@@ -52,6 +52,18 @@ Sets `stroke-width`:
 ```php
 echo swarm_icon('tabler:home')->strokeWidth(1.5);
 ```
+
+### `rotate()`
+
+Rotates the icon clockwise by the given angle. Uses an inline CSS `transform`:
+
+```php
+echo swarm_icon('tabler:arrow-up')->rotate(90);    // → points right
+echo swarm_icon('tabler:arrow-up')->rotate(180);   // → points down
+echo swarm_icon('tabler:chevron-right')->rotate(45);  // arbitrary angle
+```
+
+Merges with any existing `style` attribute on the icon.
 
 ### `attr()`
 

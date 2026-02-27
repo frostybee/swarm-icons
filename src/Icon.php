@@ -264,6 +264,23 @@ class Icon implements Stringable
     }
 
     /**
+     * Set rotation via inline CSS transform (returns new instance).
+     *
+     * @param float|int $degrees Rotation angle in degrees (clockwise)
+     */
+    public function rotate(int|float $degrees): self
+    {
+        $value = "rotate({$degrees}deg)";
+        $existing = $this->getAttribute('style') ?? '';
+
+        $style = $existing !== ''
+            ? rtrim($existing, '; ') . '; transform: ' . $value
+            : 'transform: ' . $value;
+
+        return $this->attr(['style' => $style]);
+    }
+
+    /**
      * Render the icon as an SVG string.
      */
     public function toHtml(): string

@@ -318,6 +318,37 @@ class IconTest extends TestCase
         $this->assertEquals($icon1->toHtml(), $icon2->toHtml());
     }
 
+    public function test_rotate_method(): void
+    {
+        $icon = (new Icon(''))->rotate(90);
+
+        $this->assertEquals('transform: rotate(90deg)', $icon->getAttribute('style'));
+    }
+
+    public function test_rotate_returns_new_instance(): void
+    {
+        $icon1 = new Icon('');
+        $icon2 = $icon1->rotate(45);
+
+        $this->assertNotSame($icon1, $icon2);
+        $this->assertNull($icon1->getAttribute('style'));
+        $this->assertStringContainsString('rotate(45deg)', $icon2->getAttribute('style'));
+    }
+
+    public function test_rotate_with_existing_style(): void
+    {
+        $icon = (new Icon(''))->attr(['style' => 'color: red'])->rotate(180);
+
+        $this->assertEquals('color: red; transform: rotate(180deg)', $icon->getAttribute('style'));
+    }
+
+    public function test_rotate_with_float(): void
+    {
+        $icon = (new Icon(''))->rotate(22.5);
+
+        $this->assertEquals('transform: rotate(22.5deg)', $icon->getAttribute('style'));
+    }
+
     public function test_html_escaping_in_attributes(): void
     {
         $icon = new Icon('', ['data-value' => '<script>alert("xss")</script>']);
