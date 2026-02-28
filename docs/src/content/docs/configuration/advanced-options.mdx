@@ -1,6 +1,6 @@
 ---
 title: Advanced Options
-description: Aliases, fallback icons, ignoreNotFound, and package discovery for power users.
+description: Aliases, fallback icons, suffix attributes, ignoreNotFound, and package discovery for power users.
 ---
 
 These features aren't needed for every project, but they're useful as your icon usage grows, especially when working with dynamic icon names, large teams, or third-party packages.
@@ -97,6 +97,48 @@ Resolution order when an icon is not found:
 1. Per-prefix fallback (if set for that prefix)
 2. Global fallback
 3. Throw `IconNotFoundException` (or empty string if `ignoreNotFound` is enabled)
+
+## Suffix attributes
+
+Some icon sets use naming conventions where a suffix indicates a variant. For example, Heroicons uses `-solid` and `-outline` suffixes. With `prefixSuffix()` you can automatically apply attributes based on the icon name's suffix:
+
+```php
+SwarmIconsConfig::create()
+    ->prefixSuffix('heroicons', 'solid', ['fill' => 'currentColor', 'stroke' => 'none'])
+    ->prefixSuffix('heroicons', 'outline', ['fill' => 'none', 'stroke' => 'currentColor', 'stroke-width' => '1.5'])
+    ->build();
+```
+
+```php
+echo swarm_icon('heroicons:home-solid');
+// fill="currentColor" stroke="none" applied automatically
+
+echo swarm_icon('heroicons:home-outline');
+// fill="none" stroke="currentColor" stroke-width="1.5" applied automatically
+```
+
+### Default suffix rule
+
+Pass an empty string as the suffix to define a fallback rule. It applies when no other suffix matches:
+
+```php
+->prefixSuffix('heroicons', '', ['fill' => 'currentColor'])     // default
+->prefixSuffix('heroicons', 'outline', ['fill' => 'none', 'stroke' => 'currentColor'])
+```
+
+Icons like `heroicons:home` (no recognized suffix) get the default rule. Icons like `heroicons:home-outline` get the outline rule.
+
+### Merge order
+
+Suffix attributes sit between prefix defaults and caller attributes in the merge pipeline:
+
+1. Icon defaults (from the SVG itself)
+2. Global defaults (`->defaultAttributes()`)
+3. Prefix defaults (`->prefixAttributes()`)
+4. **Suffix attributes** (`->prefixSuffix()`)
+5. Caller attributes (passed to `swarm_icon()` or `->get()`)
+
+Caller attributes always win. CSS classes are appended at every layer, never replaced.
 
 ## Package discovery
 
