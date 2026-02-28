@@ -291,9 +291,13 @@ class IconifyProvider implements IconProviderInterface
         }
 
         // Check HTTP status code (avoid $http_response_header directly — deprecated in PHP 8.4+)
-        $responseHeaders = \function_exists('http_get_last_response_headers')
-            ? http_get_last_response_headers()
-            : (get_defined_vars()['http_response_header'] ?? []);
+        if (\function_exists('http_get_last_response_headers')) {
+            $responseHeaders = http_get_last_response_headers();
+        } else {
+            // $http_response_header is a magic variable set by file_get_contents(); it may
+            // not exist if the stream wrapper failed before sending any request.
+            $responseHeaders = get_defined_vars()['http_response_header'] ?? []; // @phpstan-ignore nullCoalesce.offset
+        }
         if (!isset($responseHeaders[0]) || !preg_match('/^HTTP\/[\d.]+ 200\b/', $responseHeaders[0])) {
             return null;
         }
