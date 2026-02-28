@@ -14,7 +14,7 @@ You've installed the package. Now let's get an icon on screen.
    Swarm Icons ships with a CLI that pulls icon sets straight from npm: no Node.js needed. Grab [Tabler Icons](https://tabler.io/icons) to start:
 
    ```bash
-   vendor/bin/swarm-icons json:download tabler
+   php vendor/bin/swarm-icons json:download tabler
    ```
 
    This saves the full Tabler set as a JSON file in `resources/json/`. You can download as many sets as you want: Material Design Icons, Heroicons, Lucide, and [200+ others](/swarm-icons/cli/icon-sets/) are all available.
@@ -59,7 +59,7 @@ You've installed the package. Now let's get an icon on screen.
    ```
 
    :::tip[Shorthand alias]
-   Prefer something shorter? Use `sicon()` — it's an alias for `swarm_icon()`:
+   Prefer something shorter? Use `sicon()`, an alias for `swarm_icon()`:
    ```php
    echo sicon('home')->size(32)->class('text-blue-500');
    ```
@@ -72,7 +72,7 @@ You've installed the package. Now let's get an icon on screen.
 Need icons from different sets? Download them and reference by prefix:
 
 ```bash
-vendor/bin/swarm-icons json:download mdi heroicons
+php vendor/bin/swarm-icons json:download mdi heroicons
 ```
 
 ```php

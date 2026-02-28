@@ -21,11 +21,11 @@ class SwarmIconsExtensionTest extends TestCase
         $this->extension = new SwarmIconsExtension($runtime);
     }
 
-    public function test_get_functions_returns_three_functions(): void
+    public function test_get_functions_returns_five_functions(): void
     {
         $functions = $this->extension->getFunctions();
 
-        $this->assertCount(3, $functions);
+        $this->assertCount(5, $functions);
         $this->assertContainsOnlyInstancesOf(TwigFunction::class, $functions);
     }
 
@@ -37,6 +37,8 @@ class SwarmIconsExtensionTest extends TestCase
         $this->assertContains('icon', $names);
         $this->assertContains('icon_exists', $names);
         $this->assertContains('get_icon', $names);
+        $this->assertContains('sprite', $names);
+        $this->assertContains('sprites', $names);
     }
 
     public function test_icon_function_is_html_safe(): void

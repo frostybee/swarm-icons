@@ -10,14 +10,14 @@ These three commands form a discovery workflow: browse what's available, downloa
 `json:browse` shows every Iconify icon set: prefix, name, icon count, category, and license. Sets you've already downloaded are marked with an asterisk.
 
 ```bash
-vendor/bin/swarm-icons json:browse
+php vendor/bin/swarm-icons json:browse
 ```
 
 Filter with `--search` to narrow things down (case-insensitive, matches name, prefix, and category):
 
 ```bash
-vendor/bin/swarm-icons json:browse --search=emoji
-vendor/bin/swarm-icons json:browse --search=Material
+php vendor/bin/swarm-icons json:browse --search=emoji
+php vendor/bin/swarm-icons json:browse --search=Material
 ```
 
 ## Download sets
@@ -26,19 +26,19 @@ vendor/bin/swarm-icons json:browse --search=Material
 
 ```bash
 # Grab specific sets
-vendor/bin/swarm-icons json:download mdi tabler heroicons
+php vendor/bin/swarm-icons json:download mdi tabler heroicons
 
 # Or download all 22 popular sets at once
-vendor/bin/swarm-icons json:download --all
+php vendor/bin/swarm-icons json:download --all
 
 # See which popular sets are available and their download status
-vendor/bin/swarm-icons json:download --list
+php vendor/bin/swarm-icons json:download --list
 ```
 
 You can specify a different destination with `--dest`:
 
 ```bash
-vendor/bin/swarm-icons json:download mdi --dest=resources/json
+php vendor/bin/swarm-icons json:download mdi --dest=resources/json
 ```
 
 | Option | Short | Description | Default |
@@ -49,7 +49,7 @@ vendor/bin/swarm-icons json:download mdi --dest=resources/json
 
 ### The manifest
 
-Every download is recorded in a `swarm-icons.json` manifest at your project root. Running `json:download` with no arguments re-downloads everything in the manifest (useful for CI/CD or restoring after a fresh clone).
+Every download is recorded in a `swarm-icons.json` manifest at your project root, along with the npm version of each set. Running `json:download` with no arguments re-downloads everything in the manifest (useful for CI/CD or restoring after a fresh clone).
 
 To make this automatic after `composer install`:
 
@@ -73,13 +73,13 @@ To make this automatic after `composer install`:
 
 ```bash
 # Search the Iconify API
-vendor/bin/swarm-icons icon:search tabler arrow
+php vendor/bin/swarm-icons icon:search tabler arrow
 
 # Search a local SVG directory
-vendor/bin/swarm-icons icon:search custom home --path=/path/to/svgs
+php vendor/bin/swarm-icons icon:search custom home --path=/path/to/svgs
 
 # Search a downloaded JSON collection
-vendor/bin/swarm-icons icon:search mdi account --json=resources/json/mdi.json
+php vendor/bin/swarm-icons icon:search mdi account --json=resources/json/mdi.json
 ```
 
 | Argument | Required | Description |
@@ -95,7 +95,7 @@ vendor/bin/swarm-icons icon:search mdi account --json=resources/json/mdi.json
 Results show up in a paginated two-column table with prefixed names:
 
 ```bash title="Searching Tabler Icons (tabler) icons 'arrow'..."
-$ vendor/bin/swarm-icons icon:search tabler arrow
+$ php vendor/bin/swarm-icons icon:search tabler arrow
 
  Searching Tabler Icons (tabler) icons "arrow"...
  Found 268 icons.

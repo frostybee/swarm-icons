@@ -31,6 +31,8 @@ class IconManager
 
     private bool $ignoreNotFound = false;
 
+    private ?SpriteSheet $spriteSheet = null;
+
     /**
      * @param IconRenderer $renderer Icon renderer instance
      */
@@ -342,6 +344,21 @@ class IconManager
         }
 
         return $stack;
+    }
+
+    /**
+     * Get or create the shared sprite sheet instance.
+     *
+     * Returns the same SpriteSheet on every call, so all icons
+     * registered via use() end up in a single sprite sheet.
+     */
+    public function spriteSheet(): SpriteSheet
+    {
+        if ($this->spriteSheet === null) {
+            $this->spriteSheet = new SpriteSheet($this);
+        }
+
+        return $this->spriteSheet;
     }
 
     /**

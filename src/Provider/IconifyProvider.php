@@ -290,10 +290,10 @@ class IconifyProvider implements IconProviderInterface
             return null;
         }
 
-        // Check HTTP status code
+        // Check HTTP status code (avoid $http_response_header directly — deprecated in PHP 8.4+)
         $responseHeaders = \function_exists('http_get_last_response_headers')
             ? http_get_last_response_headers()
-            : $http_response_header;
+            : (get_defined_vars()['http_response_header'] ?? []);
         if (!isset($responseHeaders[0]) || !preg_match('/^HTTP\/[\d.]+ 200\b/', $responseHeaders[0])) {
             return null;
         }

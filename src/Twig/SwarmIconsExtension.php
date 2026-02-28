@@ -47,6 +47,20 @@ class SwarmIconsExtension extends AbstractExtension
                 'get_icon',
                 [$this->runtime, 'getIcon'],
             ),
+
+            // Sprite sheet: register icon and return <use> reference
+            new TwigFunction(
+                'sprite',
+                [$this->runtime, 'renderSprite'],
+                ['is_safe' => ['html']],
+            ),
+
+            // Sprite sheet: render hidden <svg> with all <symbol> definitions
+            new TwigFunction(
+                'sprites',
+                [$this->runtime, 'renderSpriteSheet'],
+                ['is_safe' => ['html']],
+            ),
         ];
     }
 }

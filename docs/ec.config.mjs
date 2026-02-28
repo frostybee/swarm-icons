@@ -114,7 +114,10 @@ export default {
     borderRadius: "0.4rem",
     borderColor: "var(--fb-code-block-bg-color)",
     frames: {
-      shadowColor: "var(--sl-shadow-sm)"
+      shadowColor: "var(--sl-shadow-sm)",
+      terminalBackground: "var(--fb-terminal-bg-color)",
+      // terminalTitlebarBackground: "var(--fb-terminal-bg-color)",
+      // terminalTitlebarBorderBottomColor: "var(--fb-terminal-bg-color)",
     },
     codeBackground: "var(--fb-code-block-bg-color)",
     fontFamily: "var(--sl-font-mono)",

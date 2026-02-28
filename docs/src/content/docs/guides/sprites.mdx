@@ -1,0 +1,142 @@
+---
+title: SVG Sprites
+description: Reduce DOM size by collecting icons into a sprite sheet with symbol/use references.
+---
+
+When the same icon appears multiple times on a page, each call to `swarm_icon()` inlines the full SVG content. The `SpriteSheet` class solves this by defining each icon once as a `<symbol>` and referencing it with lightweight `<use>` elements.
+
+## The problem
+
+Consider a navigation bar that shows the same home icon three times. With inline SVGs, the full path data is repeated in every instance:
+
+```html
+<!-- Three copies of the same SVG paths in the DOM -->
+<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9 -9l9 9l-2 0..."/></svg>
+<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9 -9l9 9l-2 0..."/></svg>
+<svg viewBox="0 0 24 24"><path d="M5 12l-2 0l9 -9l9 9l-2 0..."/></svg>
+```
+
+On pages with dozens of repeated icons (data tables, action menus, status lists), this redundant markup adds up and increases DOM size.
+
+## The solution
+
+A sprite sheet defines each unique icon once inside a hidden `<svg>` block, then uses tiny `<use href="#id"/>` references wherever the icon appears:
+
+```html
+<!-- Icon defined once (hidden) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="tabler-home" viewBox="0 0 24 24">
+    <path d="M5 12l-2 0l9 -9l9 9l-2 0..."/>
+  </symbol>
+</svg>
+
+<!-- Lightweight references (just a pointer, no path data) -->
+<svg class="w-6 h-6"><use href="#tabler-home"/></svg>
+<svg class="w-6 h-6"><use href="#tabler-home"/></svg>
+<svg class="w-6 h-6"><use href="#tabler-home"/></svg>
+```
+
+The full SVG content exists only once. Each reference is just a few bytes.
+
+## Setup
+
+You can create a sprite sheet directly or use the factory method on `IconManager`:
+
+```php
+use Frostybee\SwarmIcons\SpriteSheet;
+
+// Direct instantiation
+$sprites = new SpriteSheet($manager);
+
+// Or via the manager (returns the same shared instance every time)
+$sprites = $manager->spriteSheet();
+```
+
+## Usage
+
+Call `use()` wherever you need an icon. It registers the icon internally and returns an `<svg><use>` reference:
+
+```php
+echo $sprites->use('tabler:home', ['class' => 'w-6 h-6']);
+echo $sprites->use('tabler:star');
+echo $sprites->use('tabler:home');  // same icon, no duplication
+```
+
+Then render the sprite sheet once in your layout, typically at the top of `<body>`:
+
+```php
+echo $sprites->render();
+```
+
+### Full page example
+
+```php
+<body>
+  <?= $manager->spriteSheet()->render() ?>
+
+  <nav>
+    <?= $manager->spriteSheet()->use('tabler:home', ['class' => 'nav-icon']) ?>
+    <?= $manager->spriteSheet()->use('tabler:search', ['class' => 'nav-icon']) ?>
+  </nav>
+
+  <main>
+    <?= $manager->spriteSheet()->use('tabler:home') ?>
+  </main>
+</body>
+```
+
+## Global helpers
+
+If you have set up the static facade with `SwarmIcons::setManager()`, two global functions are available:
+
+```php
+// Register icon and get a <use> reference
+echo swarm_sprite('tabler:home', ['class' => 'w-6 h-6']);
+
+// Render the sprite sheet (call once in your layout)
+echo swarm_sprites();
+```
+
+## Twig
+
+The Twig extension registers `sprite()` and `sprites()` functions:
+
+```twig
+<body>
+  {{ sprites() }}
+
+  <nav>
+    {{ sprite('tabler:home', {class: 'nav-icon'}) }}
+    {{ sprite('tabler:search', {class: 'nav-icon'}) }}
+  </nav>
+
+  <main>
+    {{ sprite('tabler:home') }}
+  </main>
+</body>
+```
+
+## Methods
+
+| Method | Description |
+| --- | --- |
+| `use(name, attributes)` | Register icon and return `<use>` reference |
+| `render()` | Output the hidden sprite sheet |
+| `has(name)` | Check if an icon is registered |
+| `count()` | Number of registered symbols |
+| `reset()` | Clear all registered symbols |
+
+## When to use sprites
+
+Sprites work best for:
+
+- Pages with many repeated icons (navigation, tables, lists)
+- Reducing total SVG markup in the DOM
+- Server-rendered pages where you control the full HTML output
+
+For pages with only a few unique icons, inline SVGs (the default `swarm_icon()` approach) are simpler and work fine.
+
+## See also
+
+- [Fluent API](/swarm-icons/reference/fluent-api/): styling individual icons
+- [Icon Stacking](/swarm-icons/guides/stacking/): layering multiple icons into one

@@ -78,6 +78,29 @@ class SwarmIconsRuntime implements RuntimeExtensionInterface
     }
 
     /**
+     * Register an icon in the sprite sheet and return a <use> reference.
+     *
+     * @param string $name Icon name (with or without prefix)
+     * @param array<string, bool|float|int|string|null> $attributes Attributes for the <svg> wrapper
+     *
+     * @return string SVG markup with <use href="#id"/>
+     */
+    public function renderSprite(string $name, array $attributes = []): string
+    {
+        return $this->manager->spriteSheet()->use($name, $attributes);
+    }
+
+    /**
+     * Render the sprite sheet containing all registered <symbol> definitions.
+     *
+     * @return string Hidden SVG element, or empty string if no icons were registered
+     */
+    public function renderSpriteSheet(): string
+    {
+        return $this->manager->spriteSheet()->render();
+    }
+
+    /**
      * Render an HTML comment for a missing icon.
      *
      * @param string $name Icon name

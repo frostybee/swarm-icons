@@ -14,8 +14,8 @@ This deletes every cached icon. They'll be rebuilt automatically on the next req
 :::
 
 ```bash
-vendor/bin/swarm-icons cache:clear
-vendor/bin/swarm-icons cache:clear --path=/var/cache/icons
+php vendor/bin/swarm-icons cache:clear
+php vendor/bin/swarm-icons cache:clear --path=/var/cache/icons
 ```
 
 | Option | Short | Default |
@@ -33,7 +33,7 @@ vendor/bin/swarm-icons cache:clear --path=/var/cache/icons
 If you're using the Iconify API provider in production and want zero HTTP requests at runtime, `cache:warm` pre-fetches icons during deployment. It batches everything into a single request:
 
 ```bash
-vendor/bin/swarm-icons cache:warm --prefix=tabler --icons=home,user,settings,arrow-left
+php vendor/bin/swarm-icons cache:warm --prefix=tabler --icons=home,user,settings,arrow-left
 ```
 
 | Option | Short | Description | Default |
@@ -57,13 +57,13 @@ If some icons can't be found, the command tells you which ones failed and still 
 
 ```bash
 # From a local SVG directory
-vendor/bin/swarm-icons icon:list --path=/path/to/svgs
+php vendor/bin/swarm-icons icon:list --path=/path/to/svgs
 
 # From an Iconify set (fetches from API)
-vendor/bin/swarm-icons icon:list --prefix=tabler --iconify
+php vendor/bin/swarm-icons icon:list --prefix=tabler --iconify
 
 # Filter by name
-vendor/bin/swarm-icons icon:list --prefix=heroicons --iconify --search=chevron
+php vendor/bin/swarm-icons icon:list --prefix=heroicons --iconify --search=chevron
 ```
 
 | Option | Short | Description | Default |
@@ -80,9 +80,9 @@ Local mode (`--path`) works offline and is instant. Iconify mode (`--prefix` + `
 `init` creates a `swarm-icons.php` file with commented examples for every option: providers, cache, defaults, and the global helper. Uncomment what you need and you're ready to go:
 
 ```bash
-vendor/bin/swarm-icons init
-vendor/bin/swarm-icons init --output=config/swarm-icons.php
-vendor/bin/swarm-icons init --force   # overwrite an existing file
+php vendor/bin/swarm-icons init
+php vendor/bin/swarm-icons init --output=config/swarm-icons.php
+php vendor/bin/swarm-icons init --force   # overwrite an existing file
 ```
 
 | Option | Short | Default |

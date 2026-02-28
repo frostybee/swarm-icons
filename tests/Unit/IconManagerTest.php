@@ -10,6 +10,7 @@ use Frostybee\SwarmIcons\Icon;
 use Frostybee\SwarmIcons\IconManager;
 use Frostybee\SwarmIcons\IconRenderer;
 use Frostybee\SwarmIcons\Provider\DirectoryProvider;
+use Frostybee\SwarmIcons\SpriteSheet;
 use PHPUnit\Framework\TestCase;
 
 class IconManagerTest extends TestCase
@@ -426,5 +427,22 @@ class IconManagerTest extends TestCase
         // Global fallback should be used
         $homeIcon = $manager->get('test:home');
         $this->assertEquals($homeIcon->getContent(), $icon->getContent());
+    }
+
+    public function test_sprite_sheet_returns_sprite_sheet_instance(): void
+    {
+        $manager = new IconManager();
+
+        $this->assertInstanceOf(SpriteSheet::class, $manager->spriteSheet());
+    }
+
+    public function test_sprite_sheet_returns_same_instance(): void
+    {
+        $manager = new IconManager();
+
+        $sheet1 = $manager->spriteSheet();
+        $sheet2 = $manager->spriteSheet();
+
+        $this->assertSame($sheet1, $sheet2);
     }
 }

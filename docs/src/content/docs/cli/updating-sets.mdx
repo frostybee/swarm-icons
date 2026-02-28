@@ -1,0 +1,86 @@
+---
+title: Updating Icon Sets
+description: Check for and apply updates to downloaded JSON icon sets from npm.
+---
+
+The `json:update` command checks npm for newer versions of your downloaded JSON icon sets and updates them in place. It compares the version stored in your `swarm-icons.json` manifest against the latest release on npm.
+
+## Quick start
+
+```bash
+# Check what's outdated without downloading anything
+php vendor/bin/swarm-icons json:update --dry-run
+
+# Update everything
+php vendor/bin/swarm-icons json:update
+
+# Update specific sets only
+php vendor/bin/swarm-icons json:update mdi tabler
+```
+
+## How it works
+
+1. The command reads your `swarm-icons.json` manifest to find which sets are installed and what version each one was downloaded at.
+2. For each set, it queries the npm registry for the latest version of `@iconify-json/{prefix}`.
+3. It displays a comparison table so you can see what changed.
+4. Unless `--dry-run` is set, it downloads and replaces any outdated JSON files and records the new versions in the manifest.
+
+## Version table
+
+The output shows a table with the status of each set:
+
+```
+ ---------- --------- --------- ------------------
+  Prefix     Current   Latest    Status
+ ---------- --------- --------- ------------------
+  mdi        7.4.47    7.5.0     update available
+  tabler     3.31.0    3.31.0    up to date
+  heroicons  unknown   2.2.0     unknown version
+ ---------- --------- --------- ------------------
+```
+
+| Status | Meaning |
+|--------|---------|
+| **up to date** | Installed version matches the latest npm release |
+| **update available** | A newer version exists on npm |
+| **unknown version** | The set was downloaded before version tracking was added; it will be re-downloaded to record its version |
+| **fetch failed** | The npm registry could not be reached for this set |
+
+## Options
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--dry-run` | | Show the version table without downloading | `false` |
+| `--dest` | `-d` | JSON files directory | auto-detected |
+
+## Version tracking
+
+Version tracking is built into the `swarm-icons.json` manifest. When you download sets with `json:download` or update them with `json:update`, each set's npm version is stored alongside the prefix list:
+
+```json
+{
+    "json-sets": ["mdi", "tabler"],
+    "versions": {
+        "mdi": "7.4.47",
+        "tabler": "3.31.0"
+    }
+}
+```
+
+The `versions` key is optional. Old manifests that only contain `json-sets` still work; `json:update` will treat those sets as having an unknown version and offer to re-download them.
+
+## Automation
+
+You can add update checks to your CI pipeline or a Composer script:
+
+```json
+"scripts": {
+    "icons:update": "swarm-icons json:update"
+}
+```
+
+Then run `composer icons:update` to keep your icon sets current.
+
+:::tip
+Use `--dry-run` in CI to detect outdated sets without modifying files. The command exits with status 0 regardless of whether updates are available, so pair it with output parsing if you want to fail the build on stale icons.
+:::

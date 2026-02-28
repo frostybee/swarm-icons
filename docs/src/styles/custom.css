@@ -14,10 +14,12 @@ code, pre, .expressive-code {
 /* Code block background colors */
 :root[data-theme='light'] {
   --fb-code-block-bg-color: #f0f3f6;
+  --fb-terminal-bg-color: #f2f4f5;
 }
 
 :root[data-theme='dark'] {
   --fb-code-block-bg-color: #24292e;
+  --fb-terminal-bg-color: #22272c;
 }
 
 /* ── Sidebar ── */

@@ -49,7 +49,7 @@ You don't need to configure this: it happens transparently.
 If you'd rather avoid runtime HTTP entirely, you can pre-fetch icons during deployment. The `cache:warm` command batches everything into a single request:
 
 ```bash
-vendor/bin/swarm-icons cache:warm --prefix=heroicons --icons=home,user,star,settings
+php vendor/bin/swarm-icons cache:warm --prefix=heroicons --icons=home,user,star,settings
 ```
 
 You can also batch-fetch programmatically:
@@ -103,5 +103,5 @@ A few commonly used sets to get you started:
 Browse all 200+ sets from the CLI:
 
 ```bash
-vendor/bin/swarm-icons json:browse
+php vendor/bin/swarm-icons json:browse
 ```

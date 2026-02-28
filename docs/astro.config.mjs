@@ -11,6 +11,7 @@ export default defineConfig({
             title: 'Swarm Icons',
             favicon: '/favicon.svg',
             customCss: ['./src/styles/custom.css'],
+            expressiveCode: {},
             head: [
                 {
                     tag: 'link',
@@ -88,19 +89,24 @@ export default defineConfig({
                         { label: 'Slim Framework',   slug: 'guides/slim' },
                         { label: 'CommonMark',       slug: 'guides/commonmark' },
                         { label: 'Accessibility',    slug: 'guides/accessibility' },
+                        { label: 'SVG Sprites',    slug: 'guides/sprites' },
+                        { label: 'Icon Stacking',  slug: 'guides/stacking' },
                     ],
                 },
                 {
                     label: 'CLI Reference',
                     items: [
+                        { label: 'Overview',          slug: 'cli/overview' },
                         { label: 'Icon Set Commands', slug: 'cli/icon-sets' },
+                        { label: 'Updating Sets',     slug: 'cli/updating-sets' },
+                        { label: 'Exporting Icons',   slug: 'cli/exporting-icons' },
                         { label: 'Cache & Utilities', slug: 'cli/cache-and-utilities' },
                     ],
                 },
                 {
                     label: 'Reference',
                     items: [
-                        { label: 'Fluent API', slug: 'reference/fluent-api' },
+                        { label: 'Fluent API',     slug: 'reference/fluent-api' },
                     ],
                 },
             ],

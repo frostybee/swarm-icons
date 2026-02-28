@@ -1,0 +1,79 @@
+---
+title: CLI Overview
+description: Introduction to the Swarm Icons command-line tool for managing icon sets, caching, and more.
+---
+
+Swarm Icons ships with a command-line tool that handles icon set management without requiring Node.js. It speaks directly to the npm registry and the Iconify API in pure PHP, so you can browse, download, search, update, and export icons from your terminal.
+
+## Running the CLI
+
+The CLI is installed automatically with Composer. Run it from your project root:
+
+```bash
+php vendor/bin/swarm-icons
+```
+
+This shows the full list of available commands. To get help for any command, add `--help`:
+
+```bash
+php vendor/bin/swarm-icons json:download --help
+```
+
+:::tip
+If you're working inside the Swarm Icons package itself (not as a dependency), use `php bin/swarm-icons` instead.
+:::
+
+## Available commands
+
+| Command | Description |
+|---------|-------------|
+| `json:browse` | Browse all 200+ Iconify icon sets with filtering |
+| `json:download` | Download JSON icon collections from npm |
+| `json:update` | Check for and apply updates to downloaded sets |
+| `icon:search` | Search icons by name across sets |
+| `icon:list` | List all icons in a local directory or Iconify set |
+| `icon:export` | Export icons from a JSON collection as standalone SVG files |
+| `cache:clear` | Clear the icon cache |
+| `cache:warm` | Pre-fetch icons into the cache for production |
+| `init` | Generate a starter configuration file |
+
+## Typical workflow
+
+A common workflow when starting a new project:
+
+```bash
+# 1. Browse what's available
+php vendor/bin/swarm-icons json:browse --search=material
+
+# 2. Download the sets you need
+php vendor/bin/swarm-icons json:download mdi tabler heroicons
+
+# 3. Search for specific icons
+php vendor/bin/swarm-icons icon:search tabler arrow
+
+# 4. Later, check for updates
+php vendor/bin/swarm-icons json:update --dry-run
+```
+
+## The manifest
+
+Downloads are tracked in a `swarm-icons.json` file at your project root. This manifest records both the set prefixes and their npm versions, enabling two features:
+
+- **Restore after a fresh clone**: running `php vendor/bin/swarm-icons json:download` with no arguments re-downloads everything in the manifest.
+- **Update detection**: `json:update` compares stored versions against npm to find newer releases.
+
+You can automate restoration by adding a Composer script:
+
+```json
+"scripts": {
+    "post-install-cmd": ["swarm-icons json:download"],
+    "post-update-cmd":  ["swarm-icons json:download"]
+}
+```
+
+## What's next
+
+- [Icon Set Commands](/swarm-icons/cli/icon-sets/): browse, download, and search icon sets
+- [Updating Sets](/swarm-icons/cli/updating-sets/): keep your downloaded sets current
+- [Exporting Icons](/swarm-icons/cli/exporting-icons/): extract standalone SVG files for designers
+- [Cache & Utilities](/swarm-icons/cli/cache-and-utilities/): cache management, icon listing, and project setup

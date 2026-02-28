@@ -14,7 +14,7 @@ This is the recommended way to use Iconify sets in production. You download the 
 1. **Download the sets you need**
 
    ```bash
-   vendor/bin/swarm-icons json:download mdi tabler heroicons
+   php vendor/bin/swarm-icons json:download mdi tabler heroicons
    ```
 
    This fetches each set as a JSON file into `resources/json/`. No Node.js required.
@@ -41,14 +41,14 @@ This is the recommended way to use Iconify sets in production. You download the 
 Over 200 Iconify icon sets are available. Browse them from the CLI:
 
 ```bash
-vendor/bin/swarm-icons json:browse
-vendor/bin/swarm-icons json:browse --search=emoji
+php vendor/bin/swarm-icons json:browse
+php vendor/bin/swarm-icons json:browse --search=emoji
 ```
 
 Or download all 22 popular sets at once:
 
 ```bash
-vendor/bin/swarm-icons json:download --all
+php vendor/bin/swarm-icons json:download --all
 ```
 
 See [Icon Set Commands](/swarm-icons/cli/icon-sets/) for the full CLI reference.

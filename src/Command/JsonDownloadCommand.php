@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Frostybee\SwarmIcons\Command;
 
+use Frostybee\SwarmIcons\Util\ManifestManager;
 use Frostybee\SwarmIcons\Util\NpmDownloader;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -121,10 +122,11 @@ class JsonDownloadCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $manifest = new ManifestManager();
 
         // Handle --list before anything else
         if ($input->getOption('list')) {
-            return $this->listSets($io);
+            return $this->listSets($io, $manifest);
         }
 
         /** @var list<string> $sets */
@@ -135,11 +137,11 @@ class JsonDownloadCommand extends Command
 
         // No args and no --all: restore from manifest or list available sets
         if (empty($sets) && !$downloadAll) {
-            $manifest = $this->loadManifest();
-            if ($manifest !== null) {
-                $sets = $manifest;
+            $restored = $manifest->loadPrefixes();
+            if ($restored !== null) {
+                $sets = $restored;
             } else {
-                return $this->listSets($io);
+                return $this->listSets($io, $manifest);
             }
         }
 
@@ -151,7 +153,7 @@ class JsonDownloadCommand extends Command
         }
 
         // Resolve destination directory
-        $destDir = $destOption ?? $this->resolveDestination();
+        $destDir = $destOption ?? $manifest->resolveJsonDirectory();
         if ($destDir === null) {
             $io->error(
                 'Could not auto-detect the JSON resources directory. '
@@ -173,6 +175,9 @@ class JsonDownloadCommand extends Command
         $downloader = new NpmDownloader();
         $succeeded = 0;
         $failed = 0;
+
+        /** @var array<string, string> $downloadedVersions */
+        $downloadedVersions = [];
 
         foreach ($selected as $prefix) {
             $package = '@iconify-json/' . $prefix;
@@ -215,6 +220,7 @@ class JsonDownloadCommand extends Command
             file_put_contents($destFile, $content);
             $sizeKb = number_format(\strlen($content) / 1024, 1);
             $io->text("  Wrote {$destFile} ({$sizeKb} KB)");
+            $downloadedVersions[$prefix] = $version;
             $succeeded++;
         }
 
@@ -222,7 +228,7 @@ class JsonDownloadCommand extends Command
 
         // Save manifest so future no-args invocations can restore these sets
         if ($succeeded > 0) {
-            $this->saveManifest($selected);
+            $manifest->save($selected, $downloadedVersions);
         }
 
         if ($failed > 0) {
@@ -239,11 +245,11 @@ class JsonDownloadCommand extends Command
     /**
      * List popular sets with their download status.
      */
-    private function listSets(SymfonyStyle $io): int
+    private function listSets(SymfonyStyle $io, ManifestManager $manifest): int
     {
         $io->title('Popular JSON Icon Sets');
 
-        $destDir = $this->resolveDestination();
+        $destDir = $manifest->resolveJsonDirectory();
 
         $rows = [];
         foreach (self::POPULAR_SETS as $prefix) {
@@ -259,89 +265,6 @@ class JsonDownloadCommand extends Command
         $io->text('Browse all 200+ sets: <info>php bin/swarm-icons json:browse</info>');
 
         return Command::SUCCESS;
-    }
-
-    /**
-     * Auto-detect the JSON resources directory.
-     *
-     * Resolves to resources/json/ relative to the core package root.
-     * When installed as a dependency, checks the vendor path first.
-     */
-    private function resolveDestination(): ?string
-    {
-        // Core package: src/Command/ → up 2 levels → resources/json/
-        $corePath = \dirname(__DIR__, 2) . '/resources/json';
-        if (is_dir(\dirname($corePath))) {
-            return $corePath;
-        }
-
-        // Installed as vendor dependency
-        $vendorPath = \dirname(__DIR__, 3) . '/frostybee/swarm-icons/resources/json';
-        if (is_dir(\dirname($vendorPath))) {
-            return $vendorPath;
-        }
-
-        return null;
-    }
-
-    /**
-     * Resolve the path to the manifest file in the project root.
-     */
-    private function resolveManifestPath(): string
-    {
-        return getcwd() . '/swarm-icons.json';
-    }
-
-    /**
-     * Save downloaded set prefixes to the manifest file.
-     *
-     * Merges with any existing manifest entries so incremental
-     * downloads accumulate (e.g., `json:download mdi` then `json:download bi`).
-     *
-     * @param list<string> $prefixes
-     */
-    private function saveManifest(array $prefixes): void
-    {
-        $path = $this->resolveManifestPath();
-
-        // Merge with existing manifest
-        $existing = $this->loadManifest() ?? [];
-        $merged = array_values(array_unique(array_merge($existing, $prefixes)));
-        sort($merged);
-
-        $data = ['json-sets' => $merged];
-        file_put_contents(
-            $path,
-            json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n",
-        );
-    }
-
-    /**
-     * Load set prefixes from the manifest file.
-     *
-     * @return list<string>|null Null if no manifest exists.
-     */
-    private function loadManifest(): ?array
-    {
-        $path = $this->resolveManifestPath();
-        if (!file_exists($path)) {
-            return null;
-        }
-
-        $content = file_get_contents($path);
-        if ($content === false) {
-            return null;
-        }
-
-        $data = json_decode($content, true);
-        if (!\is_array($data) || !isset($data['json-sets']) || !\is_array($data['json-sets'])) {
-            return null;
-        }
-
-        /** @var list<string> $sets */
-        $sets = $data['json-sets'];
-
-        return $sets !== [] ? array_values($sets) : null;
     }
 
     /**

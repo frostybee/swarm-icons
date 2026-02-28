@@ -1,0 +1,104 @@
+---
+title: Exporting Icons
+description: Export individual SVG files from a downloaded JSON icon collection.
+---
+
+The `icon:export` command extracts icons from a downloaded JSON collection and writes them as standalone SVG files. This is useful for designers who work in tools like Figma or Illustrator, for projects that need static SVG assets, or for cherry-picking a small subset of icons to commit to your repository.
+
+## Quick start
+
+```bash
+# Export specific icons
+php vendor/bin/swarm-icons icon:export tabler home star arrow-left
+
+# Export an entire set
+php vendor/bin/swarm-icons icon:export mdi --all
+
+# Export to a custom directory
+php vendor/bin/swarm-icons icon:export tabler home user --dest=./assets/icons
+```
+
+## Arguments
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `prefix` | Yes | Icon set prefix (e.g., `tabler`, `mdi`) |
+| `icons` | No | One or more icon names to export |
+
+You must provide either specific icon names or the `--all` flag.
+
+## Options
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--all` | | Export every icon (and alias) in the set | `false` |
+| `--dest` | `-d` | Output directory for SVG files | `./export/{prefix}/` |
+| `--overwrite` | | Overwrite existing SVG files | `false` |
+| `--json` | | Path to a JSON collection file | auto-detected from `resources/json/` |
+
+## How it works
+
+1. The command loads the JSON collection file for the given prefix (auto-detected from `resources/json/{prefix}.json` or specified with `--json`).
+2. It resolves each requested icon, including aliases. An alias like `house` that points to `home` produces its own `house.svg` file with the resolved SVG content.
+3. Each icon is rendered as a complete SVG element with `xmlns="http://www.w3.org/2000/svg"` so the file works in any context (design tools, image viewers, browsers, etc.).
+4. Files are written to the output directory with a progress bar for large sets.
+
+## Examples
+
+### Export a handful of icons for a project
+
+```bash
+php vendor/bin/swarm-icons icon:export heroicons home user cog bell --dest=./resources/icons
+```
+
+This creates four SVG files in `./resources/icons/`:
+
+```
+resources/icons/
+  home.svg
+  user.svg
+  cog.svg
+  bell.svg
+```
+
+### Export an entire set for a design team
+
+```bash
+php vendor/bin/swarm-icons icon:export tabler --all --dest=./design/tabler-icons
+```
+
+### Export from a custom JSON file
+
+If the JSON file is not in the default `resources/json/` location:
+
+```bash
+php vendor/bin/swarm-icons icon:export custom --all --json=/path/to/my-icons.json --dest=./output
+```
+
+### Re-export with overwrite
+
+By default, existing files are skipped. Use `--overwrite` to replace them:
+
+```bash
+php vendor/bin/swarm-icons icon:export tabler home star --dest=./icons --overwrite
+```
+
+The summary output shows how many icons were exported, skipped, or failed:
+
+```
+ [OK] 2 exported in ./icons
+```
+
+## Skipping and overwrite behavior
+
+Without `--overwrite`, the command skips any icon whose `.svg` file already exists in the output directory. The summary tells you how many were skipped:
+
+```
+ [OK] 5 exported, 3 skipped (existing) in ./export/tabler
+```
+
+This makes it safe to re-run the command after adding new icon names to your list without losing any manual edits to previously exported files.
+
+:::tip
+Aliases are exported as separate files. If the JSON set defines `house` as an alias for `home`, running `--all` produces both `home.svg` and `house.svg`. The alias file contains the fully resolved SVG content, including any transforms (flips, rotations) defined by the alias.
+:::
