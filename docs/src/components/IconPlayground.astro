@@ -38,25 +38,36 @@ const {
     ═══════════════════════════════════ -->
     <div class="pg-controls">
 
+        <div class="pg-controls-header">
+            <svg class="pg-controls-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Controls</span>
+        </div>
+
         <!-- Icon name -->
         <div class="pg-field">
             <label for="pg-icon-name" class="pg-label">Icon name</label>
-            <input
-                id="pg-icon-name"
-                type="text"
-                class="pg-input"
-                value={defaultIcon}
-                placeholder="e.g. heroicons:home"
-                autocomplete="off"
-                spellcheck="false"
-            />
-            <p class="pg-hint">Format: <code>prefix:name</code> — any <a href="https://icon-sets.iconify.design" target="_blank" rel="noopener">Iconify icon set</a></p>
+            <div class="pg-input-wrap">
+                <svg class="pg-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input
+                    id="pg-icon-name"
+                    type="text"
+                    class="pg-input pg-input--with-icon"
+                    value={defaultIcon}
+                    placeholder="e.g. heroicons:home"
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+            </div>
+            <p class="pg-hint">Format: <code>prefix:name</code> from any <a href="https://icon-sets.iconify.design" target="_blank" rel="noopener">Iconify icon set</a></p>
         </div>
+
+        <div class="pg-divider"></div>
 
         <!-- Size slider -->
         <div class="pg-field">
             <label for="pg-size" class="pg-label">
-                Size: <span id="pg-size-display">{defaultSize}px</span>
+                Size
+                <span class="pg-badge" id="pg-size-display">{defaultSize}px</span>
             </label>
             <input
                 id="pg-size"
@@ -69,6 +80,26 @@ const {
             />
             <div class="pg-range-ticks" aria-hidden="true">
                 <span>16px</span><span>48px</span><span>96px</span><span>128px</span>
+            </div>
+        </div>
+
+        <!-- Stroke width slider -->
+        <div class="pg-field">
+            <label for="pg-stroke-width" class="pg-label">
+                Stroke width
+                <span class="pg-badge" id="pg-stroke-display">0</span>
+            </label>
+            <input
+                id="pg-stroke-width"
+                type="range"
+                class="pg-range"
+                min="0"
+                max="5"
+                step="0.25"
+                value="0"
+            />
+            <div class="pg-range-ticks" aria-hidden="true">
+                <span>0</span><span>1</span><span>2.5</span><span>5</span>
             </div>
         </div>
 
@@ -88,6 +119,8 @@ const {
                 />
             </div>
         </div>
+
+        <div class="pg-divider"></div>
 
         <!-- CSS classes -->
         <div class="pg-field">
@@ -117,16 +150,6 @@ const {
             <p class="pg-hint">Empty = <code>aria-hidden="true"</code>. Filled = <code>role="img" aria-label="…"</code></p>
         </div>
 
-        <!-- Background selector -->
-        <div class="pg-field">
-            <span class="pg-label" id="pg-bg-label">Preview background</span>
-            <div class="pg-bg-buttons" role="group" aria-labelledby="pg-bg-label">
-                <button class="pg-bg-btn pg-bg-btn--white is-active" data-bg="white"   aria-pressed="true">White</button>
-                <button class="pg-bg-btn pg-bg-btn--dark"            data-bg="dark"    aria-pressed="false">Dark</button>
-                <button class="pg-bg-btn pg-bg-btn--check"           data-bg="checker" aria-pressed="false">Checker</button>
-            </div>
-        </div>
-
     </div><!-- /.pg-controls -->
 
     <!-- ═══════════════════════════════════
@@ -148,6 +171,22 @@ const {
         </div>
     </div>
 
+    <!-- Background selector -->
+    <div class="pg-bg-bar">
+        <span class="pg-label" id="pg-bg-label">Preview background</span>
+        <div class="pg-bg-buttons" role="group" aria-labelledby="pg-bg-label">
+            <button class="pg-bg-btn pg-bg-btn--white is-active" data-bg="white"   aria-pressed="true">
+                <span class="pg-bg-swatch pg-bg-swatch--white"></span>White
+            </button>
+            <button class="pg-bg-btn pg-bg-btn--dark"            data-bg="dark"    aria-pressed="false">
+                <span class="pg-bg-swatch pg-bg-swatch--dark"></span>Dark
+            </button>
+            <button class="pg-bg-btn pg-bg-btn--check"           data-bg="checker" aria-pressed="false">
+                <span class="pg-bg-swatch pg-bg-swatch--check"></span>Checker
+            </button>
+        </div>
+    </div>
+
     <!-- ═══════════════════════════════════
          CODE OUTPUT
     ═══════════════════════════════════ -->
@@ -163,38 +202,46 @@ const {
 
         <!-- PHP panel -->
         <div class="pg-tab-panel" role="tabpanel" id="pg-tab-php" aria-labelledby="pg-tabBtn-php">
-            <div class="pg-code-header">
-                <span class="pg-code-lang">PHP</span>
-                <button class="pg-copy-btn" data-target="pg-code-php" aria-label="Copy PHP code">Copy</button>
+            <div class="pg-pre-wrap">
+                <button class="pg-copy-btn" data-target="pg-code-php" aria-label="Copy PHP code">
+                    <svg class="pg-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>Copy</span>
+                </button>
+                <pre class="pg-pre"><code id="pg-code-php"></code></pre>
             </div>
-            <pre class="pg-pre"><code id="pg-code-php"></code></pre>
         </div>
 
         <!-- Twig panel -->
         <div class="pg-tab-panel" role="tabpanel" id="pg-tab-twig" aria-labelledby="pg-tabBtn-twig" hidden>
-            <div class="pg-code-header">
-                <span class="pg-code-lang">Twig</span>
-                <button class="pg-copy-btn" data-target="pg-code-twig" aria-label="Copy Twig code">Copy</button>
+            <div class="pg-pre-wrap">
+                <button class="pg-copy-btn" data-target="pg-code-twig" aria-label="Copy Twig code">
+                    <svg class="pg-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>Copy</span>
+                </button>
+                <pre class="pg-pre"><code id="pg-code-twig"></code></pre>
             </div>
-            <pre class="pg-pre"><code id="pg-code-twig"></code></pre>
         </div>
 
         <!-- Blade panel -->
         <div class="pg-tab-panel" role="tabpanel" id="pg-tab-blade" aria-labelledby="pg-tabBtn-blade" hidden>
-            <div class="pg-code-header">
-                <span class="pg-code-lang">Blade</span>
-                <button class="pg-copy-btn" data-target="pg-code-blade" aria-label="Copy Blade code">Copy</button>
+            <div class="pg-pre-wrap">
+                <button class="pg-copy-btn" data-target="pg-code-blade" aria-label="Copy Blade code">
+                    <svg class="pg-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>Copy</span>
+                </button>
+                <pre class="pg-pre"><code id="pg-code-blade"></code></pre>
             </div>
-            <pre class="pg-pre"><code id="pg-code-blade"></code></pre>
         </div>
 
         <!-- SVG panel -->
         <div class="pg-tab-panel" role="tabpanel" id="pg-tab-svg" aria-labelledby="pg-tabBtn-svg" hidden>
-            <div class="pg-code-header">
-                <span class="pg-code-lang">SVG</span>
-                <button class="pg-copy-btn" data-target="pg-code-svg" aria-label="Copy SVG code">Copy</button>
+            <div class="pg-pre-wrap">
+                <button class="pg-copy-btn" data-target="pg-code-svg" aria-label="Copy SVG code">
+                    <svg class="pg-copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span>Copy</span>
+                </button>
+                <pre class="pg-pre pg-pre--wrap"><code id="pg-code-svg"></code></pre>
             </div>
-            <pre class="pg-pre pg-pre--wrap"><code id="pg-code-svg"></code></pre>
         </div>
 
     </div><!-- /.pg-code-wrap -->
@@ -203,7 +250,10 @@ const {
          METADATA
     ═══════════════════════════════════ -->
     <div class="pg-meta-wrap" id="pg-meta-wrap">
-        <h3 class="pg-section-title">Metadata</h3>
+        <h3 class="pg-section-title">
+            <svg class="pg-section-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            Metadata
+        </h3>
         <dl class="pg-meta-list">
             <dt>Set</dt>         <dd id="pg-meta-set">&mdash;</dd>
             <dt>Author</dt>     <dd id="pg-meta-author">&mdash;</dd>
@@ -219,56 +269,121 @@ const {
          RELATED ICONS
     ═══════════════════════════════════ -->
     <div class="pg-variants-wrap" id="pg-variants-wrap" hidden>
-        <h3 class="pg-section-title">Related Icons</h3>
+        <h3 class="pg-section-title">
+            <svg class="pg-section-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+            Related Icons
+        </h3>
         <div class="pg-variants-grid" id="pg-variants-grid"></div>
     </div>
 
 </div><!-- /.icon-playground -->
 
 <style>
+    /* ── Custom properties ─────────────────── */
+    .icon-playground {
+        --pg-radius: 0.625rem;
+        --pg-radius-sm: 0.375rem;
+        --pg-accent: var(--sl-color-accent, #4f46e5);
+        --pg-accent-glow: color-mix(in srgb, var(--pg-accent) 15%, transparent);
+        --pg-text: var(--sl-color-text, #1c1c1e);
+        --pg-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        /* Light theme defaults */
+        --pg-border: #d9dce0;
+        --pg-surface: #f5f6f8;
+        --pg-surface-raised: #e2e4e8;
+        --pg-text-muted: #6b7280;
+        --pg-code-bg: #1a1b26;
+        --pg-code-text: #cdd6f4;
+        --pg-input-bg: #ffffff;
+    }
+
+    /* Dark theme overrides */
+    :root[data-theme='dark'] .icon-playground {
+        --pg-border: #2e3440;
+        --pg-surface: #1a1d24;
+        --pg-surface-raised: #22262e;
+        --pg-text-muted: #8b929e;
+        --pg-code-bg: #13151a;
+        --pg-code-text: #cdd6f4;
+        --pg-input-bg: #14161b;
+    }
+
     /* ── Layout ──────────────────────────────── */
     .icon-playground {
         display: grid;
-        grid-template-columns: 320px 1fr;
-        grid-template-rows: auto auto auto auto;
+        grid-template-columns: 340px 1fr;
+        grid-template-rows: auto auto auto auto auto;
         grid-template-areas:
             "controls preview"
+            "controls bgbar"
             "controls code"
             "controls meta"
             "variants variants";
-        gap: 1.5rem;
+        gap: 1.25rem;
         font-size: 0.875rem;
-        margin-block: 2rem;
+        margin-block: 1.5rem;
     }
 
     @media (max-width: 800px) {
         .icon-playground {
             grid-template-columns: 1fr;
-            grid-template-areas: "controls" "preview" "code" "meta" "variants";
+            grid-template-areas: "controls" "preview" "bgbar" "code" "meta" "variants";
         }
     }
 
     .pg-controls      { grid-area: controls; }
     .pg-preview-wrap   { grid-area: preview; }
+    .pg-bg-bar         { grid-area: bgbar; }
     .pg-code-wrap      { grid-area: code; }
     .pg-meta-wrap      { grid-area: meta; }
     .pg-variants-wrap  { grid-area: variants; }
 
-    /* ── Controls ────────────────────────────── */
+    /* ── Controls panel ─────────────────────── */
     .pg-controls {
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: 1rem;
         padding: 1.25rem;
-        background: var(--sl-color-bg-sidebar, #f8f8f8);
-        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.5rem;
+        background: var(--pg-surface);
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
+        align-self: start;
+        position: sticky;
+        top: calc(var(--sl-nav-height, 3.5rem) + 1rem);
+    }
+
+    @media (max-width: 800px) {
+        .pg-controls {
+            position: static;
+        }
+    }
+
+    .pg-controls-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--pg-text-muted);
+    }
+
+    .pg-controls-icon {
+        opacity: 0.5;
+    }
+
+    .pg-divider {
+        height: 1px;
+        background: var(--pg-border);
+        margin: 0.125rem 0;
     }
 
     .pg-field {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
+        gap: 0.375rem;
     }
 
     .pg-field--row {
@@ -279,63 +394,142 @@ const {
 
     .pg-label {
         font-weight: 600;
-        color: var(--sl-color-text, #1c1c1e);
+        color: var(--pg-text);
         font-size: 0.8125rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .pg-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.1rem 0.5rem;
+        background: var(--pg-accent-glow);
+        color: var(--pg-accent);
+        border-radius: 9999px;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        font-family: var(--sl-font-mono, monospace);
+        letter-spacing: 0;
     }
 
     .pg-hint {
         margin: 0;
         font-size: 0.75rem;
-        color: var(--sl-color-text-accent, #666);
-        line-height: 1.4;
+        color: var(--pg-text-muted);
+        line-height: 1.45;
     }
 
     .pg-hint code {
-        background: var(--sl-color-bg-inline-code, #f0f0f0);
+        background: var(--pg-surface-raised);
         padding: 0.1em 0.35em;
         border-radius: 3px;
         font-size: 0.8em;
     }
 
     /* ── Inputs ──────────────────────────────── */
+    .pg-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .pg-input-icon {
+        position: absolute;
+        left: 0.625rem;
+        color: var(--pg-text-muted);
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
     .pg-input {
         width: 100%;
-        padding: 0.45rem 0.65rem;
-        border: 1px solid var(--sl-color-hairline, #d4d4d4);
-        border-radius: 0.375rem;
-        background: var(--sl-color-bg, #fff);
-        color: var(--sl-color-text, #1c1c1e);
-        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        padding: 0.5rem 0.65rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius-sm);
+        background: var(--pg-input-bg);
+        color: var(--pg-text);
+        font-family: var(--sl-font-mono, monospace);
         font-size: 0.8125rem;
         line-height: 1.5;
-        transition: border-color 0.15s, box-shadow 0.15s;
+        transition: border-color var(--pg-transition), box-shadow var(--pg-transition);
         box-sizing: border-box;
+    }
+
+    .pg-input--with-icon {
+        padding-left: 2.125rem;
     }
 
     .pg-input:focus {
         outline: none;
-        border-color: var(--sl-color-accent, #4f46e5);
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 25%, transparent);
+        border-color: var(--pg-accent);
+        box-shadow: 0 0 0 3px var(--pg-accent-glow);
+    }
+
+    .pg-input::placeholder {
+        color: var(--pg-text-muted);
+        opacity: 0.5;
     }
 
     .pg-input--hex {
         width: 90px;
         flex-shrink: 0;
+        text-align: center;
     }
 
     /* ── Range ───────────────────────────────── */
     .pg-range {
         width: 100%;
-        accent-color: var(--sl-color-accent, #4f46e5);
+        height: 6px;
+        -webkit-appearance: none;
+        appearance: none;
+        background: var(--pg-border);
+        border-radius: 3px;
         cursor: pointer;
+        outline: none;
+    }
+
+    .pg-range::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        background: var(--pg-accent);
+        border: 2px solid var(--pg-surface);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        transition: transform var(--pg-transition), box-shadow var(--pg-transition);
+    }
+
+    .pg-range::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 4px var(--pg-accent-glow), 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .pg-range::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        background: var(--pg-accent);
+        border: 2px solid var(--pg-surface);
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .pg-range::-moz-range-track {
+        height: 6px;
+        background: var(--pg-border);
+        border-radius: 3px;
     }
 
     .pg-range-ticks {
         display: flex;
         justify-content: space-between;
-        font-size: 0.7rem;
-        color: var(--sl-color-text-accent, #888);
-        margin-top: -0.2rem;
+        font-size: 0.6875rem;
+        color: var(--pg-text-muted);
+        opacity: 0.6;
+        margin-top: -0.125rem;
     }
 
     /* ── Color picker ────────────────────────── */
@@ -347,44 +541,84 @@ const {
     }
 
     .pg-color {
-        width: 2.25rem;
-        height: 2.25rem;
+        width: 2rem;
+        height: 2rem;
         padding: 0;
-        border: 1px solid var(--sl-color-hairline, #d4d4d4);
-        border-radius: 0.375rem;
+        border: 2px solid var(--pg-border);
+        border-radius: var(--pg-radius-sm);
         cursor: pointer;
         background: none;
         flex-shrink: 0;
+        transition: border-color var(--pg-transition), box-shadow var(--pg-transition);
+    }
+
+    .pg-color:hover {
+        border-color: var(--pg-accent);
+        box-shadow: 0 0 0 3px var(--pg-accent-glow);
     }
 
     /* ── Background selector ─────────────────── */
+    .pg-bg-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0;
+        margin-top: -1.25rem;
+    }
+
     .pg-bg-buttons {
         display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
+        gap: 0.375rem;
+        align-items: baseline;
     }
 
     .pg-bg-btn {
-        padding: 0.3rem 0.75rem;
-        border-radius: 0.375rem;
-        border: 1px solid var(--sl-color-hairline, #d4d4d4);
-        font-size: 0.8125rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        padding: 0.35rem 0.65rem;
+        height: 2rem;
+        min-width: 0;
+        box-sizing: border-box;
+        border-radius: var(--pg-radius-sm);
+        border: 1px solid var(--pg-border);
+        font-size: 0.75rem;
+        font-weight: 500;
         cursor: pointer;
-        color: var(--sl-color-text, #1c1c1e);
-        transition: background 0.12s, border-color 0.12s, color 0.12s;
+        color: var(--pg-text);
+        background: var(--pg-input-bg);
+        transition: all var(--pg-transition);
+        white-space: nowrap;
     }
 
-    .pg-bg-btn--white { background: #ffffff; }
-    .pg-bg-btn--dark  { background: #1e1e2e; color: #cdd6f4; }
-    .pg-bg-btn--check {
-        background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
-        color: #333;
+    .pg-bg-swatch {
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        border: 1px solid var(--pg-border);
+        flex-shrink: 0;
+    }
+
+    .pg-bg-swatch--white { background: #ffffff; }
+    .pg-bg-swatch--dark  { background: #1e1e2e; }
+    .pg-bg-swatch--check {
+        background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 6px 6px;
     }
 
     .pg-bg-btn.is-active {
-        background: var(--sl-color-accent, #4f46e5);
+        background: var(--pg-accent);
         color: #fff;
-        border-color: var(--sl-color-accent, #4f46e5);
+        border-color: var(--pg-accent);
+    }
+
+    .pg-bg-btn.is-active .pg-bg-swatch {
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .pg-bg-btn:not(.is-active):hover {
+        border-color: var(--pg-accent);
+        background: var(--pg-accent-glow);
     }
 
     /* ── Preview ─────────────────────────────── */
@@ -398,21 +632,48 @@ const {
         align-items: center;
         justify-content: center;
         width: 100%;
-        min-height: 180px;
-        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.5rem;
-        transition: background 0.2s;
+        min-height: 200px;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
+        transition: background var(--pg-transition);
         position: relative;
+        overflow: hidden;
+    }
+
+    .pg-preview::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        opacity: 0.35;
+        pointer-events: none;
+        background-image:
+            radial-gradient(circle at 1px 1px, #9ca3af 0.5px, transparent 0);
+        background-size: 24px 24px;
     }
 
     .pg-preview.bg-white   { background: #ffffff; }
     .pg-preview.bg-dark    { background: #1e1e2e; }
+    .pg-preview.bg-dark::before {
+        opacity: 0.15;
+        background-image:
+            radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 0.5px, transparent 0);
+    }
     .pg-preview.bg-checker {
         background-image: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
         background-size: 20px 20px;
     }
+    .pg-preview.bg-checker::before {
+        display: none;
+    }
 
-    #pg-icon-el { line-height: 1; display: inline-block; }
+    #pg-icon-el {
+        line-height: 1;
+        display: inline-block;
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     .pg-error {
         color: var(--sl-color-red, #dc2626);
@@ -420,149 +681,158 @@ const {
         text-align: center;
         padding: 1rem;
         margin: 0;
+        position: relative;
+        z-index: 1;
     }
 
     /* ── Code panel ──────────────────────────── */
     .pg-code-wrap {
-        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.5rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
         overflow: hidden;
     }
 
     .pg-tabs {
         display: flex;
-        border-bottom: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        gap: 0;
+        border-bottom: 1px solid var(--pg-border);
+        background: var(--pg-surface-raised);
+        padding: 0 0.25rem;
     }
 
     .pg-tab {
-        padding: 0.5rem 1rem;
+        padding: 0.6rem 0.875rem;
         border: none;
         background: none;
-        font-size: 0.8125rem;
-        font-weight: 500;
+        font-size: 0.75rem;
+        font-weight: 600;
         cursor: pointer;
-        color: var(--sl-color-text-accent, #666);
+        color: var(--pg-text-muted);
         border-bottom: 2px solid transparent;
         margin-bottom: -1px;
-        transition: color 0.15s, border-color 0.15s;
+        transition: color var(--pg-transition), border-color var(--pg-transition);
+        letter-spacing: 0.01em;
     }
 
     .pg-tab.is-active {
-        color: var(--sl-color-accent, #4f46e5);
-        border-bottom-color: var(--sl-color-accent, #4f46e5);
+        color: var(--pg-accent);
+        border-bottom-color: var(--pg-accent);
     }
 
     .pg-tab:hover:not(.is-active) {
-        color: var(--sl-color-text, #1c1c1e);
+        color: var(--pg-text);
     }
 
-    .pg-code-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.5rem 1rem;
-        background: var(--sl-color-bg-sidebar, #f8f8f8);
-        border-bottom: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-    }
-
-    .pg-code-lang {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--sl-color-text-accent, #888);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
+    .pg-pre-wrap {
+        position: relative;
     }
 
     .pg-copy-btn {
-        padding: 0.25rem 0.65rem;
-        font-size: 0.75rem;
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.6875rem;
         font-weight: 500;
-        border-radius: 0.3rem;
-        border: 1px solid var(--sl-color-hairline, #d4d4d4);
-        background: var(--sl-color-bg, #fff);
-        color: var(--sl-color-text, #1c1c1e);
+        border-radius: var(--pg-radius-sm);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 0, 0, 0.3);
+        color: rgba(205, 214, 244, 0.6);
         cursor: pointer;
-        transition: background 0.12s, color 0.12s;
-        min-width: 4rem;
+        transition: all var(--pg-transition);
+        backdrop-filter: blur(4px);
+    }
+
+    .pg-copy-icon {
+        flex-shrink: 0;
     }
 
     .pg-copy-btn:hover {
-        background: var(--sl-color-accent, #4f46e5);
-        color: #fff;
-        border-color: var(--sl-color-accent, #4f46e5);
+        background: rgba(0, 0, 0, 0.5);
+        color: rgba(205, 214, 244, 0.95);
+        border-color: rgba(255, 255, 255, 0.2);
     }
 
     .pg-copy-btn.is-copied {
-        background: #16a34a;
-        color: #fff;
-        border-color: #16a34a;
+        background: rgba(22, 163, 74, 0.25);
+        color: #4ade80;
+        border-color: rgba(22, 163, 74, 0.3);
     }
 
     .pg-pre {
         margin: 0;
-        padding: 1rem 1.25rem;
+        padding: 0.875rem 1rem;
         overflow-x: auto;
-        background: var(--sl-color-bg-code, #1e1e2e);
-        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        background: var(--pg-code-bg);
+        font-family: var(--sl-font-mono, monospace);
         font-size: 0.8125rem;
-        line-height: 1.6;
+        line-height: 1.7;
     }
 
     .pg-pre code {
         display: block;
-        color: var(--sl-color-code-text, #cdd6f4);
-        white-space: pre;
+        color: var(--pg-code-text);
+        white-space: pre-wrap;
+        word-break: break-all;
         background: none;
         padding: 0;
     }
 
-    .pg-pre--wrap code {
-        white-space: pre-wrap;
-        word-break: break-all;
-    }
-
     /* ── Metadata ───────────────────────────── */
     .pg-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         margin: 0 0 0.75rem;
-        font-size: 0.9375rem;
-        font-weight: 600;
-        color: var(--sl-color-text, #1c1c1e);
+        font-size: 0.6875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--pg-text-muted);
+    }
+
+    .pg-section-icon {
+        opacity: 0.5;
     }
 
     .pg-meta-wrap {
-        padding: 1.25rem;
-        background: var(--sl-color-bg-sidebar, #f8f8f8);
-        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        background: var(--pg-surface);
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
     }
 
     .pg-meta-list {
         display: grid;
         grid-template-columns: auto 1fr;
-        gap: 0.35rem 1rem;
+        gap: 0.5rem 1.25rem;
         margin: 0;
         font-size: 0.8125rem;
     }
 
     .pg-meta-list dt {
         font-weight: 600;
-        color: var(--sl-color-text-accent, #666);
+        color: var(--pg-text-muted);
         white-space: nowrap;
+        font-size: 0.75rem;
     }
 
     .pg-meta-list dd {
         margin: 0;
-        color: var(--sl-color-text, #1c1c1e);
+        color: var(--pg-text);
         word-break: break-word;
     }
 
     /* ── Variants ───────────────────────────── */
     .pg-variants-wrap {
         padding: 1.25rem;
-        background: var(--sl-color-bg-sidebar, #f8f8f8);
-        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.5rem;
+        background: var(--pg-surface);
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius);
     }
 
     .pg-variants-grid {
@@ -575,24 +845,29 @@ const {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.25rem;
-        padding: 0.5rem;
-        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.375rem;
-        background: var(--sl-color-bg, #fff);
+        gap: 0.35rem;
+        padding: 0.6rem 0.5rem 0.5rem;
+        border: 1px solid var(--pg-border);
+        border-radius: var(--pg-radius-sm);
+        background: var(--pg-input-bg);
         cursor: pointer;
-        transition: border-color 0.15s, box-shadow 0.15s;
+        transition: all var(--pg-transition);
         width: 72px;
     }
 
     .pg-variant:hover {
-        border-color: var(--sl-color-accent, #4f46e5);
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 20%, transparent);
+        border-color: var(--pg-accent);
+        box-shadow: 0 0 0 3px var(--pg-accent-glow);
+        transform: translateY(-1px);
+    }
+
+    .pg-variant:active {
+        transform: translateY(0);
     }
 
     .pg-variant-name {
         font-size: 0.625rem;
-        color: var(--sl-color-text-accent, #666);
+        color: var(--pg-text-muted);
         text-align: center;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -613,6 +888,8 @@ const {
     const iconNameEl    = root.querySelector<HTMLInputElement>('#pg-icon-name')!;
     const sizeEl        = root.querySelector<HTMLInputElement>('#pg-size')!;
     const sizeDisplay   = root.querySelector<HTMLElement>('#pg-size-display')!;
+    const strokeEl      = root.querySelector<HTMLInputElement>('#pg-stroke-width')!;
+    const strokeDisplay = root.querySelector<HTMLElement>('#pg-stroke-display')!;
     const colorEl       = root.querySelector<HTMLInputElement>('#pg-color')!;
     const colorHexEl    = root.querySelector<HTMLInputElement>('#pg-color-hex')!;
     const classesEl     = root.querySelector<HTMLInputElement>('#pg-classes')!;
@@ -641,17 +918,19 @@ const {
     interface State {
         iconName: string;
         size: number;
+        strokeWidth: number;
         color: string;
         classes: string;
         ariaLabel: string;
     }
 
     let state: State = {
-        iconName:  iconNameEl.value.trim(),
-        size:      parseInt(sizeEl.value, 10),
-        color:     colorEl.value,
-        classes:   classesEl.value.trim(),
-        ariaLabel: ariaEl.value.trim(),
+        iconName:    iconNameEl.value.trim(),
+        size:        parseInt(sizeEl.value, 10),
+        strokeWidth: parseFloat(strokeEl.value),
+        color:       colorEl.value,
+        classes:     classesEl.value.trim(),
+        ariaLabel:   ariaEl.value.trim(),
     };
 
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
@@ -680,8 +959,9 @@ const {
     /** Build caller-supplied attributes, mirroring IconRenderer::applyAriaRules(). */
     function buildAttrs(s: State): Record<string, string> {
         const attrs: Record<string, string> = {};
-        if (s.classes)   attrs['class']      = s.classes;
-        if (s.ariaLabel) { attrs['aria-label'] = s.ariaLabel; attrs['role'] = 'img'; }
+        if (s.strokeWidth) attrs['stroke-width'] = String(s.strokeWidth);
+        if (s.classes)     attrs['class']         = s.classes;
+        if (s.ariaLabel)   { attrs['aria-label'] = s.ariaLabel; attrs['role'] = 'img'; }
         return attrs;
     }
 
@@ -859,10 +1139,31 @@ const {
         }
     }
 
+    // ── Stroke-width injection (shadow DOM) ─────────────────────────────────
+
+    let strokeStyleEl: HTMLStyleElement | null = null;
+
+    function applyStrokeWidth(sw: number): void {
+        const shadow = iconEl.shadowRoot;
+        if (!shadow) return;
+
+        if (!sw) {
+            strokeStyleEl?.remove();
+            strokeStyleEl = null;
+            return;
+        }
+
+        if (!strokeStyleEl) {
+            strokeStyleEl = document.createElement('style');
+            shadow.appendChild(strokeStyleEl);
+        }
+        strokeStyleEl.textContent = `svg [stroke-width] { stroke-width: ${sw} !important; }`;
+    }
+
     // ── Preview rendering ────────────────────────────────────────────────────
 
     function renderPreview(): void {
-        const { iconName, size, color } = state;
+        const { iconName, size, color, strokeWidth } = state;
 
         if (!iconName.includes(':')) {
             showError('Icon name must include a prefix, e.g. heroicons:home');
@@ -874,6 +1175,8 @@ const {
         iconEl.setAttribute('width', String(size));
         iconEl.setAttribute('height', String(size));
         iconEl.style.color = color;
+        // Inject stroke-width into the shadow DOM (CSS can't cross the boundary)
+        applyStrokeWidth(strokeWidth);
         iconEl.style.display = '';
         errorEl.hidden = true;
 
@@ -944,6 +1247,12 @@ const {
         update();
     });
 
+    strokeEl.addEventListener('input', () => {
+        state.strokeWidth = parseFloat(strokeEl.value);
+        strokeDisplay.textContent = String(state.strokeWidth);
+        update();
+    });
+
     colorEl.addEventListener('input', () => {
         state.color      = colorEl.value;
         colorHexEl.value = colorEl.value;
@@ -998,12 +1307,14 @@ const {
             if (!target) return;
             try {
                 await navigator.clipboard.writeText(target.textContent ?? '');
-                btn.textContent = 'Copied!';
+                const label = btn.querySelector('span')!;
+                label.textContent = 'Copied!';
                 btn.classList.add('is-copied');
-                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-copied'); }, 1800);
+                setTimeout(() => { label.textContent = 'Copy'; btn.classList.remove('is-copied'); }, 1800);
             } catch {
-                btn.textContent = 'Failed';
-                setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+                const label = btn.querySelector('span')!;
+                label.textContent = 'Failed';
+                setTimeout(() => { label.textContent = 'Copy'; }, 1800);
             }
         });
     });

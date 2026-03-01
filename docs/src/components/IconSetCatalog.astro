@@ -39,14 +39,20 @@
     <div class="ic-controls">
         <div class="ic-field ic-field--search">
             <label for="ic-search" class="ic-label">Search</label>
-            <input
-                id="ic-search"
-                type="text"
-                class="ic-input"
-                placeholder="Filter by prefix, name, or category\u2026"
-                autocomplete="off"
-                spellcheck="false"
-            />
+            <div class="ic-input-wrap">
+                <svg class="ic-search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <circle cx="8.5" cy="8.5" r="5.75" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M13 13l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <input
+                    id="ic-search"
+                    type="text"
+                    class="ic-input"
+                    placeholder="Filter by prefix, name, or category\u2026"
+                    autocomplete="off"
+                    spellcheck="false"
+                />
+            </div>
         </div>
         <div class="ic-field ic-field--category">
             <label for="ic-category" class="ic-label">Category</label>
@@ -61,7 +67,9 @@
 
     <!-- Loading state -->
     <div class="ic-loading" id="ic-loading">
-        <div class="ic-spinner" aria-hidden="true"></div>
+        <div class="ic-pulse" aria-hidden="true">
+            <span></span><span></span><span></span>
+        </div>
         <p>Loading icon sets from Iconify&hellip;</p>
     </div>
 
@@ -89,7 +97,6 @@
                     </th>
                     <th class="ic-th">License</th>
                     <th class="ic-th">Samples</th>
-                    <th class="ic-th">Download</th>
                 </tr>
             </thead>
             <tbody id="ic-tbody"></tbody>
@@ -100,17 +107,56 @@
          PAGINATION
     ═══════════════════════════════════ -->
     <nav class="ic-pagination" id="ic-pagination" aria-label="Table pagination" hidden>
-        <button class="ic-page-btn" id="ic-prev" type="button" disabled>Previous</button>
+        <button class="ic-page-btn" id="ic-prev" type="button" disabled>
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+                <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Previous
+        </button>
         <span class="ic-page-info" id="ic-page-info"></span>
-        <button class="ic-page-btn" id="ic-next" type="button">Next</button>
+        <button class="ic-page-btn" id="ic-next" type="button">
+            Next
+            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+                <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </button>
     </nav>
+
+    <!-- Tooltip (positioned via JS, lives outside overflow contexts) -->
+    <div class="ic-tooltip" id="ic-tooltip" role="tooltip"></div>
 </div>
 
 <style>
-    /* ── Layout ──────────────────────────────── */
+    /* ── Tooltip ─────────────────────────────── */
+    .ic-tooltip {
+        position: fixed;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        line-height: 1.3;
+        white-space: nowrap;
+        color: var(--sl-color-text, #1c1c1e);
+        background: var(--sl-color-gray-5, #eceef2);
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        border-radius: 0.3rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(4px);
+        transition: opacity 0.15s, transform 0.15s;
+        z-index: 9999;
+    }
+
+    .ic-tooltip.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    /* ── Widen Starlight content area for this page ── */
     .icon-catalog {
         max-width: 100%;
+        margin-block: 1.5rem 0;
     }
+
 
     /* Ensure [hidden] works even when display is set */
     .icon-catalog [hidden] {
@@ -121,61 +167,112 @@
     .ic-stats {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
     }
 
     .ic-stat {
+        position: relative;
         text-align: center;
-        padding: 1rem 0.75rem;
-        background: var(--sl-color-bg-sidebar, #f8f8f8);
-        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.5rem;
+        padding: 1.25rem 1rem 1rem;
+        background:
+            linear-gradient(
+                135deg,
+                color-mix(in srgb, var(--sl-color-accent, #4f46e5) 4%, transparent),
+                color-mix(in srgb, var(--sl-color-accent, #4f46e5) 1%, transparent)
+            );
+        border: 1px solid color-mix(in srgb, var(--sl-color-accent, #4f46e5) 12%, transparent);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .ic-stat::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(
+                ellipse at 50% 0%,
+                color-mix(in srgb, var(--sl-color-accent, #4f46e5) 6%, transparent),
+                transparent 70%
+            );
+        pointer-events: none;
+    }
+
+    .ic-stat:hover {
+        border-color: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 25%, transparent);
+        transform: translateY(-1px);
     }
 
     .ic-stat-value {
-        font-size: 1.75rem;
+        position: relative;
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-size: 2rem;
         font-weight: 700;
         color: var(--sl-color-accent, #4f46e5);
         display: block;
-        line-height: 1.2;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
     }
 
     .ic-stat-label {
-        font-size: 0.75rem;
+        position: relative;
+        font-size: 0.6875rem;
+        font-weight: 600;
         color: var(--sl-color-text-accent, #666);
         text-transform: uppercase;
-        letter-spacing: 0.06em;
-        margin-top: 0.25rem;
+        letter-spacing: 0.08em;
+        margin-top: 0.4rem;
         display: block;
     }
 
     /* ── Controls ────────────────────────────── */
     .ic-controls {
         display: flex;
-        gap: 1rem;
+        gap: 0.75rem;
         margin-bottom: 1rem;
+        align-items: flex-end;
     }
 
     .ic-field--search { flex: 1; }
-    .ic-field--category { flex: 0 0 220px; }
+    .ic-field--category { flex: 0 0 200px; }
 
     .ic-label {
         display: block;
-        font-size: 0.75rem;
+        font-size: 0.6875rem;
         font-weight: 600;
         color: var(--sl-color-text-accent, #666);
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
         margin-bottom: 0.35rem;
     }
 
-    .ic-input,
-    .ic-select {
+    .ic-input-wrap {
+        position: relative;
+    }
+
+    .ic-search-icon {
+        position: absolute;
+        left: 0.65rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        color: var(--sl-color-text-accent, #888);
+        pointer-events: none;
+        transition: color 0.15s;
+    }
+
+    .ic-input-wrap:focus-within .ic-search-icon {
+        color: var(--sl-color-accent, #4f46e5);
+    }
+
+    .ic-input {
         width: 100%;
-        padding: 0.45rem 0.65rem;
+        padding: 0.5rem 0.65rem 0.5rem 2.15rem;
         border: 1px solid var(--sl-color-hairline, #d4d4d4);
-        border-radius: 0.375rem;
+        border-radius: 0.5rem;
         background: var(--sl-color-bg, #fff);
         color: var(--sl-color-text, #1c1c1e);
         font-family: var(--sl-font, system-ui, sans-serif);
@@ -185,18 +282,44 @@
         box-sizing: border-box;
     }
 
+    .ic-select {
+        width: 100%;
+        padding: 0.5rem 0.65rem;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        border-radius: 0.5rem;
+        background: var(--sl-color-bg, #fff);
+        color: var(--sl-color-text, #1c1c1e);
+        font-family: var(--sl-font, system-ui, sans-serif);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        box-sizing: border-box;
+        cursor: pointer;
+    }
+
     .ic-input:focus,
     .ic-select:focus {
         outline: none;
         border-color: var(--sl-color-accent, #4f46e5);
-        box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 25%, transparent);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 12%, transparent);
     }
 
     /* ── Results count ───────────────────────── */
     .ic-results {
-        font-size: 0.8125rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
         color: var(--sl-color-text-accent, #666);
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.5rem;
+        letter-spacing: 0.01em;
+    }
+
+    .ic-results :global(strong) {
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-weight: 700;
+        color: var(--sl-color-text, #1c1c1e);
     }
 
     /* ── Loading ─────────────────────────────── */
@@ -204,39 +327,55 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
-        padding: 3rem 1rem;
+        gap: 1rem;
+        padding: 4rem 1rem;
         color: var(--sl-color-text-accent, #888);
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
     }
 
-    .ic-spinner {
-        width: 28px;
-        height: 28px;
-        border: 3px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-top-color: var(--sl-color-accent, #4f46e5);
+    .ic-loading p {
+        margin: 0;
+    }
+
+    .ic-pulse {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .ic-pulse span {
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        animation: ic-spin 0.7s linear infinite;
+        background: var(--sl-color-accent, #4f46e5);
+        animation: ic-bounce 1.2s ease-in-out infinite;
     }
 
-    @keyframes ic-spin {
-        to { transform: rotate(360deg); }
+    .ic-pulse span:nth-child(2) { animation-delay: 0.15s; }
+    .ic-pulse span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes ic-bounce {
+        0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
+        40% { opacity: 1; transform: scale(1.1); }
     }
 
     /* ── Error ───────────────────────────────── */
     .ic-error {
         color: var(--sl-color-red, #dc2626);
-        font-size: 0.875rem;
+        font-size: 0.8125rem;
         text-align: center;
-        padding: 2rem 1rem;
+        padding: 3rem 1rem;
         margin: 0;
     }
 
     /* ── Table ───────────────────────────────── */
     .ic-table-wrap {
-        overflow-x: auto;
         border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
+        background: var(--sl-color-bg, #fff);
+        box-shadow:
+            0 1px 3px color-mix(in srgb, var(--sl-color-black, #000) 4%, transparent),
+            0 4px 12px color-mix(in srgb, var(--sl-color-black, #000) 2%, transparent);
     }
 
     .ic-table {
@@ -246,20 +385,27 @@
     }
 
     .ic-th {
-        padding: 0.65rem 0.75rem;
+        padding: 0.7rem 0.85rem;
         text-align: left;
-        font-weight: 600;
-        font-size: 0.7rem;
+        font-weight: 700;
+        font-size: 0.6875rem;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.06em;
         color: var(--sl-color-text-accent, #666);
-        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        background:
+            linear-gradient(
+                180deg,
+                var(--sl-color-bg-sidebar, #f8f8f8),
+                color-mix(in srgb, var(--sl-color-bg-sidebar, #f8f8f8) 85%, var(--sl-color-bg, #fff))
+            );
         border-bottom: 2px solid var(--sl-color-hairline-light, #e5e5e5);
         white-space: nowrap;
         position: sticky;
         top: 0;
-        z-index: 1;
     }
+
+    .ic-th:first-child { padding-left: 1.1rem; border-top-left-radius: 0.75rem; }
+    .ic-th:last-child { padding-right: 1.1rem; border-top-right-radius: 0.75rem; }
 
     .ic-th--sortable {
         cursor: pointer;
@@ -277,10 +423,14 @@
 
     .ic-sort-arrow {
         display: inline-block;
-        margin-left: 0.25rem;
-        font-size: 0.65rem;
-        opacity: 0.35;
-        transition: opacity 0.15s;
+        margin-left: 0.2rem;
+        font-size: 0.6rem;
+        opacity: 0.3;
+        transition: opacity 0.15s, color 0.15s;
+    }
+
+    .ic-th--sortable.is-active {
+        color: var(--sl-color-text, #1c1c1e);
     }
 
     .ic-th--sortable.is-active .ic-sort-arrow {
@@ -288,162 +438,241 @@
         color: var(--sl-color-accent, #4f46e5);
     }
 
+    /*
+     * Dynamic content styles use :global() because innerHTML-generated
+     * elements don't receive Astro's scoped data-astro-cid-* attribute.
+     * Each rule is anchored to a static parent (.ic-table) for safety.
+     */
+
     /* ── Table rows ──────────────────────────── */
-    .ic-table tbody tr {
-        border-bottom: 1px solid var(--sl-color-hairline-light, #e5e5e5);
-        transition: background 0.1s;
+    .ic-table :global(tbody tr) {
+        border-bottom: 1px solid color-mix(in srgb, var(--sl-color-hairline-light, #e5e5e5) 60%, transparent);
+        transition: background 0.12s;
     }
 
-    .ic-table tbody tr:last-child {
+    .ic-table :global(tbody tr:last-child) {
         border-bottom: none;
     }
 
-    .ic-table tbody tr:nth-child(even) {
-        background: color-mix(in srgb, var(--sl-color-bg-sidebar, #f8f8f8) 50%, transparent);
+    .ic-table :global(tbody tr:last-child td:first-child) {
+        border-bottom-left-radius: 0.75rem;
     }
 
-    .ic-table tbody tr:hover {
-        background: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 6%, transparent);
+    .ic-table :global(tbody tr:last-child td:last-child) {
+        border-bottom-right-radius: 0.75rem;
     }
 
-    .ic-table td {
-        padding: 0.5rem 0.75rem;
+    .ic-table :global(tbody tr:hover) {
+        background: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 4%, transparent);
+    }
+
+    .ic-table :global(td) {
+        padding: 0.6rem 0.85rem;
         vertical-align: middle;
     }
 
+    .ic-table :global(td:first-child) { padding-left: 1.1rem; }
+    .ic-table :global(td:last-child) { padding-right: 1.1rem; }
+
     /* Prefix link */
-    .ic-prefix-link {
+    .ic-table :global(.ic-prefix-link) {
         text-decoration: none;
         color: var(--sl-color-accent, #4f46e5);
-        font-weight: 500;
+        font-weight: 600;
         transition: color 0.12s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
     }
 
-    .ic-prefix-link:hover {
+    .ic-table :global(.ic-prefix-link:hover) {
         text-decoration: underline;
+        text-underline-offset: 2px;
     }
 
-    .ic-prefix-link code {
+    .ic-table :global(.ic-prefix-link code) {
         font-family: var(--sl-font-mono, ui-monospace, monospace);
         font-size: 0.8125rem;
+        font-weight: 600;
         background: none;
         padding: 0;
         color: inherit;
     }
 
-    /* Numeric column */
-    .ic-td-num {
-        text-align: right;
-        font-variant-numeric: tabular-nums;
+    /* External link arrow indicator */
+    .ic-table :global(.ic-prefix-link::after) {
+        content: '\2197';
+        font-size: 0.7em;
+        opacity: 0;
+        transition: opacity 0.15s, transform 0.15s;
+        transform: translateY(1px);
+    }
+
+    .ic-table :global(tbody tr:hover .ic-prefix-link::after) {
+        opacity: 0.6;
+        transform: translateY(0);
+    }
+
+    /* Name column */
+    .ic-table :global(.ic-td-name) {
         font-weight: 500;
+        color: var(--sl-color-text, #1c1c1e);
+    }
+
+    /* Numeric column */
+    .ic-table :global(.ic-td-num) {
+        text-align: right;
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+        font-size: 0.8125rem;
+        color: var(--sl-color-text, #1c1c1e);
     }
 
     /* Category badge */
-    .ic-category {
+    .ic-table :global(.ic-category) {
         display: inline-block;
-        padding: 0.15rem 0.5rem;
-        font-size: 0.75rem;
-        border-radius: 1rem;
-        background: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 10%, transparent);
+        padding: 0.2rem 0.6rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        border-radius: 0.3rem;
+        background: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 8%, transparent);
         color: var(--sl-color-text, #1c1c1e);
         white-space: nowrap;
+        letter-spacing: 0.01em;
     }
 
-    .ic-category--none {
-        opacity: 0.5;
+    .ic-table :global(.ic-category--none) {
+        opacity: 0.4;
         font-style: italic;
+        font-weight: 400;
         background: none;
+        border: 1px dashed var(--sl-color-hairline, #d4d4d4);
+    }
+
+    /* License column */
+    .ic-table :global(.ic-td-license) {
+        font-size: 0.75rem;
+        color: var(--sl-color-text-accent, #888);
     }
 
     /* Samples column */
-    .ic-samples {
+    .ic-table :global(.ic-samples) {
         display: flex;
-        gap: 0.4rem;
+        gap: 0.5rem;
         align-items: center;
     }
 
-    .ic-samples iconify-icon {
+    .ic-table :global(.ic-samples iconify-icon) {
         font-size: 20px;
         color: var(--sl-color-text, #1c1c1e);
-        opacity: 0.8;
+        opacity: 0.65;
+        transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .ic-table :global(tbody tr:hover .ic-samples iconify-icon) {
+        opacity: 1;
+    }
+
+    .ic-table :global(.ic-samples iconify-icon:hover) {
+        transform: scale(1.25);
     }
 
     /* Download column */
-    .ic-dl-cell {
+    .ic-table :global(.ic-dl-cell) {
         display: flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 0.4rem;
     }
 
-    .ic-dl-cmd {
+    .ic-table :global(.ic-dl-cmd) {
         font-family: var(--sl-font-mono, ui-monospace, monospace);
-        font-size: 0.75rem;
-        color: var(--sl-color-text, #1c1c1e);
-        white-space: nowrap;
-    }
-
-    .ic-copy-btn {
-        flex-shrink: 0;
-        padding: 0.2rem 0.5rem;
         font-size: 0.7rem;
-        font-weight: 500;
-        border-radius: 0.25rem;
-        border: 1px solid var(--sl-color-hairline, #d4d4d4);
-        background: var(--sl-color-bg, #fff);
-        color: var(--sl-color-text, #1c1c1e);
-        cursor: pointer;
-        transition: background 0.12s, color 0.12s, border-color 0.12s;
+        color: var(--sl-color-text-accent, #888);
         white-space: nowrap;
+        padding: 0.2rem 0.45rem;
+        background: color-mix(in srgb, var(--sl-color-bg-sidebar, #f8f8f8) 80%, transparent);
+        border-radius: 0.25rem;
+        border: 1px solid color-mix(in srgb, var(--sl-color-hairline-light, #e5e5e5) 50%, transparent);
     }
 
-    .ic-copy-btn:hover {
-        background: var(--sl-color-accent, #4f46e5);
-        color: #fff;
-        border-color: var(--sl-color-accent, #4f46e5);
+    .ic-table :global(.ic-copy-btn) {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.3rem;
+        border-radius: 0.3rem;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--sl-color-text-accent, #888);
+        cursor: pointer;
+        transition: all 0.15s;
     }
 
-    .ic-copy-btn.is-copied {
-        background: #16a34a;
-        color: #fff;
-        border-color: #16a34a;
+    .ic-table :global(.ic-copy-btn:hover) {
+        color: var(--sl-color-accent, #4f46e5);
+        background: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 8%, transparent);
+        border-color: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 20%, transparent);
+    }
+
+    .ic-table :global(.ic-copy-btn.is-copied) {
+        color: #16a34a;
     }
 
     /* ── Pagination ─────────────────────────── */
+
     .ic-pagination {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 1rem;
-        padding: 1rem 0;
+        gap: 1.25rem;
+        padding: 1.25rem 0 0.5rem;
     }
 
     .ic-page-btn {
-        padding: 0.4rem 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 1rem;
         font-size: 0.8125rem;
-        font-weight: 500;
-        border-radius: 0.375rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
         border: 1px solid var(--sl-color-hairline, #d4d4d4);
         background: var(--sl-color-bg, #fff);
         color: var(--sl-color-text, #1c1c1e);
         cursor: pointer;
-        transition: background 0.12s, color 0.12s, border-color 0.12s;
+        transition: all 0.15s;
+    }
+
+    .ic-page-btn svg {
+        flex-shrink: 0;
     }
 
     .ic-page-btn:hover:not(:disabled) {
         background: var(--sl-color-accent, #4f46e5);
         color: #fff;
         border-color: var(--sl-color-accent, #4f46e5);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 25%, transparent);
     }
 
     .ic-page-btn:disabled {
-        opacity: 0.4;
+        opacity: 0.35;
         cursor: not-allowed;
     }
 
     .ic-page-info {
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
+        font-weight: 500;
         color: var(--sl-color-text-accent, #666);
         white-space: nowrap;
+    }
+
+    .ic-page-info :global(strong) {
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-weight: 700;
+        color: var(--sl-color-text, #1c1c1e);
     }
 
     /* ── Responsive ──────────────────────────── */
@@ -457,12 +686,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
-            padding: 0.65rem 0.75rem;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
         }
 
         .ic-stat-value {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
         }
 
         .ic-stat-label {
@@ -518,6 +747,7 @@
     const prevBtn = root.querySelector<HTMLButtonElement>('#ic-prev')!;
     const nextBtn = root.querySelector<HTMLButtonElement>('#ic-next')!;
     const pageInfoEl = root.querySelector<HTMLSpanElement>('#ic-page-info')!;
+    const tooltipEl = root.querySelector<HTMLDivElement>('#ic-tooltip')!;
 
     /* ── State ───────────────────────────────── */
     const PAGE_SIZE = 25;
@@ -590,7 +820,7 @@
 
         const start = (currentPage - 1) * PAGE_SIZE + 1;
         const end = Math.min(currentPage * PAGE_SIZE, filteredSets.length);
-        pageInfoEl.textContent = `${start}\u2013${end} of ${formatNumber(filteredSets.length)} (page ${currentPage} of ${total})`;
+        pageInfoEl.innerHTML = `<strong>${start}\u2013${end}</strong> of <strong>${formatNumber(filteredSets.length)}</strong> &middot; page <strong>${currentPage}</strong> of <strong>${total}</strong>`;
     }
 
     /* ── Rendering ───────────────────────────── */
@@ -599,10 +829,10 @@
         updateSortIndicators();
 
         const total = filteredSets.length;
-        resultsEl.textContent = `Showing ${formatNumber(total)} of ${formatNumber(allSets.length)} icon sets`;
+        resultsEl.innerHTML = `Showing <strong>${formatNumber(total)}</strong> of <strong>${formatNumber(allSets.length)}</strong> icon sets`;
 
         if (total === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--sl-color-text-accent,#888)">No icon sets match your search.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2.5rem 1rem;color:var(--sl-color-text-accent,#888);font-size:0.8125rem">No icon sets match your search.</td></tr>';
             paginationEl.hidden = true;
             return;
         }
@@ -625,16 +855,15 @@
                 : '<span class="ic-category ic-category--none">Uncategorized</span>';
 
             const licenseText = s.license?.title ?? 'N/A';
-            const cmd = `json:download ${s.prefix}`;
+            const cmd = `php bin/swarm-icons json:download ${s.prefix}`;
 
             rows.push(`<tr>
-                <td><a class="ic-prefix-link" href="https://icon-sets.iconify.design/${escapeHtml(s.prefix)}/" target="_blank" rel="noopener"><code>${escapeHtml(s.prefix)}</code></a></td>
-                <td>${escapeHtml(s.name)}</td>
+                <td><div class="ic-dl-cell"><a class="ic-prefix-link" href="https://icon-sets.iconify.design/${escapeHtml(s.prefix)}/" target="_blank" rel="noopener"><code>${escapeHtml(s.prefix)}</code></a><button class="ic-copy-btn" type="button" data-cmd="${escapeHtml(cmd)}" data-tooltip="Copy swarm-icons download command" aria-label="Copy swarm-icons download command"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div></td>
+                <td class="ic-td-name">${escapeHtml(s.name)}</td>
                 <td class="ic-td-num">${formatNumber(s.total)}</td>
                 <td>${catHtml}</td>
-                <td>${escapeHtml(licenseText)}</td>
+                <td class="ic-td-license">${escapeHtml(licenseText)}</td>
                 <td><div class="ic-samples">${samplesHtml}</div></td>
-                <td><div class="ic-dl-cell"><code class="ic-dl-cmd">${escapeHtml(cmd)}</code><button class="ic-copy-btn" type="button" data-cmd="${escapeHtml(cmd)}">Copy</button></div></td>
             </tr>`);
         }
 
@@ -668,19 +897,52 @@
     }
 
     /* ── Copy to clipboard ───────────────────── */
+    const ICON_COPY = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    const ICON_CHECK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>';
+
     function handleCopy(e: Event): void {
         const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ic-copy-btn');
         if (!btn) return;
         const cmd = btn.dataset.cmd ?? '';
         navigator.clipboard.writeText(cmd).then(() => {
-            btn.textContent = 'Copied!';
+            btn.innerHTML = ICON_CHECK;
             btn.classList.add('is-copied');
-            setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-copied'); }, 1800);
+            tooltipEl.textContent = 'Copied to clipboard!';
+            setTimeout(() => {
+                btn.innerHTML = ICON_COPY;
+                btn.classList.remove('is-copied');
+                hideTooltip();
+            }, 1800);
         }).catch(() => {
-            btn.textContent = 'Failed';
-            setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+            setTimeout(() => { btn.innerHTML = ICON_COPY; }, 1800);
         });
     }
+
+    /* ── Tooltip ─────────────────────────────── */
+    function showTooltip(btn: HTMLElement): void {
+        const text = btn.dataset.tooltip;
+        if (!text) return;
+        tooltipEl.textContent = text;
+        const rect = btn.getBoundingClientRect();
+        tooltipEl.style.left = `${rect.left + rect.width / 2}px`;
+        tooltipEl.style.top = `${rect.top - 6}px`;
+        tooltipEl.style.transform = 'translate(-50%, -100%)';
+        tooltipEl.classList.add('is-visible');
+    }
+
+    function hideTooltip(): void {
+        tooltipEl.classList.remove('is-visible');
+    }
+
+    tableWrap.addEventListener('pointerenter', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ic-copy-btn');
+        if (btn) showTooltip(btn);
+    }, true);
+
+    tableWrap.addEventListener('pointerleave', (e) => {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ic-copy-btn');
+        if (btn) hideTooltip();
+    }, true);
 
     /* ── Event listeners ─────────────────────── */
     let debounceTimer: ReturnType<typeof setTimeout>;
@@ -714,6 +976,9 @@
     });
 
     tableWrap.addEventListener('click', handleCopy);
+
+    /* ── Widen content area for this page ────── */
+    document.documentElement.style.setProperty('--sl-content-width', '55rem');
 
     /* ── Init ────────────────────────────────── */
     (async () => {
