@@ -1,0 +1,171 @@
+---
+/**
+ * IconDemo.astro
+ *
+ * Static side-by-side: live icon preview + PHP / Twig / Blade code snippets.
+ * Rendered at build time — no client-side JS needed (Iconify auto-scan handles the preview).
+ *
+ * Usage in MDX pages:
+ *   import IconDemo from '../components/IconDemo.astro';
+ *
+ *   <IconDemo icon="heroicons:home" />
+ *   <IconDemo icon="tabler:star" label="Favourite" size={32} />
+ *   <IconDemo icon="lucide:user" label="User" cssClass="w-6 h-6" size={24} />
+ *
+ * Props:
+ *   icon      — Iconify icon name, e.g. "heroicons:home"       (required)
+ *   label     — ARIA label; omit for decorative icons           (optional)
+ *   cssClass  — CSS class string shown in generated code        (optional)
+ *   size      — Preview size in px, default 32                  (optional)
+ *
+ * Note: `class` is a reserved word in Astro/HTML — use `cssClass` as the prop.
+ */
+
+interface Props {
+    icon: string;
+    label?: string;
+    cssClass?: string;
+    size?: number;
+}
+
+const {
+    icon,
+    label,
+    cssClass,
+    size = 32,
+} = Astro.props;
+
+// ── Build-time code generation ────────────────────────────────────────────────
+// Mirrors IconRenderer::applyAriaRules(): aria-hidden for decorative,
+// role="img" + aria-label for labeled icons.
+
+function phpArray(cssClass?: string, label?: string): string {
+    const entries: [string, string][] = [];
+    if (cssClass) entries.push(['class', cssClass]);
+    if (label)  { entries.push(['aria-label', label]); entries.push(['role', 'img']); }
+
+    if (entries.length === 0) return '';
+    if (entries.length === 1) {
+        const [k, v] = entries[0];
+        return `, ['${k}' => '${v}']`;
+    }
+    const lines = entries.map(([k, v]) => `    '${k}' => '${v}',`).join('\n');
+    return `, [\n${lines}\n]`;
+}
+
+function twigObject(cssClass?: string, label?: string): string {
+    const entries: [string, string][] = [];
+    if (cssClass) entries.push(['class', cssClass]);
+    if (label)  { entries.push(["'aria-label'", label]); entries.push(['role', 'img']); }
+
+    if (entries.length === 0) return '';
+    const inner = entries.map(([k, v]) => `${k}: '${v}'`).join(', ');
+    return `, {${inner}}`;
+}
+
+const arr      = phpArray(cssClass, label);
+const obj      = twigObject(cssClass, label);
+const phpCode  = `echo swarm_icon('${icon}'${arr});`;
+const twigCode = `{{ icon('${icon}'${obj}) }}`;
+const bladeCode = `{!! swarm_icon('${icon}'${arr}) !!}`;
+---
+
+<div class="icon-demo">
+
+    <!-- Live preview via Iconify auto-scan -->
+    <div class="id-preview" title={icon}>
+        <span
+            class="iconify"
+            data-icon={icon}
+            style={`font-size: ${size}px;`}
+            aria-hidden={!label ? 'true' : undefined}
+            role={label ? 'img' : undefined}
+            aria-label={label ?? undefined}
+        ></span>
+    </div>
+
+    <!-- PHP / Twig / Blade snippets (built at SSG time) -->
+    <div class="id-code-wrap">
+        <div class="id-snippet">
+            <span class="id-lang">PHP</span>
+            <code class="id-code">{phpCode}</code>
+        </div>
+        <div class="id-snippet">
+            <span class="id-lang">Twig</span>
+            <code class="id-code">{twigCode}</code>
+        </div>
+        <div class="id-snippet">
+            <span class="id-lang">Blade</span>
+            <code class="id-code">{bladeCode}</code>
+        </div>
+    </div>
+
+</div>
+
+<!-- Iconify auto-scan (loads once per page if not already loaded by IconPlayground) -->
+<script>
+    import 'iconify-icon';
+</script>
+
+<style>
+    .icon-demo {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem 1.25rem;
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+        margin-block: 1rem;
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        flex-wrap: wrap;
+    }
+
+    .id-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 64px;
+        min-height: 64px;
+        background: #fff;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        border-radius: 0.375rem;
+        flex-shrink: 0;
+        padding: 0.75rem;
+    }
+
+    .id-code-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .id-snippet {
+        display: flex;
+        align-items: baseline;
+        gap: 0.65rem;
+    }
+
+    .id-lang {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--sl-color-text-accent, #888);
+        min-width: 2.5rem;
+        flex-shrink: 0;
+    }
+
+    .id-code {
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-size: 0.8rem;
+        color: var(--sl-color-text, #1c1c1e);
+        background: var(--sl-color-bg-inline-code, #f0f0f0);
+        padding: 0.2em 0.5em;
+        border-radius: 4px;
+        white-space: pre;
+        overflow-x: auto;
+        display: block;
+    }
+</style>

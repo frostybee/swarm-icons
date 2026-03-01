@@ -109,6 +109,14 @@ export default defineConfig({
                         { label: 'Fluent API',     slug: 'reference/fluent-api' },
                     ],
                 },
+                {
+                    label: 'Playground',
+                    slug: 'playground',
+                },
+                {
+                    label: 'Icon Set Catalog',
+                    slug: 'icon-set-catalog',
+                },
             ],
         }),
     ],

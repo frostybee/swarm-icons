@@ -1,0 +1,740 @@
+---
+/**
+ * IconSetCatalog.astro
+ *
+ * Browsable catalog of all 200+ Iconify icon sets with search, filtering,
+ * sorting, sample icon previews, and copyable download commands.
+ *
+ * Usage in any MDX page:
+ *   import IconSetCatalog from '../components/IconSetCatalog.astro';
+ *   <IconSetCatalog />
+ *
+ * Requires: npm install iconify-icon
+ */
+---
+
+<div class="icon-catalog" id="icon-catalog">
+
+    <!-- ═══════════════════════════════════
+         STATS BAR
+    ═══════════════════════════════════ -->
+    <div class="ic-stats">
+        <div class="ic-stat">
+            <span class="ic-stat-value" id="ic-stat-sets">&mdash;</span>
+            <span class="ic-stat-label">Icon Sets</span>
+        </div>
+        <div class="ic-stat">
+            <span class="ic-stat-value" id="ic-stat-icons">&mdash;</span>
+            <span class="ic-stat-label">Total Icons</span>
+        </div>
+        <div class="ic-stat">
+            <span class="ic-stat-value" id="ic-stat-categories">&mdash;</span>
+            <span class="ic-stat-label">Categories</span>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         CONTROLS
+    ═══════════════════════════════════ -->
+    <div class="ic-controls">
+        <div class="ic-field ic-field--search">
+            <label for="ic-search" class="ic-label">Search</label>
+            <input
+                id="ic-search"
+                type="text"
+                class="ic-input"
+                placeholder="Filter by prefix, name, or category\u2026"
+                autocomplete="off"
+                spellcheck="false"
+            />
+        </div>
+        <div class="ic-field ic-field--category">
+            <label for="ic-category" class="ic-label">Category</label>
+            <select id="ic-category" class="ic-select">
+                <option value="">All categories</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Results count -->
+    <p class="ic-results" id="ic-results" aria-live="polite"></p>
+
+    <!-- Loading state -->
+    <div class="ic-loading" id="ic-loading">
+        <div class="ic-spinner" aria-hidden="true"></div>
+        <p>Loading icon sets from Iconify&hellip;</p>
+    </div>
+
+    <!-- Error state -->
+    <p class="ic-error" id="ic-error" hidden></p>
+
+    <!-- ═══════════════════════════════════
+         TABLE
+    ═══════════════════════════════════ -->
+    <div class="ic-table-wrap" id="ic-table-wrap" hidden>
+        <table class="ic-table" id="ic-table">
+            <thead>
+                <tr>
+                    <th class="ic-th ic-th--sortable" data-sort="prefix">
+                        Prefix <span class="ic-sort-arrow"></span>
+                    </th>
+                    <th class="ic-th ic-th--sortable" data-sort="name">
+                        Name <span class="ic-sort-arrow"></span>
+                    </th>
+                    <th class="ic-th ic-th--sortable ic-th--num" data-sort="total">
+                        Icons <span class="ic-sort-arrow"></span>
+                    </th>
+                    <th class="ic-th ic-th--sortable" data-sort="category">
+                        Category <span class="ic-sort-arrow"></span>
+                    </th>
+                    <th class="ic-th">License</th>
+                    <th class="ic-th">Samples</th>
+                    <th class="ic-th">Download</th>
+                </tr>
+            </thead>
+            <tbody id="ic-tbody"></tbody>
+        </table>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         PAGINATION
+    ═══════════════════════════════════ -->
+    <nav class="ic-pagination" id="ic-pagination" aria-label="Table pagination" hidden>
+        <button class="ic-page-btn" id="ic-prev" type="button" disabled>Previous</button>
+        <span class="ic-page-info" id="ic-page-info"></span>
+        <button class="ic-page-btn" id="ic-next" type="button">Next</button>
+    </nav>
+</div>
+
+<style>
+    /* ── Layout ──────────────────────────────── */
+    .icon-catalog {
+        max-width: 100%;
+    }
+
+    /* Ensure [hidden] works even when display is set */
+    .icon-catalog [hidden] {
+        display: none !important;
+    }
+
+    /* ── Stats ───────────────────────────────── */
+    .ic-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .ic-stat {
+        text-align: center;
+        padding: 1rem 0.75rem;
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+    }
+
+    .ic-stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--sl-color-accent, #4f46e5);
+        display: block;
+        line-height: 1.2;
+    }
+
+    .ic-stat-label {
+        font-size: 0.75rem;
+        color: var(--sl-color-text-accent, #666);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    /* ── Controls ────────────────────────────── */
+    .ic-controls {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .ic-field--search { flex: 1; }
+    .ic-field--category { flex: 0 0 220px; }
+
+    .ic-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--sl-color-text-accent, #666);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.35rem;
+    }
+
+    .ic-input,
+    .ic-select {
+        width: 100%;
+        padding: 0.45rem 0.65rem;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        border-radius: 0.375rem;
+        background: var(--sl-color-bg, #fff);
+        color: var(--sl-color-text, #1c1c1e);
+        font-family: var(--sl-font, system-ui, sans-serif);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        box-sizing: border-box;
+    }
+
+    .ic-input:focus,
+    .ic-select:focus {
+        outline: none;
+        border-color: var(--sl-color-accent, #4f46e5);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 25%, transparent);
+    }
+
+    /* ── Results count ───────────────────────── */
+    .ic-results {
+        font-size: 0.8125rem;
+        color: var(--sl-color-text-accent, #666);
+        margin: 0 0 0.75rem;
+    }
+
+    /* ── Loading ─────────────────────────────── */
+    .ic-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 3rem 1rem;
+        color: var(--sl-color-text-accent, #888);
+        font-size: 0.875rem;
+    }
+
+    .ic-spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-top-color: var(--sl-color-accent, #4f46e5);
+        border-radius: 50%;
+        animation: ic-spin 0.7s linear infinite;
+    }
+
+    @keyframes ic-spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* ── Error ───────────────────────────────── */
+    .ic-error {
+        color: var(--sl-color-red, #dc2626);
+        font-size: 0.875rem;
+        text-align: center;
+        padding: 2rem 1rem;
+        margin: 0;
+    }
+
+    /* ── Table ───────────────────────────────── */
+    .ic-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+    }
+
+    .ic-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+    }
+
+    .ic-th {
+        padding: 0.65rem 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--sl-color-text-accent, #666);
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        border-bottom: 2px solid var(--sl-color-hairline-light, #e5e5e5);
+        white-space: nowrap;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .ic-th--sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.15s;
+    }
+
+    .ic-th--sortable:hover {
+        color: var(--sl-color-accent, #4f46e5);
+    }
+
+    .ic-th--num {
+        text-align: right;
+    }
+
+    .ic-sort-arrow {
+        display: inline-block;
+        margin-left: 0.25rem;
+        font-size: 0.65rem;
+        opacity: 0.35;
+        transition: opacity 0.15s;
+    }
+
+    .ic-th--sortable.is-active .ic-sort-arrow {
+        opacity: 1;
+        color: var(--sl-color-accent, #4f46e5);
+    }
+
+    /* ── Table rows ──────────────────────────── */
+    .ic-table tbody tr {
+        border-bottom: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        transition: background 0.1s;
+    }
+
+    .ic-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .ic-table tbody tr:nth-child(even) {
+        background: color-mix(in srgb, var(--sl-color-bg-sidebar, #f8f8f8) 50%, transparent);
+    }
+
+    .ic-table tbody tr:hover {
+        background: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 6%, transparent);
+    }
+
+    .ic-table td {
+        padding: 0.5rem 0.75rem;
+        vertical-align: middle;
+    }
+
+    /* Prefix link */
+    .ic-prefix-link {
+        text-decoration: none;
+        color: var(--sl-color-accent, #4f46e5);
+        font-weight: 500;
+        transition: color 0.12s;
+    }
+
+    .ic-prefix-link:hover {
+        text-decoration: underline;
+    }
+
+    .ic-prefix-link code {
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-size: 0.8125rem;
+        background: none;
+        padding: 0;
+        color: inherit;
+    }
+
+    /* Numeric column */
+    .ic-td-num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-weight: 500;
+    }
+
+    /* Category badge */
+    .ic-category {
+        display: inline-block;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.75rem;
+        border-radius: 1rem;
+        background: color-mix(in srgb, var(--sl-color-accent, #4f46e5) 10%, transparent);
+        color: var(--sl-color-text, #1c1c1e);
+        white-space: nowrap;
+    }
+
+    .ic-category--none {
+        opacity: 0.5;
+        font-style: italic;
+        background: none;
+    }
+
+    /* Samples column */
+    .ic-samples {
+        display: flex;
+        gap: 0.4rem;
+        align-items: center;
+    }
+
+    .ic-samples iconify-icon {
+        font-size: 20px;
+        color: var(--sl-color-text, #1c1c1e);
+        opacity: 0.8;
+    }
+
+    /* Download column */
+    .ic-dl-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .ic-dl-cmd {
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-size: 0.75rem;
+        color: var(--sl-color-text, #1c1c1e);
+        white-space: nowrap;
+    }
+
+    .ic-copy-btn {
+        flex-shrink: 0;
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 500;
+        border-radius: 0.25rem;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        background: var(--sl-color-bg, #fff);
+        color: var(--sl-color-text, #1c1c1e);
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
+        white-space: nowrap;
+    }
+
+    .ic-copy-btn:hover {
+        background: var(--sl-color-accent, #4f46e5);
+        color: #fff;
+        border-color: var(--sl-color-accent, #4f46e5);
+    }
+
+    .ic-copy-btn.is-copied {
+        background: #16a34a;
+        color: #fff;
+        border-color: #16a34a;
+    }
+
+    /* ── Pagination ─────────────────────────── */
+    .ic-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 0;
+    }
+
+    .ic-page-btn {
+        padding: 0.4rem 1rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        border-radius: 0.375rem;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        background: var(--sl-color-bg, #fff);
+        color: var(--sl-color-text, #1c1c1e);
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s, border-color 0.12s;
+    }
+
+    .ic-page-btn:hover:not(:disabled) {
+        background: var(--sl-color-accent, #4f46e5);
+        color: #fff;
+        border-color: var(--sl-color-accent, #4f46e5);
+    }
+
+    .ic-page-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+    .ic-page-info {
+        font-size: 0.8125rem;
+        color: var(--sl-color-text-accent, #666);
+        white-space: nowrap;
+    }
+
+    /* ── Responsive ──────────────────────────── */
+    @media (max-width: 800px) {
+        .ic-stats {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .ic-stat {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.65rem 0.75rem;
+        }
+
+        .ic-stat-value {
+            font-size: 1.25rem;
+        }
+
+        .ic-stat-label {
+            margin-top: 0;
+        }
+
+        .ic-controls {
+            flex-direction: column;
+        }
+
+        .ic-field--category {
+            flex: 1;
+        }
+    }
+</style>
+
+<script>
+    import 'iconify-icon';
+
+    /* ── Types ───────────────────────────────── */
+    interface IconSetInfo {
+        name: string;
+        total: number;
+        author?: { name: string; url?: string };
+        license?: { title: string; spdx?: string; url?: string };
+        category?: string;
+        samples?: string[];
+        height?: number;
+        palette?: boolean;
+    }
+
+    interface IconSetEntry extends IconSetInfo {
+        prefix: string;
+    }
+
+    /* ── Constants ───────────────────────────── */
+    const API_URL = 'https://api.iconify.design/collections';
+
+    /* ── DOM refs ────────────────────────────── */
+    const root = document.getElementById('icon-catalog')!;
+    const searchEl = root.querySelector<HTMLInputElement>('#ic-search')!;
+    const categoryEl = root.querySelector<HTMLSelectElement>('#ic-category')!;
+    const resultsEl = root.querySelector<HTMLParagraphElement>('#ic-results')!;
+    const loadingEl = root.querySelector<HTMLDivElement>('#ic-loading')!;
+    const errorEl = root.querySelector<HTMLParagraphElement>('#ic-error')!;
+    const tableWrap = root.querySelector<HTMLDivElement>('#ic-table-wrap')!;
+    const tbody = root.querySelector<HTMLTableSectionElement>('#ic-tbody')!;
+    const statSets = root.querySelector<HTMLSpanElement>('#ic-stat-sets')!;
+    const statIcons = root.querySelector<HTMLSpanElement>('#ic-stat-icons')!;
+    const statCategories = root.querySelector<HTMLSpanElement>('#ic-stat-categories')!;
+    const thElements = root.querySelectorAll<HTMLTableCellElement>('.ic-th--sortable');
+    const paginationEl = root.querySelector<HTMLElement>('#ic-pagination')!;
+    const prevBtn = root.querySelector<HTMLButtonElement>('#ic-prev')!;
+    const nextBtn = root.querySelector<HTMLButtonElement>('#ic-next')!;
+    const pageInfoEl = root.querySelector<HTMLSpanElement>('#ic-page-info')!;
+
+    /* ── State ───────────────────────────────── */
+    const PAGE_SIZE = 25;
+    let allSets: IconSetEntry[] = [];
+    let filteredSets: IconSetEntry[] = [];
+    let sortKey: 'prefix' | 'name' | 'total' | 'category' = 'name';
+    let sortAsc = true;
+    let currentPage = 1;
+
+    /* ── Helpers ─────────────────────────────── */
+    function escapeHtml(s: string): string {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatNumber(n: number): string {
+        return n.toLocaleString('en-US');
+    }
+
+    /* ── Sorting ─────────────────────────────── */
+    function compareSets(a: IconSetEntry, b: IconSetEntry): number {
+        let cmp: number;
+        if (sortKey === 'total') {
+            cmp = a.total - b.total;
+        } else {
+            const av = (sortKey === 'category' ? a.category ?? '' : a[sortKey]).toLowerCase();
+            const bv = (sortKey === 'category' ? b.category ?? '' : b[sortKey]).toLowerCase();
+            cmp = av < bv ? -1 : av > bv ? 1 : 0;
+        }
+        return sortAsc ? cmp : -cmp;
+    }
+
+    function updateSortIndicators(): void {
+        thElements.forEach(th => {
+            const key = th.dataset.sort;
+            const arrow = th.querySelector('.ic-sort-arrow')!;
+            if (key === sortKey) {
+                th.classList.add('is-active');
+                arrow.textContent = sortAsc ? '\u25B2' : '\u25BC';
+            } else {
+                th.classList.remove('is-active');
+                arrow.textContent = '';
+            }
+        });
+    }
+
+    /* ── Filtering ───────────────────────────── */
+    function filterSets(): void {
+        const q = searchEl.value.trim().toLowerCase();
+        const cat = categoryEl.value;
+
+        filteredSets = allSets.filter(s => {
+            if (cat && (s.category ?? '') !== cat) return false;
+            if (!q) return true;
+            return s.prefix.toLowerCase().includes(q)
+                || s.name.toLowerCase().includes(q)
+                || (s.category ?? '').toLowerCase().includes(q);
+        });
+    }
+
+    /* ── Pagination helpers ──────────────────── */
+    function totalPages(): number {
+        return Math.max(1, Math.ceil(filteredSets.length / PAGE_SIZE));
+    }
+
+    function updatePagination(): void {
+        const total = totalPages();
+        paginationEl.hidden = total <= 1;
+        prevBtn.disabled = currentPage <= 1;
+        nextBtn.disabled = currentPage >= total;
+
+        const start = (currentPage - 1) * PAGE_SIZE + 1;
+        const end = Math.min(currentPage * PAGE_SIZE, filteredSets.length);
+        pageInfoEl.textContent = `${start}\u2013${end} of ${formatNumber(filteredSets.length)} (page ${currentPage} of ${total})`;
+    }
+
+    /* ── Rendering ───────────────────────────── */
+    function renderTable(): void {
+        filteredSets.sort(compareSets);
+        updateSortIndicators();
+
+        const total = filteredSets.length;
+        resultsEl.textContent = `Showing ${formatNumber(total)} of ${formatNumber(allSets.length)} icon sets`;
+
+        if (total === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--sl-color-text-accent,#888)">No icon sets match your search.</td></tr>';
+            paginationEl.hidden = true;
+            return;
+        }
+
+        // Clamp page
+        if (currentPage > totalPages()) currentPage = totalPages();
+
+        const start = (currentPage - 1) * PAGE_SIZE;
+        const pageItems = filteredSets.slice(start, start + PAGE_SIZE);
+
+        const rows: string[] = [];
+        for (const s of pageItems) {
+            const samples = (s.samples ?? []).slice(0, 3);
+            const samplesHtml = samples.map(
+                name => `<iconify-icon icon="${escapeHtml(s.prefix)}:${escapeHtml(name)}" width="20" height="20"></iconify-icon>`
+            ).join('');
+
+            const catHtml = s.category
+                ? `<span class="ic-category">${escapeHtml(s.category)}</span>`
+                : '<span class="ic-category ic-category--none">Uncategorized</span>';
+
+            const licenseText = s.license?.title ?? 'N/A';
+            const cmd = `json:download ${s.prefix}`;
+
+            rows.push(`<tr>
+                <td><a class="ic-prefix-link" href="https://icon-sets.iconify.design/${escapeHtml(s.prefix)}/" target="_blank" rel="noopener"><code>${escapeHtml(s.prefix)}</code></a></td>
+                <td>${escapeHtml(s.name)}</td>
+                <td class="ic-td-num">${formatNumber(s.total)}</td>
+                <td>${catHtml}</td>
+                <td>${escapeHtml(licenseText)}</td>
+                <td><div class="ic-samples">${samplesHtml}</div></td>
+                <td><div class="ic-dl-cell"><code class="ic-dl-cmd">${escapeHtml(cmd)}</code><button class="ic-copy-btn" type="button" data-cmd="${escapeHtml(cmd)}">Copy</button></div></td>
+            </tr>`);
+        }
+
+        tbody.innerHTML = rows.join('');
+        updatePagination();
+    }
+
+    /* ── Stats ───────────────────────────────── */
+    function updateStats(): void {
+        const totalIcons = allSets.reduce((sum, s) => sum + s.total, 0);
+        const categories = new Set(allSets.map(s => s.category ?? 'Uncategorized'));
+
+        statSets.textContent = formatNumber(allSets.length);
+        statIcons.textContent = formatNumber(totalIcons);
+        statCategories.textContent = formatNumber(categories.size);
+    }
+
+    /* ── Category dropdown ───────────────────── */
+    function populateCategories(): void {
+        const cats = new Set<string>();
+        for (const s of allSets) {
+            cats.add(s.category ?? 'Uncategorized');
+        }
+        const sorted = [...cats].sort((a, b) => a.localeCompare(b));
+        for (const cat of sorted) {
+            const opt = document.createElement('option');
+            opt.value = cat;
+            opt.textContent = cat;
+            categoryEl.appendChild(opt);
+        }
+    }
+
+    /* ── Copy to clipboard ───────────────────── */
+    function handleCopy(e: Event): void {
+        const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ic-copy-btn');
+        if (!btn) return;
+        const cmd = btn.dataset.cmd ?? '';
+        navigator.clipboard.writeText(cmd).then(() => {
+            btn.textContent = 'Copied!';
+            btn.classList.add('is-copied');
+            setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-copied'); }, 1800);
+        }).catch(() => {
+            btn.textContent = 'Failed';
+            setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+        });
+    }
+
+    /* ── Event listeners ─────────────────────── */
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    searchEl.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => { currentPage = 1; filterSets(); renderTable(); }, 200);
+    });
+
+    categoryEl.addEventListener('change', () => { currentPage = 1; filterSets(); renderTable(); });
+
+    thElements.forEach(th => {
+        th.addEventListener('click', () => {
+            const key = th.dataset.sort as typeof sortKey;
+            if (key === sortKey) {
+                sortAsc = !sortAsc;
+            } else {
+                sortKey = key;
+                sortAsc = key === 'total' ? false : true;
+            }
+            currentPage = 1;
+            renderTable();
+        });
+    });
+
+    prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) { currentPage--; renderTable(); tableWrap.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+
+    nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages()) { currentPage++; renderTable(); tableWrap.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+
+    tableWrap.addEventListener('click', handleCopy);
+
+    /* ── Init ────────────────────────────────── */
+    (async () => {
+        try {
+            const res = await fetch(API_URL);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data: Record<string, IconSetInfo> = await res.json();
+
+            allSets = Object.entries(data).map(([prefix, info]) => ({ prefix, ...info }));
+
+            loadingEl.hidden = true;
+            tableWrap.hidden = false;
+
+            populateCategories();
+            updateStats();
+            filterSets();
+            renderTable();
+        } catch (err) {
+            loadingEl.hidden = true;
+            errorEl.hidden = false;
+            errorEl.textContent = `Failed to load icon sets. ${err instanceof Error ? err.message : 'Please try again later.'}`;
+        }
+    })();
+</script>

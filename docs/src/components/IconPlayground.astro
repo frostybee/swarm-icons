@@ -1,0 +1,1013 @@
+---
+/**
+ * IconPlayground.astro
+ *
+ * Interactive icon playground for the SwarmIcons Starlight documentation site.
+ *
+ * Usage in any MDX page:
+ *   import IconPlayground from '../components/IconPlayground.astro';
+ *   <IconPlayground />
+ *   <IconPlayground defaultIcon="tabler:star" defaultSize={64} defaultColor="#e11d48" />
+ *
+ * Requires: npm install iconify-icon
+ *
+ * Icons are rendered client-side via Iconify JS — the SVG output is identical
+ * to what SwarmIcons produces server-side, since both use the same Iconify data.
+ */
+
+interface Props {
+    /** Starting icon name shown on load */
+    defaultIcon?: string;
+    /** Starting size in px */
+    defaultSize?: number;
+    /** Starting color */
+    defaultColor?: string;
+}
+
+const {
+    defaultIcon = 'heroicons:home',
+    defaultSize = 48,
+    defaultColor = '#4f46e5',
+} = Astro.props;
+---
+
+<div class="icon-playground" id="icon-playground">
+
+    <!-- ═══════════════════════════════════
+         CONTROLS PANEL
+    ═══════════════════════════════════ -->
+    <div class="pg-controls">
+
+        <!-- Icon name -->
+        <div class="pg-field">
+            <label for="pg-icon-name" class="pg-label">Icon name</label>
+            <input
+                id="pg-icon-name"
+                type="text"
+                class="pg-input"
+                value={defaultIcon}
+                placeholder="e.g. heroicons:home"
+                autocomplete="off"
+                spellcheck="false"
+            />
+            <p class="pg-hint">Format: <code>prefix:name</code> — any <a href="https://icon-sets.iconify.design" target="_blank" rel="noopener">Iconify icon set</a></p>
+        </div>
+
+        <!-- Size slider -->
+        <div class="pg-field">
+            <label for="pg-size" class="pg-label">
+                Size: <span id="pg-size-display">{defaultSize}px</span>
+            </label>
+            <input
+                id="pg-size"
+                type="range"
+                class="pg-range"
+                min="16"
+                max="128"
+                step="4"
+                value={defaultSize}
+            />
+            <div class="pg-range-ticks" aria-hidden="true">
+                <span>16px</span><span>48px</span><span>96px</span><span>128px</span>
+            </div>
+        </div>
+
+        <!-- Color picker -->
+        <div class="pg-field pg-field--row">
+            <label for="pg-color" class="pg-label">Color</label>
+            <div class="pg-color-wrap">
+                <input id="pg-color" type="color" class="pg-color" value={defaultColor} />
+                <input
+                    id="pg-color-hex"
+                    type="text"
+                    class="pg-input pg-input--hex"
+                    value={defaultColor}
+                    maxlength="7"
+                    aria-label="Hex color value"
+                    spellcheck="false"
+                />
+            </div>
+        </div>
+
+        <!-- CSS classes -->
+        <div class="pg-field">
+            <label for="pg-classes" class="pg-label">CSS classes</label>
+            <input
+                id="pg-classes"
+                type="text"
+                class="pg-input"
+                value=""
+                placeholder="e.g. w-6 h-6 text-blue-500"
+                autocomplete="off"
+                spellcheck="false"
+            />
+        </div>
+
+        <!-- ARIA label -->
+        <div class="pg-field">
+            <label for="pg-aria-label" class="pg-label">ARIA label</label>
+            <input
+                id="pg-aria-label"
+                type="text"
+                class="pg-input"
+                value=""
+                placeholder="e.g. Home  (leave empty for decorative)"
+                autocomplete="off"
+            />
+            <p class="pg-hint">Empty = <code>aria-hidden="true"</code>. Filled = <code>role="img" aria-label="…"</code></p>
+        </div>
+
+        <!-- Background selector -->
+        <div class="pg-field">
+            <span class="pg-label" id="pg-bg-label">Preview background</span>
+            <div class="pg-bg-buttons" role="group" aria-labelledby="pg-bg-label">
+                <button class="pg-bg-btn pg-bg-btn--white is-active" data-bg="white"   aria-pressed="true">White</button>
+                <button class="pg-bg-btn pg-bg-btn--dark"            data-bg="dark"    aria-pressed="false">Dark</button>
+                <button class="pg-bg-btn pg-bg-btn--check"           data-bg="checker" aria-pressed="false">Checker</button>
+            </div>
+        </div>
+
+    </div><!-- /.pg-controls -->
+
+    <!-- ═══════════════════════════════════
+         PREVIEW PANEL
+    ═══════════════════════════════════ -->
+    <div class="pg-preview-wrap">
+        <div class="pg-preview bg-white" id="pg-preview" aria-live="polite" aria-label="Icon preview">
+            <iconify-icon
+                id="pg-icon-el"
+                icon={defaultIcon}
+                width={defaultSize}
+                height={defaultSize}
+                style={`color: ${defaultColor};`}
+                aria-hidden="true"
+            ></iconify-icon>
+            <p class="pg-error" id="pg-error" hidden>
+                Icon not found. Check the name and try again.
+            </p>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         CODE OUTPUT
+    ═══════════════════════════════════ -->
+    <div class="pg-code-wrap">
+
+        <!-- Tab strip -->
+        <div class="pg-tabs" role="tablist" aria-label="Code language">
+            <button class="pg-tab is-active" role="tab" aria-selected="true"  aria-controls="pg-tab-php"   id="pg-tabBtn-php"   data-tab="php">PHP</button>
+            <button class="pg-tab"           role="tab" aria-selected="false" aria-controls="pg-tab-twig"  id="pg-tabBtn-twig"  data-tab="twig">Twig</button>
+            <button class="pg-tab"           role="tab" aria-selected="false" aria-controls="pg-tab-blade" id="pg-tabBtn-blade" data-tab="blade">Blade</button>
+            <button class="pg-tab"           role="tab" aria-selected="false" aria-controls="pg-tab-svg"   id="pg-tabBtn-svg"   data-tab="svg">SVG</button>
+        </div>
+
+        <!-- PHP panel -->
+        <div class="pg-tab-panel" role="tabpanel" id="pg-tab-php" aria-labelledby="pg-tabBtn-php">
+            <div class="pg-code-header">
+                <span class="pg-code-lang">PHP</span>
+                <button class="pg-copy-btn" data-target="pg-code-php" aria-label="Copy PHP code">Copy</button>
+            </div>
+            <pre class="pg-pre"><code id="pg-code-php"></code></pre>
+        </div>
+
+        <!-- Twig panel -->
+        <div class="pg-tab-panel" role="tabpanel" id="pg-tab-twig" aria-labelledby="pg-tabBtn-twig" hidden>
+            <div class="pg-code-header">
+                <span class="pg-code-lang">Twig</span>
+                <button class="pg-copy-btn" data-target="pg-code-twig" aria-label="Copy Twig code">Copy</button>
+            </div>
+            <pre class="pg-pre"><code id="pg-code-twig"></code></pre>
+        </div>
+
+        <!-- Blade panel -->
+        <div class="pg-tab-panel" role="tabpanel" id="pg-tab-blade" aria-labelledby="pg-tabBtn-blade" hidden>
+            <div class="pg-code-header">
+                <span class="pg-code-lang">Blade</span>
+                <button class="pg-copy-btn" data-target="pg-code-blade" aria-label="Copy Blade code">Copy</button>
+            </div>
+            <pre class="pg-pre"><code id="pg-code-blade"></code></pre>
+        </div>
+
+        <!-- SVG panel -->
+        <div class="pg-tab-panel" role="tabpanel" id="pg-tab-svg" aria-labelledby="pg-tabBtn-svg" hidden>
+            <div class="pg-code-header">
+                <span class="pg-code-lang">SVG</span>
+                <button class="pg-copy-btn" data-target="pg-code-svg" aria-label="Copy SVG code">Copy</button>
+            </div>
+            <pre class="pg-pre pg-pre--wrap"><code id="pg-code-svg"></code></pre>
+        </div>
+
+    </div><!-- /.pg-code-wrap -->
+
+    <!-- ═══════════════════════════════════
+         METADATA
+    ═══════════════════════════════════ -->
+    <div class="pg-meta-wrap" id="pg-meta-wrap">
+        <h3 class="pg-section-title">Metadata</h3>
+        <dl class="pg-meta-list">
+            <dt>Set</dt>         <dd id="pg-meta-set">&mdash;</dd>
+            <dt>Author</dt>     <dd id="pg-meta-author">&mdash;</dd>
+            <dt>License</dt>    <dd id="pg-meta-license">&mdash;</dd>
+            <dt>Version</dt>    <dd id="pg-meta-version">&mdash;</dd>
+            <dt>Total icons</dt><dd id="pg-meta-total">&mdash;</dd>
+            <dt>Category</dt>   <dd id="pg-meta-category">&mdash;</dd>
+            <dt>Aliases</dt>    <dd id="pg-meta-aliases">&mdash;</dd>
+        </dl>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         RELATED ICONS
+    ═══════════════════════════════════ -->
+    <div class="pg-variants-wrap" id="pg-variants-wrap" hidden>
+        <h3 class="pg-section-title">Related Icons</h3>
+        <div class="pg-variants-grid" id="pg-variants-grid"></div>
+    </div>
+
+</div><!-- /.icon-playground -->
+
+<style>
+    /* ── Layout ──────────────────────────────── */
+    .icon-playground {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        grid-template-rows: auto auto auto auto;
+        grid-template-areas:
+            "controls preview"
+            "controls code"
+            "controls meta"
+            "variants variants";
+        gap: 1.5rem;
+        font-size: 0.875rem;
+        margin-block: 2rem;
+    }
+
+    @media (max-width: 800px) {
+        .icon-playground {
+            grid-template-columns: 1fr;
+            grid-template-areas: "controls" "preview" "code" "meta" "variants";
+        }
+    }
+
+    .pg-controls      { grid-area: controls; }
+    .pg-preview-wrap   { grid-area: preview; }
+    .pg-code-wrap      { grid-area: code; }
+    .pg-meta-wrap      { grid-area: meta; }
+    .pg-variants-wrap  { grid-area: variants; }
+
+    /* ── Controls ────────────────────────────── */
+    .pg-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+        padding: 1.25rem;
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+    }
+
+    .pg-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .pg-field--row {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .pg-label {
+        font-weight: 600;
+        color: var(--sl-color-text, #1c1c1e);
+        font-size: 0.8125rem;
+    }
+
+    .pg-hint {
+        margin: 0;
+        font-size: 0.75rem;
+        color: var(--sl-color-text-accent, #666);
+        line-height: 1.4;
+    }
+
+    .pg-hint code {
+        background: var(--sl-color-bg-inline-code, #f0f0f0);
+        padding: 0.1em 0.35em;
+        border-radius: 3px;
+        font-size: 0.8em;
+    }
+
+    /* ── Inputs ──────────────────────────────── */
+    .pg-input {
+        width: 100%;
+        padding: 0.45rem 0.65rem;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        border-radius: 0.375rem;
+        background: var(--sl-color-bg, #fff);
+        color: var(--sl-color-text, #1c1c1e);
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        box-sizing: border-box;
+    }
+
+    .pg-input:focus {
+        outline: none;
+        border-color: var(--sl-color-accent, #4f46e5);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 25%, transparent);
+    }
+
+    .pg-input--hex {
+        width: 90px;
+        flex-shrink: 0;
+    }
+
+    /* ── Range ───────────────────────────────── */
+    .pg-range {
+        width: 100%;
+        accent-color: var(--sl-color-accent, #4f46e5);
+        cursor: pointer;
+    }
+
+    .pg-range-ticks {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: var(--sl-color-text-accent, #888);
+        margin-top: -0.2rem;
+    }
+
+    /* ── Color picker ────────────────────────── */
+    .pg-color-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .pg-color {
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        background: none;
+        flex-shrink: 0;
+    }
+
+    /* ── Background selector ─────────────────── */
+    .pg-bg-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .pg-bg-btn {
+        padding: 0.3rem 0.75rem;
+        border-radius: 0.375rem;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        font-size: 0.8125rem;
+        cursor: pointer;
+        color: var(--sl-color-text, #1c1c1e);
+        transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+
+    .pg-bg-btn--white { background: #ffffff; }
+    .pg-bg-btn--dark  { background: #1e1e2e; color: #cdd6f4; }
+    .pg-bg-btn--check {
+        background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
+        color: #333;
+    }
+
+    .pg-bg-btn.is-active {
+        background: var(--sl-color-accent, #4f46e5);
+        color: #fff;
+        border-color: var(--sl-color-accent, #4f46e5);
+    }
+
+    /* ── Preview ─────────────────────────────── */
+    .pg-preview-wrap {
+        display: flex;
+        align-items: stretch;
+    }
+
+    .pg-preview {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 180px;
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+        transition: background 0.2s;
+        position: relative;
+    }
+
+    .pg-preview.bg-white   { background: #ffffff; }
+    .pg-preview.bg-dark    { background: #1e1e2e; }
+    .pg-preview.bg-checker {
+        background-image: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%);
+        background-size: 20px 20px;
+    }
+
+    #pg-icon-el { line-height: 1; display: inline-block; }
+
+    .pg-error {
+        color: var(--sl-color-red, #dc2626);
+        font-size: 0.8125rem;
+        text-align: center;
+        padding: 1rem;
+        margin: 0;
+    }
+
+    /* ── Code panel ──────────────────────────── */
+    .pg-code-wrap {
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .pg-tabs {
+        display: flex;
+        border-bottom: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+    }
+
+    .pg-tab {
+        padding: 0.5rem 1rem;
+        border: none;
+        background: none;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        color: var(--sl-color-text-accent, #666);
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+        transition: color 0.15s, border-color 0.15s;
+    }
+
+    .pg-tab.is-active {
+        color: var(--sl-color-accent, #4f46e5);
+        border-bottom-color: var(--sl-color-accent, #4f46e5);
+    }
+
+    .pg-tab:hover:not(.is-active) {
+        color: var(--sl-color-text, #1c1c1e);
+    }
+
+    .pg-code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        border-bottom: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+    }
+
+    .pg-code-lang {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--sl-color-text-accent, #888);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .pg-copy-btn {
+        padding: 0.25rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 0.3rem;
+        border: 1px solid var(--sl-color-hairline, #d4d4d4);
+        background: var(--sl-color-bg, #fff);
+        color: var(--sl-color-text, #1c1c1e);
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s;
+        min-width: 4rem;
+    }
+
+    .pg-copy-btn:hover {
+        background: var(--sl-color-accent, #4f46e5);
+        color: #fff;
+        border-color: var(--sl-color-accent, #4f46e5);
+    }
+
+    .pg-copy-btn.is-copied {
+        background: #16a34a;
+        color: #fff;
+        border-color: #16a34a;
+    }
+
+    .pg-pre {
+        margin: 0;
+        padding: 1rem 1.25rem;
+        overflow-x: auto;
+        background: var(--sl-color-bg-code, #1e1e2e);
+        font-family: var(--sl-font-mono, ui-monospace, monospace);
+        font-size: 0.8125rem;
+        line-height: 1.6;
+    }
+
+    .pg-pre code {
+        display: block;
+        color: var(--sl-color-code-text, #cdd6f4);
+        white-space: pre;
+        background: none;
+        padding: 0;
+    }
+
+    .pg-pre--wrap code {
+        white-space: pre-wrap;
+        word-break: break-all;
+    }
+
+    /* ── Metadata ───────────────────────────── */
+    .pg-section-title {
+        margin: 0 0 0.75rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--sl-color-text, #1c1c1e);
+    }
+
+    .pg-meta-wrap {
+        padding: 1.25rem;
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+    }
+
+    .pg-meta-list {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.35rem 1rem;
+        margin: 0;
+        font-size: 0.8125rem;
+    }
+
+    .pg-meta-list dt {
+        font-weight: 600;
+        color: var(--sl-color-text-accent, #666);
+        white-space: nowrap;
+    }
+
+    .pg-meta-list dd {
+        margin: 0;
+        color: var(--sl-color-text, #1c1c1e);
+        word-break: break-word;
+    }
+
+    /* ── Variants ───────────────────────────── */
+    .pg-variants-wrap {
+        padding: 1.25rem;
+        background: var(--sl-color-bg-sidebar, #f8f8f8);
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.5rem;
+    }
+
+    .pg-variants-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .pg-variant {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.5rem;
+        border: 1px solid var(--sl-color-hairline-light, #e5e5e5);
+        border-radius: 0.375rem;
+        background: var(--sl-color-bg, #fff);
+        cursor: pointer;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        width: 72px;
+    }
+
+    .pg-variant:hover {
+        border-color: var(--sl-color-accent, #4f46e5);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--sl-color-accent, #4f46e5) 20%, transparent);
+    }
+
+    .pg-variant-name {
+        font-size: 0.625rem;
+        color: var(--sl-color-text-accent, #666);
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+    }
+</style>
+
+<script>
+    import 'iconify-icon';
+
+    const DEBOUNCE_MS = 280;
+    const API_BASE    = 'https://api.iconify.design';
+    const MAX_VARIANTS = 24;
+
+    // ── DOM ─────────────────────────────────────────────────────────────────
+    const root          = document.getElementById('icon-playground')!;
+    const iconNameEl    = root.querySelector<HTMLInputElement>('#pg-icon-name')!;
+    const sizeEl        = root.querySelector<HTMLInputElement>('#pg-size')!;
+    const sizeDisplay   = root.querySelector<HTMLElement>('#pg-size-display')!;
+    const colorEl       = root.querySelector<HTMLInputElement>('#pg-color')!;
+    const colorHexEl    = root.querySelector<HTMLInputElement>('#pg-color-hex')!;
+    const classesEl     = root.querySelector<HTMLInputElement>('#pg-classes')!;
+    const ariaEl        = root.querySelector<HTMLInputElement>('#pg-aria-label')!;
+    const previewEl     = root.querySelector<HTMLElement>('#pg-preview')!;
+    const iconEl        = root.querySelector<HTMLElement>('#pg-icon-el')!;
+    const errorEl       = root.querySelector<HTMLElement>('#pg-error')!;
+    const bgButtons     = root.querySelectorAll<HTMLButtonElement>('.pg-bg-btn');
+    const tabButtons    = root.querySelectorAll<HTMLButtonElement>('.pg-tab');
+    const copyButtons   = root.querySelectorAll<HTMLButtonElement>('.pg-copy-btn');
+    const codePhp       = root.querySelector<HTMLElement>('#pg-code-php')!;
+    const codeTwig      = root.querySelector<HTMLElement>('#pg-code-twig')!;
+    const codeBlade     = root.querySelector<HTMLElement>('#pg-code-blade')!;
+    const codeSvg       = root.querySelector<HTMLElement>('#pg-code-svg')!;
+    const metaSet       = root.querySelector<HTMLElement>('#pg-meta-set')!;
+    const metaAuthor    = root.querySelector<HTMLElement>('#pg-meta-author')!;
+    const metaLicense   = root.querySelector<HTMLElement>('#pg-meta-license')!;
+    const metaVersion   = root.querySelector<HTMLElement>('#pg-meta-version')!;
+    const metaTotal     = root.querySelector<HTMLElement>('#pg-meta-total')!;
+    const metaCategory  = root.querySelector<HTMLElement>('#pg-meta-category')!;
+    const metaAliases   = root.querySelector<HTMLElement>('#pg-meta-aliases')!;
+    const variantsWrap  = root.querySelector<HTMLElement>('#pg-variants-wrap')!;
+    const variantsGrid  = root.querySelector<HTMLElement>('#pg-variants-grid')!;
+
+    // ── State ────────────────────────────────────────────────────────────────
+    interface State {
+        iconName: string;
+        size: number;
+        color: string;
+        classes: string;
+        ariaLabel: string;
+    }
+
+    let state: State = {
+        iconName:  iconNameEl.value.trim(),
+        size:      parseInt(sizeEl.value, 10),
+        color:     colorEl.value,
+        classes:   classesEl.value.trim(),
+        ariaLabel: ariaEl.value.trim(),
+    };
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let lastPrefix = '';
+
+    // ── Collection cache ─────────────────────────────────────────────────────
+    interface CollectionInfo {
+        name: string;
+        total: number;
+        version?: string;
+        author?: { name: string; url?: string };
+        license?: { title: string; spdx?: string; url?: string };
+    }
+
+    interface CollectionData {
+        info: CollectionInfo;
+        categories?: Record<string, string[]>;
+        aliases?: Record<string, string>;
+        uncategorized?: string[];
+    }
+
+    const collectionCache: Record<string, CollectionData> = {};
+
+    // ── Code generation ──────────────────────────────────────────────────────
+
+    /** Build caller-supplied attributes, mirroring IconRenderer::applyAriaRules(). */
+    function buildAttrs(s: State): Record<string, string> {
+        const attrs: Record<string, string> = {};
+        if (s.classes)   attrs['class']      = s.classes;
+        if (s.ariaLabel) { attrs['aria-label'] = s.ariaLabel; attrs['role'] = 'img'; }
+        return attrs;
+    }
+
+    /** PHP array literal: 0 keys = ''; 1 key = inline; 2+ = multiline. */
+    function phpArray(attrs: Record<string, string>): string {
+        const entries = Object.entries(attrs);
+        if (entries.length === 0) return '';
+        if (entries.length === 1) {
+            const [k, v] = entries[0];
+            return `, ['${k}' => '${v}']`;
+        }
+        const lines = entries.map(([k, v]) => `    '${k}' => '${v}',`).join('\n');
+        return `, [\n${lines}\n]`;
+    }
+
+    /** Twig object literal: {key: 'val', 'hyphen-key': 'val'}. */
+    function twigObject(attrs: Record<string, string>): string {
+        const entries = Object.entries(attrs);
+        if (entries.length === 0) return '';
+        const inner = entries
+            .map(([k, v]) => `${k.includes('-') ? `'${k}'` : k}: '${v}'`)
+            .join(', ');
+        return `, {${inner}}`;
+    }
+
+    function generatePhp(s: State): string {
+        return `echo swarm_icon('${s.iconName}'${phpArray(buildAttrs(s))});`;
+    }
+
+    function generateTwig(s: State): string {
+        return `{{ icon('${s.iconName}'${twigObject(buildAttrs(s))}) }}`;
+    }
+
+    function generateBlade(s: State): string {
+        return `{!! swarm_icon('${s.iconName}'${phpArray(buildAttrs(s))}) !!}`;
+    }
+
+    // ── SVG fetching ─────────────────────────────────────────────────────────
+
+    async function fetchSvgCode(iconName: string): Promise<void> {
+        const [prefix, name] = iconName.split(':');
+        if (!prefix || !name) {
+            codeSvg.textContent = '<!-- Enter a valid icon name (prefix:name) -->';
+            return;
+        }
+        try {
+            const res = await fetch(`${API_BASE}/${prefix}/${name}.svg`);
+            if (!res.ok) {
+                codeSvg.textContent = `<!-- Icon not found: ${iconName} -->`;
+                return;
+            }
+            const svg = await res.text();
+            codeSvg.textContent = svg;
+        } catch {
+            codeSvg.textContent = '<!-- Failed to fetch SVG -->';
+        }
+    }
+
+    // ── Metadata fetching ────────────────────────────────────────────────────
+
+    async function fetchCollection(prefix: string): Promise<CollectionData | null> {
+        if (collectionCache[prefix]) return collectionCache[prefix];
+        try {
+            const res = await fetch(`${API_BASE}/collection?prefix=${prefix}&info=true`);
+            if (!res.ok) return null;
+            const data: CollectionData = await res.json();
+            collectionCache[prefix] = data;
+            return data;
+        } catch {
+            return null;
+        }
+    }
+
+    function updateMetadata(collection: CollectionData | null, iconName: string): void {
+        if (!collection) {
+            metaSet.textContent      = '\u2014';
+            metaAuthor.textContent   = '\u2014';
+            metaLicense.textContent  = '\u2014';
+            metaVersion.textContent  = '\u2014';
+            metaTotal.textContent    = '\u2014';
+            metaCategory.textContent = '\u2014';
+            metaAliases.textContent  = '\u2014';
+            return;
+        }
+
+        const info = collection.info;
+        metaSet.textContent     = info.name;
+        metaAuthor.textContent  = info.author?.name ?? '\u2014';
+        metaLicense.textContent = info.license?.title ?? info.license?.spdx ?? '\u2014';
+        metaVersion.textContent = info.version ?? '\u2014';
+        metaTotal.textContent   = String(info.total);
+
+        // Find category for this icon
+        const name = iconName.split(':')[1] ?? '';
+        let foundCategory = '\u2014';
+        if (collection.categories) {
+            for (const [cat, icons] of Object.entries(collection.categories)) {
+                if (icons.includes(name)) {
+                    foundCategory = cat;
+                    break;
+                }
+            }
+        }
+        metaCategory.textContent = foundCategory;
+
+        // Find aliases that point to this icon
+        const aliases: string[] = [];
+        if (collection.aliases) {
+            for (const [alias, target] of Object.entries(collection.aliases)) {
+                if (target === name) aliases.push(alias);
+            }
+        }
+        metaAliases.textContent = aliases.length > 0 ? aliases.join(', ') : '\u2014';
+    }
+
+    // ── Variants rendering ───────────────────────────────────────────────────
+
+    function renderVariants(collection: CollectionData | null, iconName: string): void {
+        variantsGrid.innerHTML = '';
+
+        if (!collection) {
+            variantsWrap.hidden = true;
+            return;
+        }
+
+        const [prefix, name] = iconName.split(':');
+        if (!prefix || !name) {
+            variantsWrap.hidden = true;
+            return;
+        }
+
+        // Collect related icons: same category + aliases
+        const related = new Set<string>();
+
+        // Icons in the same category
+        if (collection.categories) {
+            for (const icons of Object.values(collection.categories)) {
+                if (icons.includes(name)) {
+                    for (const icon of icons) {
+                        if (icon !== name) related.add(icon);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Aliases that point to this icon
+        if (collection.aliases) {
+            for (const [alias, target] of Object.entries(collection.aliases)) {
+                if (target === name) related.add(alias);
+            }
+        }
+
+        if (related.size === 0) {
+            variantsWrap.hidden = true;
+            return;
+        }
+
+        variantsWrap.hidden = false;
+        const items = Array.from(related).slice(0, MAX_VARIANTS);
+
+        for (const variantName of items) {
+            const fullName = `${prefix}:${variantName}`;
+            const card = document.createElement('button');
+            card.className = 'pg-variant';
+            card.type = 'button';
+            card.title = fullName;
+            card.innerHTML = `<iconify-icon icon="${fullName}" width="28" height="28"></iconify-icon><span class="pg-variant-name">${variantName}</span>`;
+            card.addEventListener('click', () => {
+                state.iconName = fullName;
+                iconNameEl.value = fullName;
+                update();
+            });
+            variantsGrid.appendChild(card);
+        }
+    }
+
+    // ── Preview rendering ────────────────────────────────────────────────────
+
+    function renderPreview(): void {
+        const { iconName, size, color } = state;
+
+        if (!iconName.includes(':')) {
+            showError('Icon name must include a prefix, e.g. heroicons:home');
+            return;
+        }
+
+        // Update the <iconify-icon> web component attributes
+        iconEl.setAttribute('icon', iconName);
+        iconEl.setAttribute('width', String(size));
+        iconEl.setAttribute('height', String(size));
+        iconEl.style.color = color;
+        iconEl.style.display = '';
+        errorEl.hidden = true;
+
+        // Listen for load failure
+        const errorTimeout = setTimeout(() => {
+            if (!iconEl.shadowRoot?.querySelector('svg')) {
+                showError('Icon not found. Check the name and try again.');
+            }
+        }, 5000);
+
+        const handleLoad = () => {
+            clearTimeout(errorTimeout);
+            errorEl.hidden = true;
+            iconEl.removeEventListener('load', handleLoad);
+        };
+        iconEl.addEventListener('load', handleLoad, { once: true });
+    }
+
+    function showError(msg: string): void {
+        iconEl.style.display    = 'none';
+        errorEl.textContent     = msg;
+        errorEl.hidden          = false;
+    }
+
+    // ── Update helpers ───────────────────────────────────────────────────────
+
+    function updateCode(): void {
+        codePhp.textContent   = generatePhp(state);
+        codeTwig.textContent  = generateTwig(state);
+        codeBlade.textContent = generateBlade(state);
+    }
+
+    async function update(): Promise<void> {
+        renderPreview();
+        updateCode();
+
+        const { iconName } = state;
+        if (!iconName.includes(':')) return;
+
+        // Fetch SVG code
+        fetchSvgCode(iconName);
+
+        // Fetch collection metadata (only when prefix changes)
+        const prefix = iconName.split(':')[0];
+        const collection = await fetchCollection(prefix);
+
+        // Always update metadata + variants (icon name may have changed within same prefix)
+        updateMetadata(collection, iconName);
+        renderVariants(collection, iconName);
+        lastPrefix = prefix;
+    }
+
+    function scheduleUpdate(): void {
+        if (debounceTimer !== null) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(update, DEBOUNCE_MS);
+    }
+
+    // ── Event listeners ──────────────────────────────────────────────────────
+
+    iconNameEl.addEventListener('input', () => {
+        state.iconName = iconNameEl.value.trim();
+        scheduleUpdate();
+    });
+
+    sizeEl.addEventListener('input', () => {
+        state.size = parseInt(sizeEl.value, 10);
+        sizeDisplay.textContent = `${state.size}px`;
+        update();
+    });
+
+    colorEl.addEventListener('input', () => {
+        state.color      = colorEl.value;
+        colorHexEl.value = colorEl.value;
+        update();
+    });
+
+    colorHexEl.addEventListener('input', () => {
+        const hex = colorHexEl.value.trim();
+        if (/^#[0-9a-fA-F]{6}$/.test(hex)) {
+            state.color   = hex;
+            colorEl.value = hex;
+            update();
+        }
+    });
+
+    classesEl.addEventListener('input', () => {
+        state.classes = classesEl.value.trim();
+        updateCode();
+    });
+
+    ariaEl.addEventListener('input', () => {
+        state.ariaLabel = ariaEl.value.trim();
+        updateCode();
+    });
+
+    bgButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const bg = btn.dataset.bg!;
+            bgButtons.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-pressed', 'false'); });
+            btn.classList.add('is-active');
+            btn.setAttribute('aria-pressed', 'true');
+            previewEl.classList.remove('bg-white', 'bg-dark', 'bg-checker');
+            previewEl.classList.add(`bg-${bg}`);
+        });
+    });
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab!;
+            tabButtons.forEach(b => { b.classList.remove('is-active'); b.setAttribute('aria-selected', 'false'); });
+            btn.classList.add('is-active');
+            btn.setAttribute('aria-selected', 'true');
+            root.querySelectorAll<HTMLElement>('.pg-tab-panel').forEach(panel => {
+                panel.hidden = panel.id !== `pg-tab-${tab}`;
+            });
+        });
+    });
+
+    copyButtons.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const target = document.getElementById(btn.dataset.target!);
+            if (!target) return;
+            try {
+                await navigator.clipboard.writeText(target.textContent ?? '');
+                btn.textContent = 'Copied!';
+                btn.classList.add('is-copied');
+                setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('is-copied'); }, 1800);
+            } catch {
+                btn.textContent = 'Failed';
+                setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+            }
+        });
+    });
+
+    // ── Initial render ───────────────────────────────────────────────────────
+    update();
+</script>
